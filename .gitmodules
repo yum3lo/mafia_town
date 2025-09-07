@@ -7,3 +7,6 @@
 [submodule "mafia-shop-service"]
 	path = mafia-shop-service
 	url = https://github.com/MyCallAngel0/mafia-shop-service
+[submodule "mafia-roleplay-service"]
+	path = mafia-roleplay-service
+	url = https://github.com/MyCallAngel0/mafia-roleplay-service
