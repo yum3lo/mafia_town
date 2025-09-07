@@ -4,3 +4,6 @@
 [submodule "mafia-town-service"]
 	path = mafia-town-service
 	url = https://github.com/nelldino/mafia-town-service
+[submodule "mafia-shop-service"]
+	path = mafia-shop-service
+	url = https://github.com/MyCallAngel0/mafia-shop-service
