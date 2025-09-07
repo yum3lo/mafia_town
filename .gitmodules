@@ -1,0 +1,3 @@
+[submodule "mafia-character-service"]
+	path = mafia-character-service
+	url = https://github.com/nelldino/mafia-character-service
