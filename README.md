@@ -13,13 +13,28 @@ Out platform consists of the following microservices, each with their primary ro
 ### Game service
 
 ### Shop Service
+
+Primary role: In-game marketplace for item purchases during daytime
+
+Functionalities:
+- Item purchasing (allows players to spend in-game currency on items that support daily tasks or provide night protection, e.g., garlic for vampire defense, water for arsonist countermeasures)  
+- Resource balancing (applies an algorithm to regulate daily item availability, preventing imbalance or overuse of certain items) 
+
 ### Roleplay Service
+
+Primary role: Manages role-specific abilities and interactions
+
+Functionalities:
+- Role abilities (enables players to perform actions unique to their roles, such as Mafia killings or Sheriff investigations)
+- Attempt recording (logs every role-based action, successful or not, for traceability and safekeeping)  
+- Announcement filtering (creates and distribute to certain players outcome messages, e.g. deaths, investigations, failed actions, that are then forwarded to the Game Service for distribution)
+
 ### Town Service
 
 Primary role: Central user identity and account management system
 
 Functionalities:
-- Location management - store and provices all places in town (including special ones like Shop and Informator Bureau), and reports these movements to the Task Service.
+- Location management - stores and provides all places in town (including special ones like Shop and Informator Bureau), and reports these movements to the Task Service.
 - Movement tracking - records user movements between locations with timestamps
 - Location history - retrieves movement history by user or location 
 - Reporting - forwards movement events to the Task Service
@@ -44,6 +59,127 @@ The diagram below represents the architecture diagram and how the microservices 
 ## Technology Stack and Communication Patterns
 
 ## Data Management
+
+
+### Shop Service
+
+#### Shop Endpoints
+
+- Endpoint for listing all of the available items
+```
+Endpoint: /items
+Method: GET
+Response: [
+  {
+    "id": "item_1",
+    "name": "Fire Extinguisher",
+    "description": "Offers protection against the arsonist  during the night (Dissapears in the daytime)",
+  },
+  {
+    "id": "item_2",
+    "name": "Garlic String",
+    "description": "Offers protection against the vampires suring the night (Dissapears in the daytime)",
+  },
+]
+
+```
+
+- Endpoint for listing all of the items available in the shop during the game
+```
+Endpoint: /shop
+Method: GET
+Response: [
+  {
+    "id": "item_1",
+    "name": "Fire Extinguisher",
+    "description": "Offers protection against the arsonist  during the night (Dissapears in the daytime)",
+  },
+]
+
+```
+
+- Endpoint for purchasing an item
+```
+Endpoint: /purchase
+Method: POST
+Payload: { 
+  "userId": "user", 
+  "itemId": "item",
+}
+Response: {
+  "status": "success"
+}
+
+```
+
+### Roleplay Service
+#### Role actions endpoints
+
+- Endpoint for perform an action associated with the player’s role (e.g., Mafia kill, Sheriff investigation)
+```
+Endpoint: /roles/{playerId}/actions
+Method: POST
+Payload: { 
+  "targetId": "user", 
+  "action": "kill",
+}
+Response: {
+  "success": true,
+  "description": "Target protected by garlic",
+  "timestamp": "2025-09-07T19:05:00Z"
+}
+```
+
+- Endpoint for retrieving a log of all role-based actions attempted by a player.
+```
+Endpoint: /roles/{playerId}/actions/history
+Method: GET
+Response: [
+  { "action": "kill", "targetId": "user_1", "success": false, "timestamp": "2025-09-07T19:00:00Z" },
+  { "action": "investigate", "targetId": "user_2", "success": true, "timestamp": "2025-09-07T19:05:00Z" }
+]
+```
+
+#### Announcement endpoints
+- Endpoint for creating a filtered announcement (e.g., “*[Player]* was killed last night” without exposing the killer). role (e.g., Mafia kill, Sheriff investigation)
+```
+Endpoint: /announcements
+Method: POST
+Payload: {
+  "type": "death",
+  "details": {
+    "userId": "user_1"
+  }
+}
+Response: 201 OK
+```
+
+- Endpoint for getting the announcements created by the Roleplay Service to be forwarded to the Game Service.
+```
+Endpoint: /announcements
+Method: GET
+Response: [
+  { "id": "ann_1", "type": "death", "message": "[Player] was killed during the night" },
+  { "id": "ann_2", "type": "investigation", "message": "Sheriff investigated [Player 456]" }
+]
+```
+
+#### Ability validation endpoints
+- Endpoint for checking if a player’s role action is allowed based on the role rules and defensive items.
+```
+Endpoint: /validate
+Method: POST
+Payload: {
+  "userId": "user_1",
+  "action": "kill",
+  "targetId": "user_456"
+}
+Response: { 
+  "valid": false, 
+  "reason": "The house was protected from your attacks"
+}
+```
+
 
 ### Town Service
 #### Location Management endpoints
