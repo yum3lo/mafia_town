@@ -1013,3 +1013,43 @@ Response: {
 }
 Reponse: 200 OK
 ```
+## Github workflow 
+### Branch structure
+- main
+- develop
+
+### Protection rules
+Main branch:
+- Require 2 approvals minimum
+- Require branches to be up to date before merging
+- Dismiss stale reviews when new commits are pushed
+- Require status checks to pass
+  
+Develop branch:
+
+### Branching strategy
+#### Naming convention
+- Feature branches: feature/{service-description}
+- Bugfix branches: bugfix/{service-issue-description}
+- Hotfix branches: hotfix/{critical-issue}
+
+## Commit message format
+Follow conventional commits specification:
+```
+<type>(<scope>): <description>
+
+[optional body]
+```
+Types: ```feat ```,  ```fix ```,  ```docs ```,  ```style ```,  ```refactor ```,  ```test ```,  ```chore ```
+
+## Pull request requirements
+- Clear title that is descriptive
+- Detailed description of what, why, and how
+- Linked iussues - a reference, if relevant to GitHub issues
+- Screenshots, test results, or logs, if applicable
+- Breaking changes -how it impacts other services, if applicable
+
+## Test coverage
+- Unit Tests -  80% code coverage minimum
+- Integration Tests - all API endpoints covered
+- Service Communication - event-driven interactions tested
