@@ -589,22 +589,17 @@ Response: 204 No Content
 
 ### Rumour Service
 
-`POST /rumors/buy`
+- Endpoint when player spends currency to get a random rumor.
 
-- Player spends currency to get a random rumor.
-
-**Request (JSON)**:
-
-```json
+```
+Endpoint:  /rumors/buy
+Method: POST
+Request:
 {
   "playerId": "123e4567-e89b-12d3-a456-426614174000",
   "currencySpent": 50
 }
-```
-
-**Response (JSON)**:
-
-```json
+Response:
 {
   "rumorId": "987e6543-e21b-12d3-a456-426614174999",
   "content": "Player X was last seen near the warehouse.",
@@ -612,13 +607,12 @@ Response: 204 No Content
 }
 ```
 
-`GET /rumors/:playerId`
-
 - Fetch all rumors a player has purchased.
 
-**Response (JSON)**:
-
-```json
+```
+Endpoint: /rumors/:playerId
+Method: GET
+Response:
 [
   {
     "rumorId": "987e6543-e21b-12d3-a456-426614174999",
@@ -633,13 +627,12 @@ Response: 204 No Content
 ]
 ```
 
-`GET /rumors/random`
-
 - (Admin/debug use) Preview a random rumor from the pool.
 
-**Response (JSON)**:
-
-```json
+```
+Endpoint: /rumors/random
+Method: GET
+Response:
 {
   "rumorId": "111e6543-e21b-12d3-a456-426614174222",
   "content": "One of the players is secretly a doctor.",
@@ -684,23 +677,17 @@ Response: 204 No Content
 
 ### Communication Service
 
-`POST /chat/send`
+- Endpoint to send a message to a chat room.
 
-- Send a message to a chat room.
-
-**Request (JSON):**
-
-```json
+```Endpoint: /chat/send
+Method: POST
+Request:
 {
   "chatRoomId": "abc123",
   "senderId": "player123",
   "content": "Did anyone see who was near the warehouse?"
 }
-```
-
-**Response (JSON):**
-
-```json
+Response:
 {
   "messageId": "msg987",
   "chatRoomId": "abc123",
@@ -710,13 +697,12 @@ Response: 204 No Content
 }
 ```
 
-`GET /chat/:chatRoomId/messages`
-
 - Fetch all messages for a chat room.
 
-**Response (JSON):**
-
-```json
+```
+Endpoint: /chat/:chatRoomId/messages
+Method: GET
+Respponse:
 [
   {
     "messageId": "msg987",
@@ -733,13 +719,12 @@ Response: 204 No Content
 ]
 ```
 
-`GET /chat/rooms/:playerId`
-
 - Fetch all chat rooms a player has access to (Mafia, location-based, or global during voting hours).
 
-**Response (JSON):**
-
-```json
+```
+Endpoint: /chat/rooms/:playerId
+Method: GET
+Response:
 [
   {
     "chatRoomId": "room123",
