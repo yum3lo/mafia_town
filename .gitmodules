@@ -10,3 +10,9 @@
 [submodule "mafia-roleplay-service"]
 	path = mafia-roleplay-service
 	url = https://github.com/MyCallAngel0/mafia-roleplay-service
+[submodule "mafia-rumors-service"]
+	path = mafia-rumors-service
+	url = https://github.com/valeriafz/mafia-rumors-service
+[submodule "mafia-communication-service"]
+	path = mafia-communication-service
+	url = https://github.com/valeriafz/mafia-communication-service
