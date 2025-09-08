@@ -134,6 +134,16 @@ The Town Service will be written in Python with FastAPI, that provides rapid API
 ### Character Service
 The Character Service will be written in Python FastAPI, which enables rapid development of character customization endpoints with automatic validation of asset combinations and slot constraints. FastAPI's built-in async support ensures smooth performance when handling multiple simultaneous character updates and inventory modifications. REST API (JSON) is going to be used for character customization and inventory queries - provides intuitive endpoints for asset selection, slot management, and inventory operations. Event-based communication with Shop Service - when users purchase items, the Character Service automatically updates inventory without tight coupling. The Shop Service emits purchase events that the Character Service subscribes to, ensuring real-time inventory synchronization. Event-based communication with User Service - character creation and updates may need to validate user permissions and currency deductions
 
+| Member | Service(s) | Responsibilities | Technology Stack |
+|--------|------------|-----------------|-----------------|
+| Cucos Maria | **User Management Service, Game Service** | Manage user profiles, authentication, in-game currency, device/location info; handle day/night cycle, lobby management, event notifications, and initiate voting | Typescript (NodeJS) + PostgreSQL + Redis|
+| Mihalachi Mihail | **Shop Service, Roleplay Service** | Handle in-game item purchases, currency management, daily preparation mechanics; enforce role abilities, generate filtered announcements, balance daily activity | Java (Springboot) + Redis |
+| Garbuz Nelli | **Town Service, Character Service** | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features | Python (FastAPI) + PostgreSQL |
+| Frunza Valeria | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats | Typescript (NestJS) + Prisma ORM + PostgreSQL|
+| Lupan Lucian | **Task Service, Voting Service** | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results | Go + PostgreSQL|
+
+
+
 ## Data Management
 
 ### User Management Service
