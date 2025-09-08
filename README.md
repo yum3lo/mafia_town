@@ -11,7 +11,25 @@ Out platform consists of the following microservices, each with their primary ro
 
 ### User Management Service
 
+Primary role: Central user identity and account management system
+
+Functionalities:
+
+- User registration and authentication (account creation with email, username, password validation and secure authentication flows)
+- User profile management (including personal identification, account settings, and preferences)
+- Single profile constraint (tracks device and location data)
+- In-game economy (manages user currency balance, transaction history, etc.)
+
 ### Game service
+
+Primary role: Central user identity and account management system
+
+Functionalities:
+
+- User registration and authentication (account creation with email, username, password validation and secure authentication flows)
+- User profile management (including personal identification, account settings, and preferences)
+- Single profile constraint (tracks device and location data)
+- In-game economy (manages user currency balance, transaction history, etc.)
 
 ### Shop Service
 
