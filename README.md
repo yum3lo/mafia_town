@@ -20,7 +20,7 @@ Functionalities:
 - Single profile constraint (tracks device and location data)
 - In-game economy (manages user currency balance, transaction history, etc.)
 
-### Game service
+### Game Service
 
 Primary role: Central user identity and account management system
 
@@ -121,6 +121,12 @@ Functionalities:
 The diagram below represents the architecture diagram and how the microservices communicate between each other.
 
 ## Technology Stack and Communication Patterns
+
+### User Management Service
+The User Management Service will be written in TypeScript with Node.js, which can handle concurrent authentication requests from up to 30 players per lobby joining simultaneously. JWT authentication provides secure token-based access control, while PostgreSQL ensures data integrity for user data and in-game currency with complex queries for device tracking and fraud prevention. For the communication pattern - Synchronous REST API with asynchronous event publishing enables fast authentication validation that improves user experience when joining a game, while effective fraud detection through device tracking protects app integrity. The service architecture provides reliable user authentication and authorization while maintaining the flexibility to publish events for other services to consume, though it requires additional complexity in managing token refresh cycles to maintain security standards.
+
+### Game Service
+The Game Service will be written in TypeScript with Socket.io, providing real-time bidirectional communication for day/night cycle transitions, instant death notifications, and live voting updates essential for interactive gameplay. PostgreSQL with JSONB columns can store complex game objects while maintaining relational integrity for player relationships and game history queries, complemented by Redis caching for frequently accessed game state to achieve super fast response times during active gameplay. For the communication pattern - Event-driven architecture with WebSocket connections and Redis pub/sub enables lightweight event broadcasting for cross-service notifications without external message queue overhead. The simple architecture reduces deployment complexity and infrastructure costs while maintaining performance, with Redis pub/sub providing reliable event delivery and single database technology across services simplifying development and infrastructure management, though it results in higher memory usage due to Redis caching requirements.
 
 ### Town Service
 The Town Service will be written in Python with FastAPI, that provides rapid API development with automatic OpenAPI documentation generation, making it ideal for quick prototyping and iteration. FastAPI's native async support ensures the service can handle concurrent requests efficiently and maintain responsive performance when communicating with other services. For the communication pattern - REST API (JSON) for user location requests - straightforward implementation for location queries, movement commands, and area information retrieval. Town Service have to report to the Task Service, which enables event-based subscriptions, including location availability and accessibility that may change based on task completions, story progression, or time-based events. Event-driven architecture allows the Town Service to automatically update location states, unlock new areas, or modify existing locations without tight coupling to the Task Service.
