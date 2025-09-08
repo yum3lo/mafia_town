@@ -25,3 +25,6 @@
 [submodule "mafia-user_management-service"]
 	path = mafia-user_management-service
 	url = https://github.com/yum3lo/mafia-user_management-service
+[submodule "mafia-game-service"]
+	path = mafia-game-service
+	url = https://github.com/yum3lo/mafia-game-service
