@@ -167,6 +167,23 @@ The Task Service will be written in Go with PostgreSQL, designed to assign daily
 
 The Voting Service will be written in Go with PostgreSQL and is responsible for collecting and counting votes each evening to determine which players are eliminated under the Mafia mechanics. It records who voted for whom on each day, as well as the final outcome of each vote. PostgreSQL ensures accurate, auditable storage of all voting data. For the communication pattern, the service provides REST APIs for the Game Service to retrieve voting results and current tallies, while also exposing event notifications to update related services in real time. This architecture maintains consistency and responsiveness, allowing the Game Service to reflect voting outcomes immediately while keeping Voting Service decoupled from other gameplay systems.
 
+### Communication Patterns
+#### Synchronous (REST APIs)
+
+Services communicate directly using request/response interactions when immediate feedback is required. This pattern is suitable for user-facing operations such as login, booking queries, or data retrieval. The technology stack includes Go with PostgreSQL, Python (FastAPI) with PostgreSQL, Java (Spring Boot) with Redis for caching or session management, TypeScript (NestJS) with Prisma ORM and PostgreSQL, and TypeScript (NodeJS) with PostgreSQL and Redis. REST APIs provide simplicity and are easy to debug, but they create temporary coupling between services, meaning that slow or unavailable downstream services can block requests.
+
+#### Real-Time (WebSockets)
+
+For low-latency, bidirectional communication, services use WebSockets. This approach supports live chat, notifications, and other real-time user interactions. Technologies include SignalR or native WebSocket implementations in NodeJS or Go. WebSockets provide instant updates and a responsive user experience, but maintaining open connections requires careful resource management and scaling considerations.
+
+#### Communication Contract and Data Management
+
+Services communicate using REST APIs for immediate queries and WebSockets for real-time updates. The User Management and Game Services (NodeJS + PostgreSQL + Redis) handle user profiles, authentication, in-game currency, device and location info, day/night cycles, lobby management, event notifications, and voting initiation. The Shop and Roleplay Services (Spring Boot + Redis) manage item purchases, currency, daily preparation, role abilities, announcements, and activity balancing.
+
+The Town and Character Services (FastAPI + PostgreSQL) track locations and movements, manage character customization, inventory, asset slots, and creative features. Rumors and Communication Services (NestJS + Prisma ORM + PostgreSQL) generate purchasable role-based rumors and manage global and private chats, voting-hour communication, and Mafia group chats. Task and Voting Services (Go + PostgreSQL) assign daily tasks by role, reward currency, collect and count votes, and notify the Game Service of results.
+
+WebSockets provide live chat, notifications, and voting updates, ensuring interactive gameplay and responsive, decoupled communication between services.
+
 | Member           | Service(s)                                | Responsibilities                                                                                                                                                 | Technology Stack                              |
 | ---------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
 | Cucos Maria      | **User Management Service, Game Service** | Manage user profiles, authentication, in-game currency, device/location info; handle day/night cycle, lobby management, event notifications, and initiate voting | Typescript (NodeJS) + PostgreSQL + Redis      |
