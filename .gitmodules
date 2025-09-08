@@ -16,3 +16,9 @@
 [submodule "mafia-communication-service"]
 	path = mafia-communication-service
 	url = https://github.com/valeriafz/mafia-communication-service
+[submodule "mafia-task-service"]
+	path = mafia-task-service
+	url = https://github.com/Lucian-Lu/mafia-task-service.git
+[submodule "mafia-voting-service"]
+	path = mafia-voting-service
+	url = https://github.com/Lucian-Lu/mafia-voting-service.git
