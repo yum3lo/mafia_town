@@ -1397,6 +1397,11 @@ Main branch:
 
 Develop branch:
 
+- Require 1 approval minimum
+- Allow direct commits for faster iteration
+- Require status checks to pass
+- No need to be up to date before merging
+
 ### Branching strategy
 
 #### Naming convention
