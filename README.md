@@ -1457,13 +1457,10 @@ Types: `feat `, `fix `, `docs `, `style `, `refactor `, `test `, `chore `
 ## Pull request requirements
 
 - Clear title that is descriptive
-- Detailed description of what, why, and how
-- Linked iussues - a reference, if relevant to GitHub issues
-- Screenshots, test results, or logs, if applicable
-- Breaking changes -how it impacts other services, if applicable
+- Detailed description
+- Linked issues, if applicable
+- Breaking changes - how it impacts other services, if applicable
 
 ## Test coverage
 
 - Unit Tests - 80% code coverage minimum
-- Integration Tests - all API endpoints covered
-- Service Communication - event-driven interactions tested
