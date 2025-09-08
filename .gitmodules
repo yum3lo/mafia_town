@@ -22,3 +22,6 @@
 [submodule "mafia-voting-service"]
 	path = mafia-voting-service
 	url = https://github.com/Lucian-Lu/mafia-voting-service.git
+[submodule "mafia-user_management-service"]
+	path = mafia-user_management-service
+	url = https://github.com/yum3lo/mafia-user_management-service
