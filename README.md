@@ -22,14 +22,15 @@ Functionalities:
 
 ### Game Service
 
-Primary role: Central user identity and account management system
+Primary role: Core game and lobby management system
 
 Functionalities:
 
-- User registration and authentication (account creation with email, username, password validation and secure authentication flows)
-- User profile management (including personal identification, account settings, and preferences)
-- Single profile constraint (tracks device and location data)
-- In-game economy (manages user currency balance, transaction history, etc.)
+- Lobby management (creates and manages game sessions with up to 30 players, tracks player enrollment and capacity limits)
+- Game state coordination (the Day/Night cycle, game timing and phase transitions)
+- Player status tracking (monitors alive/dead status, assigned roles, career assignments, etc.)
+- Event broadcasting (generates and distributes game notifications, like deaths, healings, rumors, phase changes, exiles, to relevant players)
+- Voting management (initiates voting phases, coordinates with Voting Service, and announces exile results)
 
 ### Shop Service
 
