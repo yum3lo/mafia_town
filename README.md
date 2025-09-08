@@ -122,6 +122,12 @@ The diagram below represents the architecture diagram and how the microservices 
 
 ## Technology Stack and Communication Patterns
 
+### Town Service
+The Town Service will be written in Python with FastAPI, that provides rapid API development with automatic OpenAPI documentation generation, making it ideal for quick prototyping and iteration. FastAPI's native async support ensures the service can handle concurrent requests efficiently and maintain responsive performance when communicating with other services. For the communication pattern - REST API (JSON) for user location requests - straightforward implementation for location queries, movement commands, and area information retrieval. Town Service have to report to the Task Service, which enables event-based subscriptions, including location availability and accessibility that may change based on task completions, story progression, or time-based events. Event-driven architecture allows the Town Service to automatically update location states, unlock new areas, or modify existing locations without tight coupling to the Task Service.
+
+### Character Service
+The Character Service will be written in Python FastAPI, which enables rapid development of character customization endpoints with automatic validation of asset combinations and slot constraints. FastAPI's built-in async support ensures smooth performance when handling multiple simultaneous character updates and inventory modifications. REST API (JSON) is going to be used for character customization and inventory queries - provides intuitive endpoints for asset selection, slot management, and inventory operations. Event-based communication with Shop Service - when users purchase items, the Character Service automatically updates inventory without tight coupling. The Shop Service emits purchase events that the Character Service subscribes to, ensuring real-time inventory synchronization. Event-based communication with User Service - character creation and updates may need to validate user permissions and currency deductions
+
 ## Data Management
 
 ### Shop Service
@@ -255,6 +261,7 @@ Response: {
 ```
 
 ### Town Service
+The chosen database is PostgreSQL, which offers robust support for spatial data types and queries, which is essential for tracking user locations and movements across different town areas. Its ACID compliance ensures data consistency when recording location changes and user activities. SQLAlchemy ORM provides type-safe database operations and seamless async support, enabling efficient database interactions without blocking the event loop during location updates and queries. All messages passed will be in JSON format, with the following requests and responses expected for each Service and endpoint:
 
 #### Location Management endpoints
 
@@ -400,7 +407,7 @@ Response:{
 ```
 
 ### Character Service
-
+For the data, PostgreSQL with SQLAlchemy ORM will be used. PostgreSQL's JSON and JSONB support is ideal for storing flexible character asset configurations and inventory data structures. Its relational capabilities efficiently handle the many-to-many relationships between users, owned assets, equipped items, and available customization slots. All messages passed will be in JSON format, with the following requests and responses expected for each endpoint:
 #### Character Profile and Customization endpoints
 
 - Endpoint for getting user's character
