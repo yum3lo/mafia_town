@@ -136,6 +136,290 @@ The Character Service will be written in Python FastAPI, which enables rapid dev
 
 ## Data Management
 
+### User Management Service
+
+#### Authentication Endpoints
+
+- Endpoint for user registration
+
+```
+Endpoint: /auth/register
+Method: POST
+Payload: {
+  "email": "player@example.com",
+  "username": "playerName",
+  "password": "hashedPassword",
+  "identification": "ID_12345",
+  "deviceFingerprint": "device_hash_abc123",
+  "locationData": {
+    "ip": "192.168.1.1",
+    "country": "Moldova",
+    "city": "Chisinau"
+  }
+}
+Response: {
+  "status": "success",
+  "userId": "user_123",
+  "message": "Account created successfully"
+}
+```
+
+- Endpoint for user login
+
+```
+Endpoint: /auth/login
+Method: POST
+Payload: {
+  "email": "player@example.com",
+  "password": "hashedPassword",
+  "deviceFingerprint": "device_hash_abc123"
+}
+Response: [
+  "status": "success",
+  "accessToken": "jwt_token_here",
+  "refreshToken": "refresh_token_here",
+  "user": {
+    "userId": "user_123",
+    "username": "playerName",
+    "currency": 150
+  }
+]
+```
+
+- Endpoint for token validation
+
+```
+Endpoint: /auth/validate
+Method: POST
+Payload: {
+  "token": "jwt_token_here"
+}
+Response: {
+  "status": "valid",
+  "userId": "user_123",
+  "username": "playerName"
+}
+```
+
+#### User Profile Endpoints
+
+- Get user profile
+
+```
+Endpoint: /users/{userId}
+Method: GET
+Response: {
+  "userId": "user_123",
+  "username": "playerName",
+  "email": "player@example.com",
+  "currency": 150,
+  "gamesPlayed": 25,
+  "winRate": 0.68,
+  "accountCreated": "2025-01-15T10:30:00Z"
+}
+```
+
+- Update user currency
+
+```
+Endpoint: /users/{userId}/currency
+Method: PATCH
+Payload: {
+  "amount": 50,
+  "operation": "add",
+  "reason": "game_victory"
+}
+Response: {
+  "status": "success",
+  "newBalance": 200,
+  "transactionId": "txn_456"
+}
+```
+
+- Get currency balance
+
+```
+Endpoint: /users/{userId}/currency
+Method: GET
+Response: [
+  "userId": "user_123",
+  "currentBalance": 200,
+  "lastTransaction": {
+    "amount": 50,
+    "type": "credit",
+    "reason": "game_victory",
+    "timestamp": "2025-01-15T14:30:00Z"
+  }
+]
+```
+
+### Game Service
+
+#### Lobby Management Endpoints
+
+- Create game lobby
+
+```
+Endpoint: /game/lobby/create
+Method: POST
+Payload: [
+  "hostUserId": "user_123",
+  "maxPlayers": 15,
+  "gameSettings": {
+    "dayDuration": 600,
+    "nightDuration": 300,
+    "votingDuration": 120
+  }
+]
+Response: {
+  "status": "success",
+  "lobbyId": "lobby_789",
+  "joinCode": "GAME123",
+  "hostUserId": "user_123",
+  "maxPlayers": 15,
+  "currentPlayers": 1
+}
+```
+
+- Join game lobby
+
+```
+Endpoint: /game/lobby/{lobbyId}/join
+Method: POST
+Payload: {
+  "userId": "user_456",
+  "joinCode": "GAME123"
+}
+Response: {
+  "status": "success",
+  "lobbyId": "lobby_789",
+  "playerCount": 2,
+  "gameStatus": "waiting"
+}
+```
+
+- Get Lobby Status
+
+```
+Endpoint: /game/lobby/{lobbyId}
+Method: GET
+Response: {
+  "lobbyId": "lobby_789",
+  "status": "in_progress",
+  "currentPhase": "day",
+  "phaseTimeRemaining": 420,
+  "players": [
+    {
+      "userId": "user_123",
+      "username": "playerName",
+      "isAlive": true,
+      "role": "hidden"
+    },
+    {
+      "userId": "user_456",
+      "username": "player2",
+      "isAlive": false,
+      "role": "hidden"
+    }
+  ],
+  "dayCount": 3
+}
+```
+
+#### Game State Endpoints
+
+- Start Game
+
+```
+Endpoint: /game/{lobbyId}/start
+Method: POST
+Payload: {
+  "hostUserId": "user_123"
+}
+Response: {
+  "status": "success",
+  "gameId": "game_101",
+  "phase": "day",
+  "message": "Game started! Day phase begins."
+}
+```
+
+- Get player game state
+
+```
+Endpoint: /game/{lobbyId}/player/{userId}/state
+Method: GET
+Response: {
+  "userId": "user_123",
+  "role": "sheriff",
+  "career": "detective",
+  "isAlive": true,
+  "canVote": true,
+  "availableActions": ["investigate", "vote"],
+  "gamePhase": "day",
+  "phaseTimeRemaining": 420
+}
+```
+
+- Update player status
+
+```
+Endpoint: /game/{lobbyId}/player/{userId}/status
+Method: PATCH
+Payload: {
+  "status": "dead",
+  "cause": "mafia_kill",
+  "timestamp": "2025-01-15T22:30:00Z"
+}
+Response: {
+  "status": "success",
+  "playerId": "user_123",
+  "newStatus": "dead",
+  "gamePhase": "night"
+}
+```
+
+#### Game Event Endpoints
+
+- Initiate voting phase
+
+```
+Endpoint: /game/{lobbyId}/voting/initiate
+Method: POST
+Payload: {
+  "votingDuration": 120,
+  "eligibleVoters": ["user_123", "user_456", "user_789"]
+}
+Response: {
+  "status": "success",
+  "votingId": "vote_202",
+  "duration": 120,
+  "eligiblePlayers": 3
+}
+```
+
+- Broadcast game event
+
+```
+Endpoint: /game/{lobbyId}/events/broadcast
+Method: POST
+Payload: [
+  "eventType": "player_death",
+  "message": "PlayerName was found dead in their home!",
+  "targetPlayers": "all",
+  "metadata": {
+    "victimId": "user_456",
+    "cause": "mafia_kill"
+  }
+]
+Response: {
+  "status": "success",
+  "eventId": "event_303",
+  "broadcastTime": "2025-01-15T22:31:00Z",
+  "recipients": 14
+}
+```
+
 ### Shop Service
 
 #### Shop Endpoints
