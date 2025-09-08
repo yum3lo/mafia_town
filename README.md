@@ -150,7 +150,7 @@ The Character Service will be written in Python FastAPI, which enables rapid dev
 
 ### Communication Service
 
-NestJS is the chosen framework, whichprovides modular architecture (controllers, services, modules) with built-in dependency injection, ideal for microservice development. TypeScript on top of that adds static typing to reduce runtime errors and improve maintainability. The chosen database is Postgresql, which handles structured data, such as chat messages, player roles, and chat room membership. Via Prisma ORM it enables type-safe database access in TypeScript, minimizing errors and boilerplate code. The main communication patterns are REST API (JSON) for sending and retrieving messages and UDP Websockets for fast real-time updates to chat participants.
+NestJS is the chosen framework, whichprovides modular architecture (controllers, services, modules) with built-in dependency injection, ideal for microservice development. TypeScript on top of that adds static typing to reduce runtime errors and improve maintainability. The chosen database is Postgresql, which handles structured data, such as chat messages, player roles, and chat room membership. Via Prisma ORM it enables type-safe database access in TypeScript, minimizing errors and boilerplate code. The main communication patterns are Socket.IO Websockets for fast real-time updates to chat participants and REST API for fetching chat history, listing chat rooms, and sending messages when real-time delivery is not required (e.g., loading old messages).
 
 ### Rumour Service
 
@@ -168,6 +168,7 @@ The Task Service will be written in Go with PostgreSQL, designed to assign daily
 The Voting Service will be written in Go with PostgreSQL and is responsible for collecting and counting votes each evening to determine which players are eliminated under the Mafia mechanics. It records who voted for whom on each day, as well as the final outcome of each vote. PostgreSQL ensures accurate, auditable storage of all voting data. For the communication pattern, the service provides REST APIs for the Game Service to retrieve voting results and current tallies, while also exposing event notifications to update related services in real time. This architecture maintains consistency and responsiveness, allowing the Game Service to reflect voting outcomes immediately while keeping Voting Service decoupled from other gameplay systems.
 
 ### Communication Patterns
+
 #### Synchronous (REST APIs)
 
 Services communicate directly using request/response interactions when immediate feedback is required. This pattern is suitable for user-facing operations such as login, booking queries, or data retrieval. The technology stack includes Go with PostgreSQL, Python (FastAPI) with PostgreSQL, Java (Spring Boot) with Redis for caching or session management, TypeScript (NestJS) with Prisma ORM and PostgreSQL, and TypeScript (NodeJS) with PostgreSQL and Redis. REST APIs provide simplicity and are easy to debug, but they create temporary coupling between services, meaning that slow or unavailable downstream services can block requests.
