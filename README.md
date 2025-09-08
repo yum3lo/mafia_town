@@ -101,6 +101,7 @@ Functionalities:
 Primary role: Provide players with tasks to perform during the day phase.
 
 Functionalities:
+
 - Task distribution - assign tasks at the start of the day to players based on their role and career.
 - Task status - verify whether players completed their assigned tasks.
 - Rumor updater - create rumors based on ongoing or completed tasks.
@@ -111,6 +112,7 @@ Functionalities:
 Primary role: Voting system for guessing mafia members in the evening.
 
 Functionalities:
+
 - Voting tally - count and track votes cast by each player.
 - Voting influence - determine the number of allowed votes per player based on role (from the Roleplay Service).
 - Player removal - send a request to the Game Service to mark the player with the most votes as dead at the end of the voting phase.
@@ -123,32 +125,47 @@ The diagram below represents the architecture diagram and how the microservices 
 ## Technology Stack and Communication Patterns
 
 ### User Management Service
+
 The User Management Service will be written in TypeScript with Node.js, which can handle concurrent authentication requests from up to 30 players per lobby joining simultaneously. JWT authentication provides secure token-based access control, while PostgreSQL ensures data integrity for user data and in-game currency with complex queries for device tracking and fraud prevention. For the communication pattern - Synchronous REST API with asynchronous event publishing enables fast authentication validation that improves user experience when joining a game, while effective fraud detection through device tracking protects app integrity. The service architecture provides reliable user authentication and authorization while maintaining the flexibility to publish events for other services to consume, though it requires additional complexity in managing token refresh cycles to maintain security standards.
 
 ### Game Service
+
 The Game Service will be written in TypeScript with Socket.io, providing real-time bidirectional communication for day/night cycle transitions, instant death notifications, and live voting updates essential for interactive gameplay. PostgreSQL with JSONB columns can store complex game objects while maintaining relational integrity for player relationships and game history queries, complemented by Redis caching for frequently accessed game state to achieve super fast response times during active gameplay. For the communication pattern - Event-driven architecture with WebSocket connections and Redis pub/sub enables lightweight event broadcasting for cross-service notifications without external message queue overhead. The simple architecture reduces deployment complexity and infrastructure costs while maintaining performance, with Redis pub/sub providing reliable event delivery and single database technology across services simplifying development and infrastructure management, though it results in higher memory usage due to Redis caching requirements.
 
 ### Shop Service
+
 The Shop Service will be written in Java Spring Boot, which has a lightweight nature and fast startup times, suitable for managing a microservice. It will be used for writing the algortihms necessary for checking which items should be sold during the game. For database manipulation Hibernate will be used with PostgreSQL for character customization storage. For storing temporary data like player currency during the game, Redis wil be used for fast communication and data retrieval between the shop service and the game service. The communication that the service will have are synchronous(REST API) between itself and Game Service for daytime shop item retrieval and purchasing, and another synchronous(REST API) communication between itself and Character Service for character customization items retrieval.
 
 ### Roleplay Service
+
 The Roleplay Service will be written in Java Spring Boot, which has a lightweight nature and fast startup times, suitable for managing a microservice. It will be used for writing the functionalities necessary for role abilities usage, their validation and announcement creation and recording. For temporary information that is present during gameplay Redis will be used for storing the announcements and later be sent to game service when needed. The service will communicate with Game Service through REST API for announcement sending and role ability validation.
 
 ### Town Service
+
 The Town Service will be written in Python with FastAPI, that provides rapid API development with automatic OpenAPI documentation generation, making it ideal for quick prototyping and iteration. FastAPI's native async support ensures the service can handle concurrent requests efficiently and maintain responsive performance when communicating with other services. For the communication pattern - REST API (JSON) for user location requests - straightforward implementation for location queries, movement commands, and area information retrieval. Town Service have to report to the Task Service, which enables event-based subscriptions, including location availability and accessibility that may change based on task completions, story progression, or time-based events. Event-driven architecture allows the Town Service to automatically update location states, unlock new areas, or modify existing locations without tight coupling to the Task Service.
 
 ### Character Service
+
 The Character Service will be written in Python FastAPI, which enables rapid development of character customization endpoints with automatic validation of asset combinations and slot constraints. FastAPI's built-in async support ensures smooth performance when handling multiple simultaneous character updates and inventory modifications. REST API (JSON) is going to be used for character customization and inventory queries - provides intuitive endpoints for asset selection, slot management, and inventory operations. Event-based communication with Shop Service - when users purchase items, the Character Service automatically updates inventory without tight coupling. The Shop Service emits purchase events that the Character Service subscribes to, ensuring real-time inventory synchronization. Event-based communication with User Service - character creation and updates may need to validate user permissions and currency deductions
 
-| Member | Service(s) | Responsibilities | Technology Stack |
-|--------|------------|-----------------|-----------------|
-| Cucos Maria | **User Management Service, Game Service** | Manage user profiles, authentication, in-game currency, device/location info; handle day/night cycle, lobby management, event notifications, and initiate voting | Typescript (NodeJS) + PostgreSQL + Redis|
-| Mihalachi Mihail | **Shop Service, Roleplay Service** | Handle in-game item purchases, currency management, daily preparation mechanics; enforce role abilities, generate filtered announcements, balance daily activity | Java (Springboot) + Redis |
-| Garbuz Nelli | **Town Service, Character Service** | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features | Python (FastAPI) + PostgreSQL |
-| Frunza Valeria | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats | Typescript (NestJS) + Prisma ORM + PostgreSQL|
-| Lupan Lucian | **Task Service, Voting Service** | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results | Go + PostgreSQL|
+### Communication Service
 
+NestJS is the chosen framework, whichprovides modular architecture (controllers, services, modules) with built-in dependency injection, ideal for microservice development. TypeScript on top of that adds static typing to reduce runtime errors and improve maintainability. The chosen database is Postgresql, which handles structured data, such as chat messages, player roles, and chat room membership. Via Prisma ORM it enables type-safe database access in TypeScript, minimizing errors and boilerplate code. The main communication patterns are REST API (JSON) for sending and retrieving messages and UDP Websockets for fast real-time updates to chat participants.
 
+### Rumour Service
+
+NestJS as the chosen framework provides a modular structure (controllers, services, modules) that fits perfectly with microservice architecture. It also has built-in support for dependency injection, making testing and scaling easier. TypeScript adds static typing, which reduces runtime errors and makes the codebase more maintainable, especially when the service grows. As a database, PostgreSQL is a reliable, SQL-compliant relational database. It handles structured data (rumors, player purchases) with relationships very well, being not case sensitive like MySQL. With Prisma ORM makes database access type-safe and developer-friendly. It generates TypeScript types directly from the schema, which reduces mistakes when querying or updating data, this means less boilerplate and safer operations when storing rumors and linking them to players. REST API (JSON) is used for player interactions - easy to set up, human-readable, lightweight, and widely supported.
+
+Event-based subscriptions from Task/Character Services - Not all rumors are static. They may depend on what’s happening in other services (tasks being completed, character appearance changing). Event-based subscriptions let the Rumors Service automatically update its rumor pool without tightly coupling it to other services. This ensures fresh, relevant rumors and keeps each service independent (Task Service doesn’t need to know Rumors Service exists — it just emits events). Task Service and Character Service send events (or expose APIs) that the Rumors Service uses to populate and update the rumor pool.
+Purchased rumors are saved under the player’s ID for retrieval.
+
+| Member           | Service(s)                                | Responsibilities                                                                                                                                                 | Technology Stack                              |
+| ---------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Cucos Maria      | **User Management Service, Game Service** | Manage user profiles, authentication, in-game currency, device/location info; handle day/night cycle, lobby management, event notifications, and initiate voting | Typescript (NodeJS) + PostgreSQL + Redis      |
+| Mihalachi Mihail | **Shop Service, Roleplay Service**        | Handle in-game item purchases, currency management, daily preparation mechanics; enforce role abilities, generate filtered announcements, balance daily activity | Java (Springboot) + Redis                     |
+| Garbuz Nelli     | **Town Service, Character Service**       | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features                          | Python (FastAPI) + PostgreSQL                 |
+| Frunza Valeria   | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats                          | Typescript (NestJS) + Prisma ORM + PostgreSQL |
+| Lupan Lucian     | **Task Service, Voting Service**          | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results                         | Go + PostgreSQL                               |
 
 ## Data Management
 
@@ -567,6 +584,7 @@ Response: {
 ```
 
 ### Town Service
+
 The chosen database is PostgreSQL, which offers robust support for spatial data types and queries, which is essential for tracking user locations and movements across different town areas. Its ACID compliance ensures data consistency when recording location changes and user activities. SQLAlchemy ORM provides type-safe database operations and seamless async support, enabling efficient database interactions without blocking the event loop during location updates and queries. All messages passed will be in JSON format, with the following requests and responses expected for each Service and endpoint:
 
 #### Location Management endpoints
@@ -713,7 +731,9 @@ Response:{
 ```
 
 ### Character Service
+
 For the data, PostgreSQL with SQLAlchemy ORM will be used. PostgreSQL's JSON and JSONB support is ideal for storing flexible character asset configurations and inventory data structures. Its relational capabilities efficiently handle the many-to-many relationships between users, owned assets, equipped items, and available customization slots. All messages passed will be in JSON format, with the following requests and responses expected for each endpoint:
+
 #### Character Profile and Customization endpoints
 
 - Endpoint for getting user's character
@@ -1089,8 +1109,11 @@ Response:
 ```
 
 ### Task Service
+
 #### Task management endpoints
+
 - Endpoint for task creation
+
 ```
 Endpoint: /tasks
 Method: POST
@@ -1100,7 +1123,9 @@ Payload: {
 }
 Response: 201 Created
 ```
+
 - Endpoint for tasks retrieval
+
 ```
 Endpoint: /tasks
 Method: GET
@@ -1120,7 +1145,9 @@ Response: {
 }
 Response: 200 OK
 ```
+
 - Endpoint for task retrieval
+
 ```
 Endpoint: /tasks/{task_id}
 Method: GET
@@ -1131,7 +1158,9 @@ Response: {
 }
 Response: 200 OK
 ```
+
 - Endpoint for updating task
+
 ```
 Endpoint: /tasks/{task_id}
 Method: PUT
@@ -1141,7 +1170,9 @@ Payload: {
 }
 Response: 200 OK
 ```
+
 - Endpoint for task removal
+
 ```
 Endpoint: /tasks/{task_id}
 Method: DELETE
@@ -1149,7 +1180,9 @@ Response: 204 No Content
 ```
 
 #### Task assignment endpoints
+
 - Endpoint for assigning task
+
 ```
 Endpoint: /tasks/assign
 Method: POST
@@ -1159,7 +1192,9 @@ Payload: {
 }
 Response: 201 Created
 ```
+
 - Endpoint for removing assigned task
+
 ```
 Endpoint: /tasks/assign
 Method: DELETE
@@ -1171,7 +1206,9 @@ Response: 204 No Content
 ```
 
 #### Task status endpoint
+
 - Endpoint for getting task status at the end of the day
+
 ```
 Endpoint: /tasks/status
 Method: GET
@@ -1191,8 +1228,11 @@ Response: 200 OK
 ```
 
 ### Voting Service
+
 #### Voting control endpoints
+
 - Endpoint for voting a player
+
 ```
 Endpoint: /votes
 Method: POST
@@ -1202,7 +1242,9 @@ Payload: {
 }
 Response: 201 Created
 ```
+
 - Endpoint for getting all votes
+
 ```
 Endpoint: /votes
 Method: GET
@@ -1220,7 +1262,9 @@ Response: {
 }
 Response: 200 OK
 ```
+
 - Endpoint for getting a player's vote
+
 ```
 Endpoint: /votes/{user_id}
 Method: GET
@@ -1230,7 +1274,9 @@ Response: {
 }
 Response: 200 OK
 ```
+
 - Endpoint for removing a vote on a player
+
 ```
 Endpoint: /votes/{user_id}
 Method: DELETE
@@ -1238,7 +1284,9 @@ Response: 204 No Content
 ```
 
 #### Voting results endpoints
+
 - Endpoint for getting the voting results
+
 ```
 Endpoint: /votes/results
 Method: GET
@@ -1258,7 +1306,9 @@ Response: 200 OK
 ```
 
 #### Voting logs endpoints
+
 - Endpoint for creating voting logs
+
 ```
 Endpoint: /votes/logs/{day}
 Method: PUT
@@ -1291,7 +1341,9 @@ Payload: {
 }
 Response: 201 Created
 ```
+
 - Endpoint for getting voting logs
+
 ```
 Endpoint: /votes/logs
 Method: GET
@@ -1326,36 +1378,47 @@ Response: {
 }
 Reponse: 200 OK
 ```
-## Github workflow 
+
+## Github workflow
+
 ### Branch structure
+
 - main
 - develop
 
 ### Protection rules
+
 Main branch:
+
 - Require 2 approvals minimum
 - Require branches to be up to date before merging
 - Dismiss stale reviews when new commits are pushed
 - Require status checks to pass
-  
+
 Develop branch:
 
 ### Branching strategy
+
 #### Naming convention
+
 - Feature branches: feature/{service-description}
 - Bugfix branches: bugfix/{service-issue-description}
 - Hotfix branches: hotfix/{critical-issue}
 
 ## Commit message format
+
 Follow conventional commits specification:
+
 ```
 <type>(<scope>): <description>
 
 [optional body]
 ```
-Types: ```feat ```,  ```fix ```,  ```docs ```,  ```style ```,  ```refactor ```,  ```test ```,  ```chore ```
+
+Types: `feat `, `fix `, `docs `, `style `, `refactor `, `test `, `chore `
 
 ## Pull request requirements
+
 - Clear title that is descriptive
 - Detailed description of what, why, and how
 - Linked iussues - a reference, if relevant to GitHub issues
@@ -1363,6 +1426,7 @@ Types: ```feat ```,  ```fix ```,  ```docs ```,  ```style ```,  ```refactor ```, 
 - Breaking changes -how it impacts other services, if applicable
 
 ## Test coverage
-- Unit Tests -  80% code coverage minimum
+
+- Unit Tests - 80% code coverage minimum
 - Integration Tests - all API endpoints covered
 - Service Communication - event-driven interactions tested
