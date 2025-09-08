@@ -98,7 +98,25 @@ Functionalities:
 
 ### Task Service
 
+Primary role: Provide players with tasks to perform during the day phase.
+
+Functionalities:
+- Task distribution - assign tasks at the start of the day to players based on their role and career.
+- Task status - verify whether players completed their assigned tasks.
+- Rumor updater - create rumors based on ongoing or completed tasks.
+- Currency rewards - grant in-game currency to players who successfully complete tasks.
+
 ### Voting Service
+
+Primary role: Voting system for guessing mafia members in the evening.
+
+Functionalities:
+- Voting tally - count and track votes cast by each player.
+- Voting influence - determine the number of allowed votes per player based on role (from the Roleplay Service).
+- Player removal - send a request to the Game Service to mark the player with the most votes as dead at the end of the voting phase.
+- Voting log - maintain a record of every vote.
+
+---
 
 The diagram below represents the architecture diagram and how the microservices communicate between each other.
 
@@ -755,4 +773,243 @@ Response:
     "type": "mafia"
   }
 ]
+```
+
+### Task Service
+#### Task management endpoints
+- Endpoint for task creation
+```
+Endpoint: /tasks
+Method: POST
+Payload: {
+  "role": "cop",
+  "task_description": "Perform a routine checkup on locations x, y and z."
+}
+Response: 201 Created
+```
+- Endpoint for tasks retrieval
+```
+Endpoint: /tasks
+Method: GET
+Response: {
+  "tasks": [
+    {
+      "task_id": 1,
+      "role": "cop",
+      "task_description": "Perform a routine checkup on locations x, y and z."
+    },
+    {
+      "task_id": 2,
+      "role": "doctor",
+      "task_description": "Perform a physical on player x."
+    }
+  ]
+}
+Response: 200 OK
+```
+- Endpoint for task retrieval
+```
+Endpoint: /tasks/{task_id}
+Method: GET
+Response: {
+  "task_id": 1,
+  "role": "cop",
+  "task_description": "Perform a routine checkup on locations x, y and z."
+}
+Response: 200 OK
+```
+- Endpoint for updating task
+```
+Endpoint: /tasks/{task_id}
+Method: PUT
+Payload: {
+  "role": "cop",
+  "task_description": "Perform a routine checkup on locations x, y and z AND investigate players x, y and z."
+}
+Response: 200 OK
+```
+- Endpoint for task removal
+```
+Endpoint: /tasks/{task_id}
+Method: DELETE
+Response: 204 No Content
+```
+
+#### Task assignment endpoints
+- Endpoint for assigning task
+```
+Endpoint: /tasks/assign
+Method: POST
+Payload: {
+  "user_id": 1,
+  "task_id": 3
+}
+Response: 201 Created
+```
+- Endpoint for removing assigned task
+```
+Endpoint: /tasks/assign
+Method: DELETE
+Payload: {
+  "user_id": 1,
+  "task_id": 3
+}
+Response: 204 No Content
+```
+
+#### Task status endpoint
+- Endpoint for getting task status at the end of the day
+```
+Endpoint: /tasks/status
+Method: GET
+Response: {
+  "tasks": [
+    {
+      "user_id": 1,
+      "task_completed": true
+    },
+    {
+      "user_id": 2,
+      "task_completed": false
+    }
+  ]
+}
+Response: 200 OK
+```
+
+### Voting Service
+#### Voting control endpoints
+- Endpoint for voting a player
+```
+Endpoint: /votes
+Method: POST
+Payload: {
+  "user_id": 1,
+  "voted_user_id": 3
+}
+Response: 201 Created
+```
+- Endpoint for getting all votes
+```
+Endpoint: /votes
+Method: GET
+Response: {
+  "votes": [
+    {
+      "user_id": 1,
+      "voted_user_id": 3
+    },
+    {
+      "user_id": 2,
+      "voted_user_id": 1
+    }
+  ]
+}
+Response: 200 OK
+```
+- Endpoint for getting a player's vote
+```
+Endpoint: /votes/{user_id}
+Method: GET
+Response: {
+  "user_id": 2,
+  "voted_user_id": 1
+}
+Response: 200 OK
+```
+- Endpoint for removing a vote on a player
+```
+Endpoint: /votes/{user_id}
+Method: DELETE
+Response: 204 No Content
+```
+
+#### Voting results endpoints
+- Endpoint for getting the voting results
+```
+Endpoint: /votes/results
+Method: GET
+Response: {
+  "results": [
+    {
+      "user_id": 1,
+      "votes": 5
+    },
+    {
+      "user_id": 2,
+      "votes": 1
+    }
+  ]
+}
+Response: 200 OK
+```
+
+#### Voting logs endpoints
+- Endpoint for creating voting logs
+```
+Endpoint: /votes/logs/{day}
+Method: PUT
+Payload: {
+  "voting": [
+    {
+      "user_id": 1,
+      "voted_user_id": 2
+    },
+    {
+      "user_id": 2,
+      "voted_user_id": 1
+    },
+    {
+      "user_id": 3,
+      "voted_user_id": 1
+    }
+  ],
+  "results": [
+    {
+      "user_id": 1,
+      "votes": 2
+    },
+    {
+      "user_id": 2,
+      "votes": 1
+    }
+  ],
+  "voted_out_id": 1
+}
+Response: 201 Created
+```
+- Endpoint for getting voting logs
+```
+Endpoint: /votes/logs
+Method: GET
+Response: {
+  "day1": {
+    "voting": [
+      {
+        "user_id": 1,
+        "voted_user_id": 2
+      },
+      {
+        "user_id": 2,
+        "voted_user_id": 1
+      },
+      {
+        "user_id": 3,
+        "voted_user_id": 1
+      }
+    ],
+    "results": [
+      {
+        "user_id": 1,
+        "votes": 2
+      },
+      {
+        "user_id": 2,
+        "votes": 1
+      }
+    ],
+    "voted_out_id": 1
+  }
+}
+Reponse: 200 OK
 ```
