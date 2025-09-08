@@ -121,6 +121,9 @@ Functionalities:
 ---
 
 The diagram below represents the architecture diagram and how the microservices communicate between each other.
+<img width="3764" height="2524" alt="image" src="https://github.com/user-attachments/assets/7051bffc-9c76-4620-9105-7941ed68c39e" />
+
+This microservices architecture is organized into three service clusters behind a load balancer and API gateway. The User and Identity cluster handles authentication and character management. The Game Core cluster contains the Game Service as the central hub coordinating with voting, roleplay, communication, and town services for real-time gameplay. The Economy and Commerce cluster manages the shop, tasks, and rumors system. Each cluster has its own database for data independence, while the Game Service acts as the main orchestrator communicating across all services to coordinate game flow and player interactions.
 
 ## Technology Stack and Communication Patterns
 
