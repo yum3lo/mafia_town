@@ -16,9 +16,8 @@ Primary role: Central user identity and account management system
 Functionalities:
 
 - User registration and authentication (account creation with email, username, password validation and secure authentication flows)
-- User profile management (including personal identification, account settings, and preferences)
 - Single profile constraint (tracks device and location data)
-- In-game economy (manages user currency balance, transaction history, etc.)
+- In-game and global economy (manages user currency balance, transaction history, etc.)
 
 ### Game Service
 
@@ -222,10 +221,53 @@ Payload: {
     "city": "Chisinau"
   }
 }
+
+// SUCCESS
 Response: {
   "status": "success",
   "userId": "user_123",
   "message": "Account created successfully"
+}
+
+// EMAIL ALREADY EXISTS
+Response: {
+  "status": "error",
+  "code": "EMAIL_EXISTS",
+  "message": "An account with this email already exists"
+}
+
+// USERNAME TAKEN
+Response: {
+  "status": "error",
+  "code": "USERNAME_TAKEN", 
+  "message": "This username is already taken"
+}
+
+// DEVICE ALREADY REGISTERED
+Response: {
+  "status": "error",
+  "code": "DEVICE_CONFLICT",
+  "message": "This device is already registered to another account",
+  "conflictingUser": "existingPlayer"
+}
+
+// INVALID INPUT
+Response: {
+  "status": "error",
+  "code": "VALIDATION_ERROR",
+  "message": "Invalid input data",
+  "errors": {
+    "email": "Invalid email format",
+    "password": "Password must be at least 8 characters",
+    "username": "Username must be 3-20 characters"
+  }
+}
+
+// SERVER ERROR
+Response: {
+  "status": "error",
+  "code": "INTERNAL_ERROR",
+  "message": "Registration failed due to server error"
 }
 ```
 
@@ -239,16 +281,31 @@ Payload: {
   "password": "hashedPassword",
   "deviceFingerprint": "device_hash_abc123"
 }
-Response: [
+
+// SUCCESS
+Response: {
   "status": "success",
   "accessToken": "jwt_token_here",
   "refreshToken": "refresh_token_here",
   "user": {
     "userId": "user_123",
-    "username": "playerName",
-    "currency": 150
+    "username": "playerName"
   }
-]
+}
+
+// INVALID CREDENTIALS
+Response: {
+  "status": "error",
+  "code": "INVALID_CREDENTIALS",
+  "message": "Invalid email or password"
+}
+
+// MISSING FIELDS
+Response: {
+  "status": "error",
+  "code": "MISSING_FIELDS",
+  "message": "Email and password are required"
+}
 ```
 
 - Endpoint for token validation
@@ -259,10 +316,26 @@ Method: POST
 Payload: {
   "token": "jwt_token_here"
 }
+
+// VALID TOKEN
 Response: {
   "status": "valid",
   "userId": "user_123",
   "username": "playerName"
+}
+
+// INVALID/EXPIRED TOKEN
+Response: {
+  "status": "invalid",
+  "code": "TOKEN_INVALID",
+  "message": "Token is invalid or expired"
+}
+
+// MISSING TOKEN
+Response: {
+  "status": "invalid",
+  "code": "TOKEN_MISSING",
+  "message": "Token is required"
 }
 ```
 
@@ -273,49 +346,124 @@ Response: {
 ```
 Endpoint: /users/{userId}
 Method: GET
+
+// SUCCESS
 Response: {
   "userId": "user_123",
   "username": "playerName",
   "email": "player@example.com",
-  "currency": 150,
-  "gamesPlayed": 25,
-  "winRate": 0.68,
-  "accountCreated": "2025-01-15T10:30:00Z"
+  "accountCreated": "2025-01-15T10:30:00Z",
+  "currentGameId": "game_456",
+  "isInGame": true,
+  "globalCurrency": 250,
+  "inGameCurrency": 75
+}
+
+// USER NOT FOUND
+Response: {
+  "status": "error",
+  "code": "USER_NOT_FOUND",
+  "message": "User not found"
 }
 ```
 
-- Update user currency
+#### Currency Management Endpoints
+
+- Update global currency
 
 ```
-Endpoint: /users/{userId}/currency
+Endpoint: /users/{userId}/currency/global
 Method: PATCH
 Payload: {
   "amount": 50,
   "operation": "add",
   "reason": "game_victory"
 }
+
+// SUCCESS
 Response: {
   "status": "success",
-  "newBalance": 200,
-  "transactionId": "txn_456"
+  "globalCurrency": 300,
+  "previousCurrency": 250,
+  "operation": "add",
+  "amount": 50
+}
+
+// INSUFFICIENT FUNDS (for subtract operation)
+Response: {
+  "status": "error",
+  "code": "INSUFFICIENT_FUNDS",
+  "globalCurrency": 100,
+  "attemptedAmount": 150,
+  "operation": "subtract"
 }
 ```
 
-- Get currency balance
+- Update in-game currency
+
+```
+Endpoint: /users/{userId}/currency/ingame
+Method: PATCH
+Payload: {
+  "amount": 25,
+  "operation": "subtract",
+  "reason": "item_purchase"
+}
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "inGameCurrency": 50,
+  "previousCurrency": 75,
+  "operation": "subtract",
+  "amount": 25
+}
+
+// INSUFFICIENT FUNDS (for subtract operation)
+Response: {
+  "status": "error",
+  "code": "INSUFFICIENT_FUNDS",
+  "inGameCurrency": 20,
+  "attemptedAmount": 25,
+  "operation": "subtract"
+}
+
+// USER NOT IN GAME
+Response: {
+  "status": "error",
+  "code": "USER_NOT_IN_GAME",
+  "message": "User is not currently in a game"
+}
+```
+
+- Get currency balances
 
 ```
 Endpoint: /users/{userId}/currency
 Method: GET
-Response: [
+
+// SUCCESS (user in game)
+Response: {
   "userId": "user_123",
-  "currentBalance": 200,
-  "lastTransaction": {
-    "amount": 50,
-    "type": "credit",
-    "reason": "game_victory",
-    "timestamp": "2025-01-15T14:30:00Z"
-  }
-]
+  "globalCurrency": 250,
+  "inGameCurrency": 100,
+  "gameId": "game_456"
+}
+
+// SUCCESS (user not in game)
+Response: {
+  "userId": "user_123",
+  "globalCurrency": 250,
+  "inGameCurrency": 0,
+  "gameId": null
+}
+
+// USER NOT FOUND
+Response: {
+  "status": "error",
+  "code": "USER_NOT_FOUND",
+  "message": "User not found"
+}
 ```
 
 ### Game Service
@@ -325,163 +473,383 @@ Response: [
 - Create game lobby
 
 ```
-Endpoint: /game/lobby/create
+Endpoint: /games/create
 Method: POST
-Payload: [
+Payload: {
   "hostUserId": "user_123",
-  "maxPlayers": 15,
-  "gameSettings": {
-    "dayDuration": 600,
-    "nightDuration": 300,
-    "votingDuration": 120
-  }
-]
+  "maxPlayers": 15
+}
+
+// SUCCESS
 Response: {
   "status": "success",
-  "lobbyId": "lobby_789",
-  "joinCode": "GAME123",
+  "gameId": "game_789",
+  "gameCode": "MAFIA123",
   "hostUserId": "user_123",
   "maxPlayers": 15,
-  "currentPlayers": 1
+  "currentPlayers": 1,
+  "status": "waiting"
+}
+
+// INVALID SETTINGS
+Response: {
+  "status": "error",
+  "code": "INVALID_SETTINGS",
+  "message": "Max players must be between 6 and 30"
 }
 ```
 
-- Join game lobby
+- Join game
 
 ```
-Endpoint: /game/lobby/{lobbyId}/join
+Endpoint: /games/{gameId}/join
 Method: POST
 Payload: {
   "userId": "user_456",
-  "joinCode": "GAME123"
+  "gameCode": "MAFIA123"
 }
+
+// SUCCESS
 Response: {
   "status": "success",
-  "lobbyId": "lobby_789",
+  "gameId": "game_789",
   "playerCount": 2,
   "gameStatus": "waiting"
 }
-```
 
-- Get Lobby Status
-
-```
-Endpoint: /game/lobby/{lobbyId}
-Method: GET
+// GAME FULL
 Response: {
-  "lobbyId": "lobby_789",
+  "status": "error",
+  "code": "GAME_FULL",
+  "message": "Game has reached maximum capacity",
+  "maxPlayers": 15,
+  "currentPlayers": 15
+}
+
+// INVALID GAME CODE
+Response: {
+  "status": "error",
+  "code": "INVALID_GAME_CODE",
+  "message": "Incorrect game code"
+}
+```
+
+- Leave game
+
+```
+Endpoint: /games/{gameId}/leave
+Method: POST
+Payload: {
+  "userId": "user_456"
+}
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "message": "Successfully left game",
+  "playerCount": 1
+}
+
+// PLAYER NOT IN GAME
+Response: {
+  "status": "error",
+  "code": "PLAYER_NOT_IN_GAME",
+  "message": "Player is not in this game"
+}
+```
+
+- Get game status
+
+```
+Endpoint: /games/{gameId}
+Method: GET
+
+// SUCCESS (waiting)
+Response: {
+  "gameId": "game_789",
+  "status": "waiting",
+  "hostUserId": "user_123",
+  "gameCode": "MAFIA123",
+  "maxPlayers": 15,
+  "currentPlayers": 2,
+  "players": [
+    {
+      "userId": "user_123",
+      "username": "playerName",
+      "isHost": true
+    },
+    {
+      "userId": "user_456",
+      "username": "player2",
+      "isHost": false
+    }
+  ]
+}
+
+// SUCCESS (in progress)
+Response: {
+  "gameId": "game_789",
   "status": "in_progress",
   "currentPhase": "day",
-  "phaseTimeRemaining": 420,
+  "dayCount": 3,
   "players": [
     {
       "userId": "user_123",
       "username": "playerName",
       "isAlive": true,
-      "role": "hidden"
+      "role": "mafia",
+      "career": "godfather"
     },
     {
       "userId": "user_456",
       "username": "player2",
       "isAlive": false,
-      "role": "hidden"
+      "role": "citizen",
+      "career": "baker"
     }
   ],
-  "dayCount": 3
+  "aliveCount": 8,
+  "totalPlayers": 12
+}
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "code": "GAME_NOT_FOUND",
+  "message": "Game does not exist"
 }
 ```
 
 #### Game State Endpoints
 
-- Start Game
+- Start game
 
 ```
-Endpoint: /game/{lobbyId}/start
+Endpoint: /games/{gameId}/start
 Method: POST
 Payload: {
   "hostUserId": "user_123"
 }
+
+// SUCCESS
 Response: {
   "status": "success",
-  "gameId": "game_101",
-  "phase": "day",
-  "message": "Game started! Day phase begins."
+  "gameId": "game_789",
+  "currentPhase": "day",
+  "dayCount": 1,
+  "totalPlayers": 12,
+  "message": "Game started! Day 1 begins."
 }
-```
 
-- Get player game state
-
-```
-Endpoint: /game/{lobbyId}/player/{userId}/state
-Method: GET
+// NOT HOST
 Response: {
-  "userId": "user_123",
-  "role": "sheriff",
-  "career": "detective",
-  "isAlive": true,
-  "canVote": true,
-  "availableActions": ["investigate", "vote"],
-  "gamePhase": "day",
-  "phaseTimeRemaining": 420
+  "status": "error",
+  "code": "UNAUTHORIZED",
+  "message": "Only the host can start the game"
 }
-```
 
-- Update player status
-
-```
-Endpoint: /game/{lobbyId}/player/{userId}/status
-Method: PATCH
-Payload: {
-  "status": "dead",
-  "cause": "mafia_kill",
-  "timestamp": "2025-01-15T22:30:00Z"
-}
+// INSUFFICIENT PLAYERS
 Response: {
-  "status": "success",
-  "playerId": "user_123",
-  "newStatus": "dead",
-  "gamePhase": "night"
+  "status": "error",
+  "code": "INSUFFICIENT_PLAYERS",
+  "message": "Need at least 6 players to start",
+  "currentPlayers": 2,
+  "minimumPlayers": 6
+}
+
+// GAME ALREADY STARTED
+Response: {
+  "status": "error",
+  "code": "GAME_ALREADY_STARTED",
+  "message": "Game is already in progress"
 }
 ```
 
-#### Game Event Endpoints
-
-- Initiate voting phase
+- End game
 
 ```
-Endpoint: /game/{lobbyId}/voting/initiate
+Endpoint: /games/{gameId}/end
 Method: POST
 Payload: {
-  "votingDuration": 120,
-  "eligibleVoters": ["user_123", "user_456", "user_789"]
+  "winCondition": "mafia_victory",
+  "winners": ["user_123", "user_789"]
 }
+
+// SUCCESS
 Response: {
   "status": "success",
-  "votingId": "vote_202",
-  "duration": 120,
-  "eligiblePlayers": 3
+  "message": "Game ended",
+  "winCondition": "mafia_victory",
+  "winners": ["user_123", "user_789"]
 }
 ```
+
+#### Player State Management Endpoints
+
+- Get player info
+
+```
+Endpoint: /games/{gameId}/players/{userId}
+Method: GET
+
+// SUCCESS
+Response: {
+  "userId": "user_123",
+  "gameId": "game_789",
+  "role": "mafia",
+  "career": "godfather",
+  "isAlive": true,
+  "currentPhase": "day",
+  "dayCount": 3
+}
+
+// PLAYER NOT IN GAME
+Response: {
+  "status": "error",
+  "code": "PLAYER_NOT_IN_GAME",
+  "message": "Player is not in this game"
+}
+```
+
+- Update player alive status
+
+```
+Endpoint: /games/{gameId}/players/{userId}/status
+Method: PATCH
+Payload: {
+  "isAlive": false,
+  "cause": "voted_out"
+}
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "userId": "user_123",
+  "isAlive": false,
+  "cause": "voted_out",
+  "aliveCount": 7
+}
+```
+
+### Phase Management Endpoints (for Town Service)
+
+- Update game phase
+
+```
+Endpoint: /games/{gameId}/phase
+Method: PATCH
+Payload: {
+  "newPhase": "night",
+  "dayCount": 3
+}
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "gameId": "game_789",
+  "previousPhase": "day",
+  "currentPhase": "night",
+  "dayCount": 3
+}
+
+// INVALID PHASE
+Response: {
+  "status": "error",
+  "code": "INVALID_PHASE",
+  "message": "Phase must be 'day' or 'night'"
+}
+```
+
+- Get current phase
+
+```
+Endpoint: /games/{gameId}/phase
+Method: GET
+
+// SUCCESS
+Response: {
+  "gameId": "game_789",
+  "currentPhase": "day",
+  "dayCount": 3
+}
+```
+
+#### Voting Management Endpoints
+
+- Get eligible voters (alive players)
+
+```
+Endpoint: /games/{gameId}/voting
+Method: GET
+
+// SUCCESS
+Response: {
+  "gameId": "game_789",
+  "eligibleVoters": [
+    {
+      "userId": "user_123",
+      "username": "playerName"
+    },
+    {
+      "userId": "user_456",
+      "username": "player2"
+    }
+  ],
+  "eligibleCount": 2
+}
+
+// NO ELIGIBLE VOTERS
+Response: {
+  "status": "error",
+  "code": "NO_ELIGIBLE_VOTERS",
+  "message": "No alive players available for voting"
+}
+```
+
+#### Event Broadcasting Endpoints
 
 - Broadcast game event
 
 ```
-Endpoint: /game/{lobbyId}/events/broadcast
+Endpoint: /games/{gameId}/events/broadcast
 Method: POST
-Payload: [
+Payload: {
   "eventType": "player_death",
-  "message": "PlayerName was found dead in their home!",
+  "message": "PlayerName was found dead!",
   "targetPlayers": "all",
   "metadata": {
-    "victimId": "user_456",
+    "eliminatedPlayerId": "user_456",
+    "eliminatedUsername": "player2",
     "cause": "mafia_kill"
   }
-]
+}
+
+// WHEN PLAYER GETS EXILED
+Payload: {
+  "eventType": "player_elimination",
+  "message": "player2 has been voted out of the town!",
+  "targetPlayers": "all",
+  "metadata": {
+    "eliminatedPlayerId": "user_456",
+    "eliminatedUsername": "player2",
+    "voteCount": 5,
+    "cause": "voted_out"
+  }
+}
+
+// SUCCESS
 Response: {
   "status": "success",
   "eventId": "event_303",
   "broadcastTime": "2025-01-15T22:31:00Z",
-  "recipients": 14
+  "recipients": 8
+}
+
+// INVALID EVENT TYPE
+Response: {
+  "status": "error",
+  "code": "INVALID_EVENT_TYPE",
+  "message": "Event type must be one of: player_death, player_elimination, healing, rumor, visit"
 }
 ```
 
