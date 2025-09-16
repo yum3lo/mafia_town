@@ -18,6 +18,9 @@ Functionalities:
 - User registration and authentication (account creation with email, username, password validation and secure authentication flows)
 - Single profile constraint (tracks device and location data)
 - In-game and global economy (manages user currency balance, transaction history, etc.)
+- Currency operations (add, subtract):
+  - Global currency: "game_reward", "shop_purchase"
+  - In-game currency: "task_reward", "item_purchase", "rumor_purchase"
 
 ### Game Service
 
@@ -287,6 +290,8 @@ Response: {
   "status": "success",
   "accessToken": "jwt_token_here",
   "refreshToken": "refresh_token_here",
+  "expiresAt": "2025-09-16T15:30:00Z",
+  "refreshExpiresAt": "2025-09-23T15:30:00Z",
   "user": {
     "userId": "user_123",
     "username": "playerName"
@@ -321,7 +326,8 @@ Payload: {
 Response: {
   "status": "valid",
   "userId": "user_123",
-  "username": "playerName"
+  "username": "playerName",
+  "expiresAt": "2025-01-16T10:30:00Z"
 }
 
 // INVALID/EXPIRED TOKEN
