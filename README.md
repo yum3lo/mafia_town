@@ -1067,6 +1067,8 @@ Response: 204 No content
 ```
 
 #### User Movements endpoints
+To avoid sending a huge list of movements and requiring the Rumours Service to filter by timestamp, the Town Service includes the game day number with each movement event.
+When a movement is recorded, the Town Service determines the game day by comparing the movement’s timestamp to the day boundaries.
 
 - Endpoint for recording a movement event
 
@@ -1078,9 +1080,30 @@ Payload:
     "user_id": "user_123",
     "from_location": "loc_2",
     "to_location": "loc_1",
-    "timestamp": "2025-09-07T09:30:00Z"
+    "timestamp": "2025-09-07T09:30:00Z", 
+    "gameDay": 1
+    
   }
 Response: 201 OK
+```
+- Endpoint to list all the movements (with optional filtering)
+
+```
+Endpoint: /movements
+Method: GET
+Query params: ?gameDay=3 (optional)
+Response: {
+  movements: [
+    {
+      "movement_id": "mv_1001",
+      "user_id": "user_123",
+      "from_location": "loc_2",
+      "to_location": "loc_1",
+      "timestamp": "2025-09-07T09:30:00Z",
+      "gameDay": 3
+    }
+  ]
+}
 ```
 
 - Endpoint to list all the movements
@@ -1096,6 +1119,7 @@ Response:{
     "from_location": "loc_2",
     "to_location": "loc_1",
     "timestamp": "2025-09-07T09:30:00Z"
+    gameDay: 1
   }
     ]
 }
@@ -1106,15 +1130,17 @@ Response:{
 ```
 Endpoint: /users/{user_id}/movements
 Method: GET
-Response:{
-    movements:[
-  {
-    "movement_id": "mv_1001"
-    "from_location": "loc_2",
-    "to_location": "loc_1",
-    "timestamp": "2025-09-07T09:30:00Z"
-  }
-    ]
+Query params: ?gameDay=3 (optional)
+Response: {
+  movements: [
+    {
+      "movement_id": "mv_1001",
+      "from_location": "loc_2",
+      "to_location": "loc_1",
+      "timestamp": "2025-09-07T09:30:00Z",
+      "gameDay": 3
+    }
+  ]
 }
 ```
 
@@ -1123,16 +1149,18 @@ Response:{
 ```
 Endpoint: /locations/{location_id}/movements
 Method: GET
-Response:{
-    movements:[
-  {
-    "movement_id": "mv_1001"
-    "user_id": "user_123",
-    "from_location": "loc_2",
-    "to_location": "loc_1",
-    "timestamp": "2025-09-07T09:30:00Z"
-  }
-    ]
+Query params: ?gameDay=3 (optional)
+Response: {
+  movements: [
+    {
+      "movement_id": "mv_1001",
+      "user_id": "user_123",
+      "from_location": "loc_2",
+      "to_location": "loc_1",
+      "timestamp": "2025-09-07T09:30:00Z",
+      "gameDay": 3
+    }
+  ]
 }
 ```
 
