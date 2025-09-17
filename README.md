@@ -216,40 +216,32 @@ Payload: {
   "email": "player@example.com",
   "username": "playerName",
   "password": "hashedPassword",
-  "identification": "ID_12345",
-  "deviceFingerprint": "device_hash_abc123",
-  "locationData": {
-    "ip": "192.168.1.1",
-    "country": "Moldova",
-    "city": "Chisinau"
-  }
+  "deviceFingerprint": "device_hash_abc123" // client-generated UUID
 }
 
 // SUCCESS
 Response: {
   "status": "success",
   "userId": "user_123",
+  "createdAt": "2025-01-15T10:30:00Z",
   "message": "Account created successfully"
 }
 
 // EMAIL ALREADY EXISTS
 Response: {
   "status": "error",
-  "code": "EMAIL_EXISTS",
   "message": "An account with this email already exists"
 }
 
 // USERNAME TAKEN
 Response: {
   "status": "error",
-  "code": "USERNAME_TAKEN", 
   "message": "This username is already taken"
 }
 
 // DEVICE ALREADY REGISTERED
 Response: {
   "status": "error",
-  "code": "DEVICE_CONFLICT",
   "message": "This device is already registered to another account",
   "conflictingUser": "existingPlayer"
 }
@@ -257,7 +249,6 @@ Response: {
 // INVALID INPUT
 Response: {
   "status": "error",
-  "code": "VALIDATION_ERROR",
   "message": "Invalid input data",
   "errors": {
     "email": "Invalid email format",
@@ -269,7 +260,6 @@ Response: {
 // SERVER ERROR
 Response: {
   "status": "error",
-  "code": "INTERNAL_ERROR",
   "message": "Registration failed due to server error"
 }
 ```
@@ -292,23 +282,19 @@ Response: {
   "refreshToken": "refresh_token_here",
   "expiresAt": "2025-09-16T15:30:00Z",
   "refreshExpiresAt": "2025-09-23T15:30:00Z",
-  "user": {
-    "userId": "user_123",
-    "username": "playerName"
-  }
+  "userId": "user_123",
+  "username": "playerName"
 }
 
 // INVALID CREDENTIALS
 Response: {
   "status": "error",
-  "code": "INVALID_CREDENTIALS",
   "message": "Invalid email or password"
 }
 
 // MISSING FIELDS
 Response: {
   "status": "error",
-  "code": "MISSING_FIELDS",
   "message": "Email and password are required"
 }
 ```
@@ -330,18 +316,29 @@ Response: {
   "expiresAt": "2025-01-16T10:30:00Z"
 }
 
-// INVALID/EXPIRED TOKEN
+// EXPIRED/INVALID/MISSING TOKEN
 Response: {
-  "status": "invalid",
-  "code": "TOKEN_INVALID",
-  "message": "Token is invalid or expired"
+  "status": "error",
+  "message": "Invalid token"
+}
+```
+
+- Delete account
+
+```
+Endpoint: /users/{userId}
+Method: DELETE
+
+// SUCCESS
+Response: {
+  "status": "success", 
+  "message": "Account deleted successfully"
 }
 
-// MISSING TOKEN
+// USER NOT FOUND
 Response: {
-  "status": "invalid",
-  "code": "TOKEN_MISSING",
-  "message": "Token is required"
+  "status": "error", 
+  "message": "User not found"
 }
 ```
 
@@ -355,12 +352,12 @@ Method: GET
 
 // SUCCESS
 Response: {
+  "status": "success",
   "userId": "user_123",
   "username": "playerName",
   "email": "player@example.com",
-  "accountCreated": "2025-01-15T10:30:00Z",
-  "currentGameId": "game_456",
-  "isInGame": true,
+  "createdAt": "2025-01-15T10:30:00Z",
+  "gameId": "game_456",
   "globalCurrency": 250,
   "inGameCurrency": 75
 }
@@ -368,9 +365,61 @@ Response: {
 // USER NOT FOUND
 Response: {
   "status": "error",
-  "code": "USER_NOT_FOUND",
   "message": "User not found"
 }
+```
+
+- Bulk user lookup for Game Service
+
+```
+Method: POST
+Payload: {
+  "userIds": ["user_123", "user_456", "user_789"]
+}
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "users": [
+    {
+      "userId": "user_123",
+      "username": "playerName"
+    },
+    {
+      "userId": "user_456", 
+      "username": "player2"
+    },
+    {
+      "userId": "user_789",
+      "username": "player3"
+    }
+  ],
+  "notFound": [],
+  "totalRequested": 3,
+  "totalFound": 3
+}
+
+// PARTIAL SUCCESS
+Response: {
+  "status": "partial_success",
+  "users": [
+    {
+      "userId": "user_123",
+      "username": "playerName"
+    }
+  ],
+  "notFound": ["user_456", "user_789"],
+  "totalRequested": 3,
+  "totalFound": 1
+}
+
+// NO USERS FOUND
+Response: {
+  "status": "error",
+  "users": [],
+  "notFound": ["user_123", "user_456"],
+  "totalRequested": 2,
+  "totalFound": 0
 ```
 
 #### Currency Management Endpoints
@@ -391,17 +440,18 @@ Response: {
   "status": "success",
   "globalCurrency": 300,
   "previousCurrency": 250,
+  "amount": 50,
   "operation": "add",
-  "amount": 50
+  "reason": "game_victory"
 }
 
 // INSUFFICIENT FUNDS (for subtract operation)
 Response: {
   "status": "error",
-  "code": "INSUFFICIENT_FUNDS",
   "globalCurrency": 100,
   "attemptedAmount": 150,
-  "operation": "subtract"
+  "operation": "subtract",
+  "reason": "shop_purchase"
 }
 ```
 
@@ -421,23 +471,23 @@ Response: {
   "status": "success",
   "inGameCurrency": 50,
   "previousCurrency": 75,
+  "amount": 25,
   "operation": "subtract",
-  "amount": 25
+  "reason": "item_purchase"
 }
 
 // INSUFFICIENT FUNDS (for subtract operation)
 Response: {
   "status": "error",
-  "code": "INSUFFICIENT_FUNDS",
   "inGameCurrency": 20,
   "attemptedAmount": 25,
-  "operation": "subtract"
+  "operation": "subtract",
+  "reason": "rumor_purchase"
 }
 
 // USER NOT IN GAME
 Response: {
   "status": "error",
-  "code": "USER_NOT_IN_GAME",
   "message": "User is not currently in a game"
 }
 ```
@@ -450,6 +500,7 @@ Method: GET
 
 // SUCCESS (user in game)
 Response: {
+  "status": "success",
   "userId": "user_123",
   "globalCurrency": 250,
   "inGameCurrency": 100,
@@ -458,6 +509,7 @@ Response: {
 
 // SUCCESS (user not in game)
 Response: {
+  "status": "success",
   "userId": "user_123",
   "globalCurrency": 250,
   "inGameCurrency": 0,
@@ -467,7 +519,6 @@ Response: {
 // USER NOT FOUND
 Response: {
   "status": "error",
-  "code": "USER_NOT_FOUND",
   "message": "User not found"
 }
 ```
@@ -489,18 +540,19 @@ Payload: {
 // SUCCESS
 Response: {
   "status": "success",
-  "gameId": "game_789",
-  "gameCode": "MAFIA123",
-  "hostUserId": "user_123",
-  "maxPlayers": 15,
-  "currentPlayers": 1,
-  "status": "waiting"
+  "game": {
+    "gameId": "game_1",
+    "gameCode": "AYA4G",
+    "hostUserId": "user_123",
+    "gameStatus": "waiting",
+    "maxPlayers": 15,
+    "currentPlayers": 1
+  }
 }
 
 // INVALID SETTINGS
 Response: {
   "status": "error",
-  "code": "INVALID_SETTINGS",
   "message": "Max players must be between 6 and 30"
 }
 ```
@@ -519,14 +571,13 @@ Payload: {
 Response: {
   "status": "success",
   "gameId": "game_789",
-  "playerCount": 2,
-  "gameStatus": "waiting"
+  "gameStatus": "waiting",
+  "playerCount": 2
 }
 
 // GAME FULL
 Response: {
   "status": "error",
-  "code": "GAME_FULL",
   "message": "Game has reached maximum capacity",
   "maxPlayers": 15,
   "currentPlayers": 15
@@ -535,7 +586,6 @@ Response: {
 // INVALID GAME CODE
 Response: {
   "status": "error",
-  "code": "INVALID_GAME_CODE",
   "message": "Incorrect game code"
 }
 ```
@@ -559,7 +609,6 @@ Response: {
 // PLAYER NOT IN GAME
 Response: {
   "status": "error",
-  "code": "PLAYER_NOT_IN_GAME",
   "message": "Player is not in this game"
 }
 ```
@@ -572,57 +621,52 @@ Method: GET
 
 // SUCCESS (waiting)
 Response: {
-  "gameId": "game_789",
-  "status": "waiting",
-  "hostUserId": "user_123",
-  "gameCode": "MAFIA123",
-  "maxPlayers": 15,
-  "currentPlayers": 2,
-  "players": [
-    {
-      "userId": "user_123",
-      "username": "playerName",
-      "isHost": true
-    },
-    {
-      "userId": "user_456",
-      "username": "player2",
-      "isHost": false
-    }
-  ]
+  "status": "success",
+  "game": {
+    "gameId": "game_1",
+    "gameCode": "PSY1M",
+    "hostUserId": "user_123",
+    "gameStatus": "waiting",
+    "maxPlayers": 15,
+    "currentPlayers": 2,
+    "players": [
+      { "userId": "user_123" },
+      { "userId": "user_456" }
+    ]
+  }
 }
 
 // SUCCESS (in progress)
 Response: {
-  "gameId": "game_789",
-  "status": "in_progress",
-  "currentPhase": "day",
-  "dayCount": 3,
-  "players": [
-    {
-      "userId": "user_123",
-      "username": "playerName",
-      "isAlive": true,
-      "role": "mafia",
-      "career": "godfather"
-    },
-    {
-      "userId": "user_456",
-      "username": "player2",
-      "isAlive": false,
-      "role": "citizen",
-      "career": "baker"
-    }
-  ],
-  "aliveCount": 8,
-  "totalPlayers": 12
+  "status": "success",
+  "game": {
+    "gameId": "game_789",
+    "gameStatus": "in_progress",
+    "currentPhase": "day",
+    "dayCount": 3,
+    "players": [
+      {
+        "userId": "user_123",
+        "isAlive": true,
+        "role": "mafia",
+        "career": "godfather"
+      },
+      {
+        "userId": "user_456",
+        "isAlive": false,
+        "role": "citizen",
+        "career": "baker"
+      }
+    ],
+    "aliveCount": 8,
+    "totalPlayers": 12
+  }
 }
 
 // GAME NOT FOUND
 Response: {
   "status": "error",
-  "code": "GAME_NOT_FOUND",
-  "message": "Game does not exist"
+  "message": "Game not found"
 }
 ```
 
@@ -640,24 +684,25 @@ Payload: {
 // SUCCESS
 Response: {
   "status": "success",
-  "gameId": "game_789",
-  "currentPhase": "day",
-  "dayCount": 1,
-  "totalPlayers": 12,
-  "message": "Game started! Day 1 begins."
+  "game": {
+    "gameId": "game_789",
+    "gameStatus": "in_progress",
+    "currentPhase": "day",
+    "dayCount": 1,
+    "totalPlayers": 12,
+    "message": "Game started! Day 1 begins."
+  }
 }
 
 // NOT HOST
 Response: {
   "status": "error",
-  "code": "UNAUTHORIZED",
   "message": "Only the host can start the game"
 }
 
 // INSUFFICIENT PLAYERS
 Response: {
   "status": "error",
-  "code": "INSUFFICIENT_PLAYERS",
   "message": "Need at least 6 players to start",
   "currentPlayers": 2,
   "minimumPlayers": 6
@@ -666,7 +711,6 @@ Response: {
 // GAME ALREADY STARTED
 Response: {
   "status": "error",
-  "code": "GAME_ALREADY_STARTED",
   "message": "Game is already in progress"
 }
 ```
@@ -675,7 +719,7 @@ Response: {
 
 ```
 Endpoint: /games/{gameId}/end
-Method: POST
+Method: PATCH
 Payload: {
   "winCondition": "mafia_victory",
   "winners": ["user_123", "user_789"]
@@ -685,8 +729,31 @@ Payload: {
 Response: {
   "status": "success",
   "message": "Game ended",
-  "winCondition": "mafia_victory",
-  "winners": ["user_123", "user_789"]
+  "game": {
+    "gameId": "game_789",
+    "gameStatus": "ended",
+    "winCondition": "mafia_victory",
+    "winners": ["user_123", "user_789"]
+  }
+}
+```
+
+- Delete game (after rewards distributed)
+
+```
+Endpoint: /games/{gameId}
+Method: DELETE
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "message": "Game deleted"
+}
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
 }
 ```
 
@@ -700,19 +767,17 @@ Method: GET
 
 // SUCCESS
 Response: {
+  "status": "success",
   "userId": "user_123",
   "gameId": "game_789",
   "role": "mafia",
   "career": "godfather",
-  "isAlive": true,
-  "currentPhase": "day",
-  "dayCount": 3
+  "isAlive": true
 }
 
 // PLAYER NOT IN GAME
 Response: {
   "status": "error",
-  "code": "PLAYER_NOT_IN_GAME",
   "message": "Player is not in this game"
 }
 ```
@@ -732,12 +797,23 @@ Response: {
   "status": "success",
   "userId": "user_123",
   "isAlive": false,
-  "cause": "voted_out",
-  "aliveCount": 7
+  "cause": "voted_out"
+}
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
+}
+
+// USER NOT IN GAME
+Response: {
+  "status": "error",
+  "message": "Player is not in this game"
 }
 ```
 
-### Phase Management Endpoints (for Town Service)
+#### Phase Management Endpoints
 
 - Update game phase
 
@@ -745,24 +821,18 @@ Response: {
 Endpoint: /games/{gameId}/phase
 Method: PATCH
 Payload: {
-  "newPhase": "night",
-  "dayCount": 3
+  "newPhase": "night" | "day"
 }
 
 // SUCCESS
 Response: {
   "status": "success",
-  "gameId": "game_789",
-  "previousPhase": "day",
-  "currentPhase": "night",
-  "dayCount": 3
-}
-
-// INVALID PHASE
-Response: {
-  "status": "error",
-  "code": "INVALID_PHASE",
-  "message": "Phase must be 'day' or 'night'"
+  "game": {
+    "gameId": "game_789",
+    "previousPhase": "day",
+    "currentPhase": "night",
+    "dayCount": 3
+  }
 }
 ```
 
@@ -774,41 +844,12 @@ Method: GET
 
 // SUCCESS
 Response: {
-  "gameId": "game_789",
-  "currentPhase": "day",
-  "dayCount": 3
-}
-```
-
-#### Voting Management Endpoints
-
-- Get eligible voters (alive players)
-
-```
-Endpoint: /games/{gameId}/voting
-Method: GET
-
-// SUCCESS
-Response: {
-  "gameId": "game_789",
-  "eligibleVoters": [
-    {
-      "userId": "user_123",
-      "username": "playerName"
-    },
-    {
-      "userId": "user_456",
-      "username": "player2"
-    }
-  ],
-  "eligibleCount": 2
-}
-
-// NO ELIGIBLE VOTERS
-Response: {
-  "status": "error",
-  "code": "NO_ELIGIBLE_VOTERS",
-  "message": "No alive players available for voting"
+  "status": "success",
+  "game": {
+    "gameId": "game_789",
+    "currentPhase": "day",
+    "dayCount": 3
+  }
 }
 ```
 
@@ -822,10 +863,9 @@ Method: POST
 Payload: {
   "eventType": "player_death",
   "message": "PlayerName was found dead!",
-  "targetPlayers": "all",
+  "targetPlayers": ["user_123", "user_789"],
   "metadata": {
     "eliminatedPlayerId": "user_456",
-    "eliminatedUsername": "player2",
     "cause": "mafia_kill"
   }
 }
@@ -847,14 +887,12 @@ Payload: {
 Response: {
   "status": "success",
   "eventId": "event_303",
-  "broadcastTime": "2025-01-15T22:31:00Z",
-  "recipients": 8
+  "broadcastTime": "2025-01-15T22:31:00Z"
 }
 
 // INVALID EVENT TYPE
 Response: {
   "status": "error",
-  "code": "INVALID_EVENT_TYPE",
   "message": "Event type must be one of: player_death, player_elimination, healing, rumor, visit"
 }
 ```
