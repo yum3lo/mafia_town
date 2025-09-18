@@ -1319,7 +1319,7 @@ Endpoint: /inventory/{user_id}
 Method: GET
 Response: {
   "userId": "user_123",
-  "globalCurrency": 250,
+  "inGameCurrency": 75
   "items": [
     {
       "itemId": "body_armor",
@@ -1327,6 +1327,7 @@ Response: {
       "quantity": 1,
       "broughtOnDay" : 1,
       "expiresNextDay": true,
+      "currencyType": "in-game",
       "purchasePrice": 150,
       "type": "protection",
       "description": "Protects against mafia attacks during night phase"
