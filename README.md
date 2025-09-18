@@ -1168,6 +1168,8 @@ Response: {
 
 For the data, PostgreSQL with SQLAlchemy ORM will be used. PostgreSQL's JSON and JSONB support is ideal for storing flexible character asset configurations and inventory data structures. Its relational capabilities efficiently handle the many-to-many relationships between users, owned assets, equipped items, and available customization slots. All messages passed will be in JSON format, with the following requests and responses expected for each endpoint:
 
+All customization actions, including appearance changes and slot updates, require spending global currency and are strictly limited to the lobby phase before the game begins. Once the game starts, the ability to modify character appearance is locked, ensuring that all players enter the game with their chosen look and assets.
+
 #### Character Profile and Customization endpoints
 
 - Endpoint for getting user's character
@@ -1188,11 +1190,14 @@ Response: {
     "hair_accessory": "baseball_cap",
     "jewelry": "silver_ring",
     "shoes": "leather_boots"
-  }
+  }, 
+  "currencyType": "global",
+  "globalCurrency": 250,
+  "currencySpent": 100
 }
 ```
 
-- Endpoint for updating character appearance
+- Endpoint for updating character appearance 
 
 ```
 Endpoint: /characters/{user_id}
@@ -1206,12 +1211,15 @@ Payload: {
   "slots": {
     "hair_accessory": "headband",
     "jewelry": "gold_necklace"
-  }
+  },
+  "currencyType": "global",
+  "globalCurrency": 250,
+  "currencySpent": 100
 }
 Response: 200 OK
 ```
 
-- Endpoint for creating initial character
+- Endpoint for creating initial character (
 
 ```
 Endpoint: /characters
@@ -1222,7 +1230,10 @@ Payload: {
     "hair": "brown_wavy",
     "coat": "green_shirt",
     "accessory": "wristwatch"
-  }
+  },
+  "currencyType": "global",
+  "globalCurrency": 250,
+  "currencySpent": 0
 }
 Response: 201 Created
 ```
@@ -1299,6 +1310,8 @@ Response: {
 
 #### Inventory Management endpoints
 
+All inventory actions, including item purchases from the shop and usage, require spending in-game currency and are strictly limited to the active game phase. Global currency cannot be used for inventory transactions once the game has started.
+
 - Endpoint for getting user's inventory
 
 ```
@@ -1306,13 +1319,14 @@ Endpoint: /inventory/{user_id}
 Method: GET
 Response: {
   "userId": "user_123",
+  "globalCurrency": 250,
   "items": [
     {
       "itemId": "body_armor",
       "name": "Bulletproof Vest",
       "quantity": 1,
-      "durability": 3,
-      "maxDurability": 3,
+      "broughtOnDay" : 1,
+      "expiresNextDay": true,
       "purchasePrice": 150,
       "type": "protection",
       "description": "Protects against mafia attacks during night phase"
@@ -1321,8 +1335,9 @@ Response: {
       "itemId": "fake_id",
       "name": "False Identity Papers",
       "quantity": 1,
-      "durability": 1,
-      "maxDurability": 1,
+      "broughtOnDay" : 1,
+      "expiresNextDay": true,
+      "currencyType": "in-game",
       "purchasePrice": 200,
       "type": "deception",
       "description": "Hide your true role from investigation"
@@ -1339,8 +1354,8 @@ Method: POST
 Payload: {
   "itemId": "listening_device",
   "name": "Wire Tap Device",
-  "quantity": 1,
-  "durability": 4,
+  "expiresNextDay": true,
+  "currencyType": "in-game",
   "purchasePrice": 100,
   "type": "surveillance"
 }
@@ -1360,7 +1375,6 @@ Payload: {
 Response: {
   "success": true,
   "itemId": "body_armor",
-  "remainingDurability": 2,
   "effectApplied": "attack_protection_active"
 }
 ```
@@ -1376,7 +1390,6 @@ Response: {
     {
       "itemId": "body_armor",
       "quantity": 1,
-      "durability": 2
     }
   ]
 }
