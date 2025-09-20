@@ -1,0 +1,849 @@
+{
+	"info": {
+		"_postman_id": "df16e07e-812e-4f96-b8f6-ed738af36d56",
+		"name": "game",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48492495",
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-df16e07e-812e-4f96-b8f6-ed738af36d56?action=share&source=collection_link&creator=48492495"
+	},
+	"item": [
+		{
+			"name": "Create game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"hostUserId\": \"user_1\",\r\n  \"maxPlayers\": 15\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/create",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"create"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Create game",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/games/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"create"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameCode\": \"AYA4G\",\r\n            \"hostUserId\": \"user_1\",\r\n            \"gameStatus\": \"waiting\",\r\n            \"maxPlayers\": 15,\r\n            \"currentPlayers\": 1\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Max players must be between 6 and 30\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Get game status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/games/game_1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get game status",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/game_1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameCode\": \"PSY1M\",\r\n            \"hostUserId\": \"user_1\",\r\n            \"gameStatus\": \"waiting\",\r\n            \"maxPlayers\": 15,\r\n            \"currentPlayers\": 2,\r\n            \"players\": [\r\n                \"user_1\",\r\n                \"user_2\"\r\n            ]\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_789\",\r\n            \"gameStatus\": \"in_progress\",\r\n            \"currentPhase\": \"day\",\r\n            \"dayCount\": 3,\r\n            \"players\": [\r\n                {\r\n                    \"userId\": \"user_123\",\r\n                    \"isAlive\": true,\r\n                    \"role\": \"mafia\",\r\n                    \"career\": \"godfather\"\r\n                },\r\n                {\r\n                    \"userId\": \"user_456\",\r\n                    \"isAlive\": false,\r\n                    \"role\": \"citizen\",\r\n                    \"career\": \"baker\"\r\n                }\r\n            ],\r\n            \"aliveCount\": 8,\r\n            \"totalPlayers\": 12\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Update player alive status",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"isAlive\": false,\r\n  \"cause\": \"voted_out\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/players/user_1/status",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"players",
+						"user_1",
+						"status"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Update player alive status",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isAlive\": false,\r\n  \"cause\": \"voted_out\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/players/user_1/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"players",
+								"user_1",
+								"status"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"isAlive\": false,\r\n        \"cause\": \"voted_out\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Player is not in this game\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Delete game",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Delete game",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Game deleted\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Join game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"user_2\",\r\n    \"gameCode\": \"AYA4G\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/join",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"join"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Join game",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"user_456\",\r\n    \"gameCode\": \"MAFIA123\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/join",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"join"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"gameId\": \"game_1\",\r\n        \"gameStatus\": \"waiting\",\r\n        \"playerCount\": 2\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game has reached maximum capacity\",\r\n        \"maxPlayers\": 15,\r\n        \"currentPlayers\": 15\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Leave game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"user_2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/leave",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"leave"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Leave game",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"user_456\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/leave",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"leave"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Successfully left game\",\r\n        \"playerCount\": 1\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Player is not in this game\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Start game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"hostUserId\": \"user_1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/start",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"start"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Start game",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"hostUserId\": \"user_123\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"start"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameStatus\": \"in_progress\",\r\n            \"currentPhase\": \"day\",\r\n            \"dayCount\": 1,\r\n            \"totalPlayers\": 12,\r\n            \"message\": \"Game started! Day 1 begins.\"\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "End game",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"winCondition\": \"mafia_victory\",\r\n    \"winners\": [\"user_1\", \"user_2\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/end",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"end"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "End game",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"winCondition\": \"mafia_victory\",\r\n    \"winners\": [\"user_1\", \"user_2\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/end",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"end"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Game ended\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameStatus\": \"ended\",\r\n            \"winCondition\": \"mafia_victory\",\r\n            \"winners\": [\"user_1\", \"user_2\"]\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Update phase",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"newPhase\": \"night\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/phase",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"phase"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Update phase",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"newPhase\": \"night\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/phase",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"phase"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"previousPhase\": \"day\",\r\n            \"currentPhase\": \"night\",\r\n            \"dayCount\": 3\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Get current phase",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/phase",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"phase"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get current phase",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/phase",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"phase"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"currentPhase\": \"night\",\r\n            \"dayCount\": 3\r\n        }\r\n    },\r\n        {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Get player info",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/players/user_1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"players",
+						"user_1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get player info",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/players/user_1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"players",
+								"user_1"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"gameId\": \"game_1\",\r\n        \"role\": \"mafia\",\r\n        \"career\": \"godfather\",\r\n        \"isAlive\": true\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Player is not in this game\"\r\n    },\r\n        {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Broadcast game event",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"eventType\": \"player_death\",\r\n    \"message\": \"player2 was found dead!\",\r\n    \"targetPlayers\": [\"user_1\", \"user_3\"],\r\n    \"metadata\": {\r\n        \"eliminatedPlayerId\": \"user_2\",\r\n        \"cause\": \"mafia_kill\"\r\n    }\r\n}\r\n\r\n// WHEN PLAYER GETS EXILED\r\n// {\r\n//     \"eventType\": \"player_elimination\",\r\n//     \"message\": \"player2 has been voted out of town!\",\r\n//     \"targetPlayers\": \"all\",\r\n//     \"metadata\": {\r\n//         \"eliminatedPlayerId\": \"user_2\",\r\n//         \"voteCount\": 5,\r\n//         \"cause\": \"voted_out\"\r\n//     }\r\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/games/game_1/broadcast",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"games",
+						"game_1",
+						"broadcast"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Broadcast game event",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"eventType\": \"player_death\",\r\n    \"message\": \"player2 was found dead!\",\r\n    \"targetPlayers\": [\"user_1\", \"user_3\"],\r\n    \"metadata\": {\r\n        \"eliminatedPlayerId\": \"user_2\",\r\n        \"cause\": \"mafia_kill\"\r\n    }\r\n}\r\n\r\n// WHEN PLAYER GETS EXILED\r\n// {\r\n//     \"eventType\": \"player_elimination\",\r\n//     \"message\": \"player2 has been voted out of town!\",\r\n//     \"targetPlayers\": \"all\",\r\n//     \"metadata\": {\r\n//         \"eliminatedPlayerId\": \"user_2\",\r\n//         \"voteCount\": 5,\r\n//         \"cause\": \"voted_out\"\r\n//     }\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/games/game_1/broadcast",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"game_1",
+								"broadcast"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Event broadcasted successfully\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Event type must be one of: player_death, player_elimination, healing, rumor, visit\"\r\n    }\r\n]"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "",
+			"type": "default"
+		}
+	]
+}

@@ -1,0 +1,684 @@
+{
+	"info": {
+		"_postman_id": "27112c7e-21c6-4262-b199-3e52925e70b2",
+		"name": "user-management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48492495",
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-27112c7e-21c6-4262-b199-3e52925e70b2?action=share&source=collection_link&creator=48492495"
+	},
+	"item": [
+		{
+			"name": "Get user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users/user_1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"user_1"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": [
+				{
+					"name": "Get user",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/user_1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"user_1"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"username\": \"playerName\",\r\n        \"email\": \"player@example.com\",\r\n        \"createdAt\": \"2025-01-15T10:30:00Z\",\r\n        \"gameId\": \"game_1\",\r\n        \"globalCurrency\": 250,\r\n        \"inGameCurrency\": 75\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"User not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Register user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"player@example.com\",\n    \"username\": \"playerName\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				},
+				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+			},
+			"response": [
+				{
+					"name": "Register user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"player@example.com\",\n    \"username\": \"playerName\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"createdAt\": \"2025-01-15T10:30:00Z\",\r\n        \"message\": \"Account created successfully\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"An account with this email already exists\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"This username is already taken\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"This device is already registered to another account\",\r\n        \"conflictingUser\": \"existingUser\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Invalid input data\",\r\n        \"errors\": {\r\n            \"email\": \"Invalid email format\",\r\n            \"password\": \"Password must be at least 8 characters\",\r\n            \"username\": \"Username must be 3-20 characters\"\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Registration failed due to server error\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Update global currency",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": 50,\n  \"operation\": \"subtract\",\n  \"reason\": \"shop_purchase\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/users/user_1/currency/global",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"user_1",
+						"currency",
+						"global"
+					]
+				},
+				"description": "This is a PUT request and it is used to overwrite an existing piece of data. For instance, after you create an entity with a POST request, you may want to modify that later. You can do that using a PUT request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful PUT request typically returns a `200 OK`, `201 Created`, or `204 No Content` response code."
+			},
+			"response": [
+				{
+					"name": "Update global currency",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 50,\n  \"operation\": \"subtract\",\n  \"reason\": \"shop_purchase\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/user_1/currency/global",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"user_1",
+								"currency",
+								"global"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"globalCurrency\": 300,\r\n        \"previousCurrency\": 250,\r\n        \"amount\": 50,\r\n        \"operation\": \"subtract\",\r\n        \"reason\": \"shop_purchase\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"globalCurrency\": 20,\r\n        \"amount\": 50,\r\n        \"operation\": \"subtract\",\r\n        \"reason\": \"shop_purchase\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Delete user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users/user_1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"user_1"
+					]
+				},
+				"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+			},
+			"response": [
+				{
+					"name": "Delete user",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/user_1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"user_1"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\", \r\n        \"message\": \"Account deleted successfully\"\r\n    },\r\n    {\r\n        \"status\": \"error\", \r\n        \"message\": \"User not found\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Login user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"playerName\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Login user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"playerName\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n    {\n        \"status\": \"success\",\n        \"accessToken\": \"jwt_token_here\",\n        \"refreshToken\": \"refresh_token_here\",\n        \"expiresAt\": \"2025-09-16T15:30:00Z\",\n        \"refreshExpiresAt\": \"2025-09-23T15:30:00Z\",\n        \"userId\": \"user_1\",\n        \"username\": \"playerName\"\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Invalid email or password\"\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Email and password are required\"\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Validate token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"token\": \"jwt_token_here\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/validate",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"validate"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Validate token",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"jwt_token_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/validate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"validate"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"username\": \"playerName\",\r\n        \"expiresAt\": \"2025-01-16T10:30:00Z\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Invalid token\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Bulk user lookup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"userIds\": [\n        \"user_1\",\n        \"user_2\",\n        \"user_3\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/users/bulk",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"bulk"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Bulk user lookup",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"userIds\": [\n        \"user_123\",\n        \"user_456\",\n        \"user_789\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/bulk",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"bulk"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"users\": [\r\n            {\r\n                \"userId\": \"user_1\",\r\n                \"username\": \"playerName\"\r\n            },\r\n            {\r\n                \"userId\": \"user_2\", \r\n                \"username\": \"player2\"\r\n            },\r\n            {\r\n                \"userId\": \"user_3\",\r\n                \"username\": \"player3\"\r\n            }\r\n        ],\r\n        \"notFound\": [],\r\n        \"totalRequested\": 3,\r\n        \"totalFound\": 3\r\n    },\r\n    {\r\n        \"status\": \"partial_success\",\r\n        \"users\": [\r\n            {\r\n                \"userId\": \"user_1\",\r\n                \"username\": \"playerName\"\r\n            }\r\n        ],\r\n        \"notFound\": [\"user_2\", \"user_3\"],\r\n        \"totalRequested\": 3,\r\n        \"totalFound\": 1\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"users\": [],\r\n        \"notFound\": [\"user_1\", \"user_2\"],\r\n        \"totalRequested\": 2,\r\n        \"totalFound\": 0\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Update in-game currency",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": 25,\n  \"operation\": \"subtract\",\n  \"reason\": \"item_purchase\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/users/user_1/currency/ingame",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"user_1",
+						"currency",
+						"ingame"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Update in-game currency",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 25,\n  \"operation\": \"subtract\",\n  \"reason\": \"item_purchase\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/user_1/currency/ingame",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"user_1",
+								"currency",
+								"ingame"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"inGameCurrency\": 50,\r\n        \"previousCurrency\": 75,\r\n        \"amount\": 25,\r\n        \"operation\": \"subtract\",\r\n        \"reason\": \"item_purchase\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"inGameCurrency\": 20,\r\n        \"amount\": 25,\r\n        \"operation\": \"subtract\",\r\n        \"reason\": \"item_purchase\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"User is not currently in a game\"\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Get currency balances",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users/user_1/currency",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"user_1",
+						"currency"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get currency balances",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/user_1/currency",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"user_1",
+								"currency"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"globalCurrency\": 250,\r\n        \"inGameCurrency\": 100,\r\n        \"gameId\": \"game_1\"\r\n    },\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"globalCurrency\": 250,\r\n        \"inGameCurrency\": 0,\r\n        \"gameId\": null\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"User not found\"\r\n    }\r\n]"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://template.postman-echo.com"
+		}
+	]
+}
