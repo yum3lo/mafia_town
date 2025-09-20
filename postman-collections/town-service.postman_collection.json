@@ -9,9 +9,21 @@
 	"item": [
 		{
 			"name": "Get All Locations",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8000/locations",
 					"protocol": "http",
@@ -38,7 +50,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Shop\",\n  \"type\": \"special\",\n  \"description\": \"Main town shop\",\n  \"coordinates\": { \"x\": 10, \"y\": 25 }\n}"
+					"raw": "  {\n    \"name\": \"Informator Bureau\",\n    \"type\": \"special\",\n    \"description\": \"Quest information center\",\n    \"coordinates\": { \"x\": 15, \"y\": 40 }\n  }"
 				},
 				"url": {
 					"raw": "http://localhost:8000/locations",
@@ -60,7 +72,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8000/locations/{{location_id}}",
+					"raw": "http://localhost:8000/locations/loc_33ab960f",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -68,7 +80,7 @@
 					"port": "8000",
 					"path": [
 						"locations",
-						"{{location_id}}"
+						"loc_33ab960f"
 					]
 				}
 			},
@@ -86,10 +98,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Grand Shop\",\n  \"description\": \"Main town shop with upgraded items\",\n  \"coordinates\": { \"x\": 12, \"y\": 27 }\n}"
+					"raw": "{\n  \"name\": \"Informator Bureau\",\n  \"description\": \"Quest information center\",\n  \"coordinates\": { \"x\": 12, \"y\": 27 }\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8000/locations/{{location_id}}",
+					"raw": "http://localhost:8000/locations/loc_33ab960f",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -97,7 +109,7 @@
 					"port": "8000",
 					"path": [
 						"locations",
-						"{{location_id}}"
+						"loc_33ab960f"
 					]
 				}
 			},
@@ -109,7 +121,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8000/locations/{{location_id}}",
+					"raw": "http://localhost:8000/locations/loc_33ab960f",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -117,7 +129,7 @@
 					"port": "8000",
 					"path": [
 						"locations",
-						"{{location_id}}"
+						"loc_33ab960f"
 					]
 				}
 			},
@@ -135,7 +147,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"user_id\": \"user_123\",\n  \"from_location\": \"loc_2\",\n  \"to_location\": \"loc_1\",\n  \"timestamp\": \"2025-09-07T09:30:00Z\",\n  \"gameDay\": 1\n}"
+					"raw": "{\n  \"user_id\": \"user_22\",\n  \"from_location\": \"loc_2\",\n  \"to_location\": \"loc_33ab960f\",\n  \"timestamp\": \"2025-09-07T09:30:00Z\",\n  \"gameDay\": 1\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8000/movements",
@@ -157,14 +169,21 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8000/movements",
+					"raw": "http://localhost:8000/movements/user_22?gameDay=1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8000",
 					"path": [
-						"movements"
+						"movements",
+						"user_22"
+					],
+					"query": [
+						{
+							"key": "gameDay",
+							"value": "1"
+						}
 					]
 				}
 			},
@@ -176,7 +195,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8000/locations/{{location_id}}/movements",
+					"raw": "http://localhost:8000/locations/loc_33ab960f/movements",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -184,7 +203,7 @@
 					"port": "8000",
 					"path": [
 						"locations",
-						"{{location_id}}",
+						"loc_33ab960f",
 						"movements"
 					]
 				}
