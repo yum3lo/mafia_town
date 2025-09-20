@@ -1,0 +1,214 @@
+{
+	"info": {
+		"_postman_id": "2cb73c08-49f1-4c65-b9f8-64bc8d5aea0c",
+		"name": "Mafia Town Service",
+		"description": "Test collection for Location and Movement endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38199449"
+	},
+	"item": [
+		{
+			"name": "Get All Locations",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Location",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "  {\n    \"name\": \"Informator Bureau\",\n    \"type\": \"special\",\n    \"description\": \"Quest information center\",\n    \"coordinates\": { \"x\": 15, \"y\": 40 }\n  }"
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a specific location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/locations/loc_33ab960f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"loc_33ab960f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Location",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Informator Bureau\",\n  \"description\": \"Quest information center\",\n  \"coordinates\": { \"x\": 12, \"y\": 27 }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations/loc_33ab960f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"loc_33ab960f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Location",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/locations/loc_33ab960f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"loc_33ab960f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Movement",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"user_id\": \"user_22\",\n  \"from_location\": \"loc_2\",\n  \"to_location\": \"loc_33ab960f\",\n  \"timestamp\": \"2025-09-07T09:30:00Z\",\n  \"gameDay\": 1\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/movements",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"movements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Movements",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/movements/user_22?gameDay=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"movements",
+						"user_22"
+					],
+					"query": [
+						{
+							"key": "gameDay",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movements by Location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/locations/loc_33ab960f/movements",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"loc_33ab960f",
+						"movements"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
