@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "2cb73c08-49f1-4c65-b9f8-64bc8d5aea0c",
+		"name": "Mafia Town Service",
+		"description": "Test collection for Location and Movement endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38199449"
+	},
+	"item": [
+		{
+			"name": "Get All Locations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Location",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Shop\",\n  \"type\": \"special\",\n  \"description\": \"Main town shop\",\n  \"coordinates\": { \"x\": 10, \"y\": 25 }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a specific location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/locations/{{location_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"{{location_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Location",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Grand Shop\",\n  \"description\": \"Main town shop with upgraded items\",\n  \"coordinates\": { \"x\": 12, \"y\": 27 }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations/{{location_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"{{location_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Location",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/locations/{{location_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"{{location_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Movement",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"user_id\": \"user_123\",\n  \"from_location\": \"loc_2\",\n  \"to_location\": \"loc_1\",\n  \"timestamp\": \"2025-09-07T09:30:00Z\",\n  \"gameDay\": 1\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/movements",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"movements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Movements",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/movements",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"movements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movements by User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/users/{{user_id}}/movements",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"users",
+						"{{user_id}}",
+						"movements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movements by Location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/locations/{{location_id}}/movements",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations",
+						"{{location_id}}",
+						"movements"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
