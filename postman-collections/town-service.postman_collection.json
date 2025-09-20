@@ -171,27 +171,6 @@
 			"response": []
 		},
 		{
-			"name": "Get Movements by User",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8000/users/{{user_id}}/movements",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"users",
-						"{{user_id}}",
-						"movements"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Get Movements by Location",
 			"request": {
 				"method": "GET",
