@@ -1,0 +1,295 @@
+{
+	"info": {
+		"_postman_id": "6f43574e-72f3-4d95-a938-33ec74521a04",
+		"name": "Mafia Character Service",
+		"description": "Test collection for Character, Asset, and Inventory endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38199449"
+	},
+	"item": [
+		{
+			"name": "Create Character",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"user_123\",\n  \"assets\": {\n    \"hair\": \"blonde_curly\",\n    \"coat\": \"red_jacket\",\n    \"accessory\": \"gold_watch\",\n    \"face\": \"cheerful_smile\",\n    \"pants\": \"dark_jeans\"\n  },\n  \"slots\": {\n    \"hair_accessory\": \"baseball_cap\",\n    \"jewelry\": \"silver_ring\",\n    \"shoes\": \"leather_boots\"\n  },\n  \"currencyType\": \"global\",\n  \"globalCurrency\": 250,\n  \"currencySpent\": 100\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8001/characters",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"characters"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Character",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/characters/user_123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"characters",
+						"user_123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Character",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"user_123\",\n  \"assets\": {\n    \"hair\": \"black_straight\",\n    \"coat\": \"blue_hoodie\",\n    \"accessory\": \"sunglasses\"\n  },\n  \"slots\": {\n    \"hair_accessory\": \"headband\",\n    \"jewelry\": \"gold_necklace\"\n  },\n  \"currencyType\": \"global\",\n  \"globalCurrency\": 250,\n  \"currencySpent\": 100\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8001/characters/user_123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"characters",
+						"user_123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Assets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/assets",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"assets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Asset Slots",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/assets/slots",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"assets",
+						"slots"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Asset by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/assets/red_jacket",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"assets",
+						"red_jacket"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Assets and Slots",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/assets/user/user_123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"assets",
+						"user",
+						"user_123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Item to Inventory",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"itemId\": \"body_armor\",\n  \"name\": \"Bulletproof Vest\",\n  \"quantity\": 1,\n  \"expiresNextDay\": true,\n  \"currencyType\": \"in-game\",\n  \"purchasePrice\": 150,\n  \"type\": \"protection\",\n  \"description\": \"Protects against mafia attacks during night phase\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8001/inventory/user_123/items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"inventory",
+						"user_123",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Inventory",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/inventory/user_123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"inventory",
+						"user_123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Use Inventory Item",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"usageContext\": \"night_attack_defense\",\n  \"gameId\": \"game_789\",\n  \"targetLocation\": \"warehouse_district\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8001/inventory/user_123/items/body_armor/use",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"inventory",
+						"user_123",
+						"items",
+						"body_armor",
+						"use"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check Inventory Item Type",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/inventory/user_123/items/type/protection",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"inventory",
+						"user_123",
+						"items",
+						"type",
+						"protection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Inventory Item",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/inventory/user_123/items/body_armor",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"inventory",
+						"user_123",
+						"items",
+						"body_armor"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
