@@ -2180,12 +2180,22 @@ Develop branch:
 Follow conventional commits specification:
 
 ```
-<type>(<scope>): <description>
+<type>(<optional scope>): <description>
 
-[optional body]
+<optional body>
 ```
 
-Types: `feat `, `fix `, `docs `, `style `, `refactor `, `test `, `chore `
+Types: 
+- Changes relevant to the API:
+  - `feat` commits that add, adjust or remove a new feature to the API
+  - `fix` commits that fix an API bug of a preceded `feat` commit
+- `refactor` commits that rewrite or restructure code without altering API behavior
+- `style` commits that address code style (e.g., white-space, formatting, missing semi-colons) and do not affect application behavior
+- `test` commits that add missing tests or correct existing ones
+- `docs` commits that exclusively affect documentation
+- `build` commits that affect build-related components such as build tools, dependencies, project version, CI/CD pipelines, ...
+- `ops` commits that affect operational components like infrastructure, deployment, backup, recovery procedures, ...
+- `chore` miscellaneous commits e.g. modifying .gitignore, ...
 
 ## Pull request requirements
 
