@@ -1,0 +1,484 @@
+{
+	"info": {
+		"_postman_id": "365b11de-5089-45b2-9dcb-bb4ac3ff3c46",
+		"name": "communication-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47748940"
+	},
+	"item": [
+		{
+			"name": "mocks",
+			"item": [
+				{
+					"name": "User Service: get user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/mock/users/550e8400-e29b-41d4-a716-446655440201",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"users",
+								"550e8400-e29b-41d4-a716-446655440201"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Game Service: get player status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/mock/game/550e8400-e29b-41d4-a716-446655440100/player/550e8400-e29b-41d4-a716-446655440201/status",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"game",
+								"550e8400-e29b-41d4-a716-446655440100",
+								"player",
+								"550e8400-e29b-41d4-a716-446655440201",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Game Service: Get game state (phase, rounds)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/mock/game/{550e8400-e29b-41d4-a716-446655440100/state",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"game",
+								"{550e8400-e29b-41d4-a716-446655440100",
+								"state"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Roleplay: get role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/mock/roles/550e8400-e29b-41d4-a716-446655440201",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"roles",
+								"550e8400-e29b-41d4-a716-446655440201"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Town Service: get location of player",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/mock/location/550e8400-e29b-41d4-a716-446655440201",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"location",
+								"550e8400-e29b-41d4-a716-446655440201"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Town: Get location of all players",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/mock/location/550e8400-e29b-41d4-a716-446655442001/players",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"location",
+								"550e8400-e29b-41d4-a716-446655442001",
+								"players"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post rumor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"purchaserId\": \"550e8400-e29b-41d4-a716-446655440201\",\n  \"content\": \"I saw someone suspicious near the warehouse\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/mock/events/rumor",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"events",
+								"rumor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post player died message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"playerId\": \"550e8400-e29b-41d4-a716-446655440203\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/mock/events/player-death",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"events",
+								"player-death"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Start/End voting",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"started\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/mock/events/voting-phase",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"mock",
+								"events",
+								"voting-phase"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "create chatroom",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Global Chat\",\n  \"type\": \"global\",\n  \"gameId\": \"550e8400-e29b-41d4-a716-446655440100\",\n  \"locationId\": \"550e8400-e29b-41d4-a716-446655442001\", // optional\n  \"maxParticipants\": 50 // optional\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/chat/rooms",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"chat",
+						"rooms"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "active",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send message in chat-room",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"senderId\": \"550e8400-e29b-41d4-a716-446655440201\",\n  \"content\": \"Hello everyone!\",\n  \"type\": \"text\" // optional: \"text\" | \"system\" | \"action\" | \"rumor\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2aa/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"chat",
+						"rooms",
+						"c0f5c5ba-074a-462a-9716-4eda1159a2aa",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get chat-room messages",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2aa/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"chat",
+						"rooms",
+						"c0f5c5ba-074a-462a-9716-4eda1159a2aa",
+						"messages"
+					],
+					"query": [
+						{
+							"key": "playerId",
+							"value": "550e8400-e29b-41d4-a716-446655440201",
+							"disabled": true
+						},
+						{
+							"key": "limit",
+							"value": "50",
+							"disabled": true
+						},
+						{
+							"key": "offset",
+							"value": "0",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Join room",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"playerId\": \"550e8400-e29b-41d4-a716-446655440201\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2aa/join",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"chat",
+						"rooms",
+						"c0f5c5ba-074a-462a-9716-4eda1159a2aa",
+						"join"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Leave room",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"playerId\": \"550e8400-e29b-41d4-a716-446655440201\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2ab/leave",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"chat",
+						"rooms",
+						"c0f5c5ba-074a-462a-9716-4eda1159a2ab",
+						"leave"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All rooms player is in",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/chat/players/550e8400-e29b-41d4-a716-446655440201/rooms?gameId=550e8400-e29b-41d4-a716-446655440100",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"chat",
+						"players",
+						"550e8400-e29b-41d4-a716-446655440201",
+						"rooms"
+					],
+					"query": [
+						{
+							"key": "gameId",
+							"value": "550e8400-e29b-41d4-a716-446655440100"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
