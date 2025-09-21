@@ -97,6 +97,7 @@ Functionalities:
 - Private Mafia Chat: Restricted to Mafia members for strategic communication.
 - Location-Based Private Chat: Enables private messages between players in the same part of the town.
 - Message Persistence: Stores chat history for reference during voting or game events.
+- Redis Caching from pub/sub messaging.
 - Role-Based Access Control: Ensures only authorized players access restricted chats.
 
 ### Task Service
@@ -158,7 +159,7 @@ The Character Service will be written in Python FastAPI, which enables rapid dev
 
 #### Communication Service
 
-NestJS is the chosen framework, whichprovides modular architecture (controllers, services, modules) with built-in dependency injection, ideal for microservice development. TypeScript on top of that adds static typing to reduce runtime errors and improve maintainability. The chosen database is Postgresql, which handles structured data, such as chat messages, player roles, and chat room membership. Via Prisma ORM it enables type-safe database access in TypeScript, minimizing errors and boilerplate code. The main communication patterns are Socket.IO Websockets for fast real-time updates to chat participants and REST API for fetching chat history, listing chat rooms, and sending messages when real-time delivery is not required (e.g., loading old messages).
+NestJS is the chosen framework, whichprovides modular architecture (controllers, services, modules) with built-in dependency injection, ideal for microservice development. TypeScript on top of that adds static typing to reduce runtime errors and improve maintainability. The chosen database is Postgresql, which handles structured data, such as chat messages, player roles, and chat room membership. Via Type ORM it enables type-safe database access in TypeScript, minimizing errors and boilerplate code. The main communication patterns are Websockets for fast real-time updates to chat participants and REST API for fetching chat history, listing chat rooms, and sending messages when real-time delivery is not required (e.g., loading old messages). Redis is used for caching and pub/sub messaging.
 
 #### Rumour Service
 
@@ -166,6 +167,16 @@ NestJS as the chosen framework provides a modular structure (controllers, servic
 
 Event-based subscriptions from Task/Character Services - Not all rumors are static. They may depend on what’s happening in other services (tasks being completed, character appearance changing). Event-based subscriptions let the Rumors Service automatically update its rumor pool without tightly coupling it to other services. This ensures fresh, relevant rumors and keeps each service independent (Task Service doesn’t need to know Rumors Service exists — it just emits events). Task Service and Character Service send events (or expose APIs) that the Rumors Service uses to populate and update the rumor pool.
 Purchased rumors are saved under the player’s ID for retrieval.
+
+The service implements role-based access control through currency requirements:
+
+| **Role**          | **Category Access** | **Min Currency** | **Example**                |
+| ----------------- | ------------------- | ---------------- | -------------------------- |
+| **Mafia Roles**   | `task` rumors       | 200-299          | Mafioso, Assassin, Framer  |
+| **Town Roles**    | `location` rumors   | 150-199          | Citizen, Doctor, Detective |
+| **Special Roles** | `role` rumors       | 300+             | Detective, Scout           |
+| **All Roles**     | `appearance` rumors | 100-149          | Any role can access        |
+
 
 #### Task Service
 
@@ -198,7 +209,7 @@ WebSockets provide live chat, notifications, and voting updates, ensuring intera
 | Cucos Maria      | **User Management Service, Game Service** | Manage user profiles, authentication, in-game currency, device/location info; handle day/night cycle, lobby management, event notifications, and initiate voting | Typescript (NodeJS) + PostgreSQL + Redis      |
 | Mihalachi Mihail | **Shop Service, Roleplay Service**        | Handle in-game item purchases, currency management, daily preparation mechanics; enforce role abilities, generate filtered announcements, balance daily activity | Java (Springboot) + Redis                     |
 | Garbuz Nelli     | **Town Service, Character Service**       | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features                          | Python (FastAPI) + PostgreSQL                 |
-| Frunza Valeria   | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats                          | Typescript (NestJS) + Prisma ORM + PostgreSQL |
+| Frunza Valeria   | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats                          | Typescript (NestJS) + Prisma/Type ORM + PostgreSQL + Redis|
 | Lupan Lucian     | **Task Service, Voting Service**          | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results                         | Go + PostgreSQL                               |
 
 ## Data Management
@@ -1442,154 +1453,424 @@ Response: 204 No Content
 
 ### Rumour Service
 
-- Endpoint when player spends currency to get a random rumor.
+- Get all available rumors in the system with optional filtering.
 
 ```
-Endpoint:  /rumors/buy
-Method: POST
-Request:
-{
-  "playerId": "123e4567-e89b-12d3-a456-426614174000",
-  "currencySpent": 50
-}
-Response:
-{
-  "rumorId": "987e6543-e21b-12d3-a456-426614174999",
-  "content": "Player X was last seen near the warehouse.",
-  "category": "task"
-}
-```
-
-- Fetch all rumors a player has purchased.
-
-```
-Endpoint: /rumors/:playerId
-Method: GET
+Endpoint:  /rumors
+# Optional query parameters:
+# ?category=role|task|appearance|location
+# ?active=true|false
+Method: GET 
 Response:
 [
   {
-    "rumorId": "987e6543-e21b-12d3-a456-426614174999",
-    "content": "Player X was last seen near the warehouse.",
-    "category": "task"
+    "id": "c5ee1573-8c3c-449c-9900-b81b34c736d7",
+    "content": "The mayor was seen talking to suspicious characters",
+    "category": "role",
+    "isActive": true,
+    "createdAt": "2025-09-20T09:15:25.220Z",
+    "updatedAt": "2025-09-20T09:15:25.220Z"
   },
   {
-    "rumorId": "321e6543-e21b-12d3-a456-426614174111",
-    "content": "Player Y has been acting suspiciously.",
-    "category": "appearance"
+    "id": "987e6543-e21b-12d3-a456-426614174999",
+    "content": "Someone was spotted near the warehouse at midnight",
+    "category": "location",
+    "isActive": true,
+    "createdAt": "2025-09-20T09:15:25.220Z",
+    "updatedAt": "2025-09-20T09:15:25.220Z"
   }
 ]
 ```
 
-- (Admin/debug use) Preview a random rumor from the pool.
+- Create a new rumor (Admin/System use).
 
 ```
-Endpoint: /rumors/random
-Method: GET
+Endpoint: /rumors
+Method: POST
+Request:
+{
+  "content": "The user has a black hat.",
+  "category": "appearance",
+  "isActive": true
+}
 Response:
 {
-  "rumorId": "111e6543-e21b-12d3-a456-426614174222",
-  "content": "One of the players is secretly a doctor.",
-  "category": "role"
+  "id": "new-rumor-id",
+  "content": "The user has a black hat.",
+  "category": "appearance",
+  "isActive": true,
+  "createdAt": "2025-09-20T09:15:25.220Z",
+  "updatedAt": "2025-09-20T09:15:25.220Z"
 }
 ```
 
-#### Inter-Service Communication
+- Get a specific rumor by ID.
 
-**Outbound Events**
-
-- The service publishes events when rumors are purchased:
-
-```json
+```
+Endpoint: /rumors/:id
+Method: GET
+Response:
 {
-  "event": "rumor_purchased",
-  "data": {
-    "playerId": "string",
-    "gameId": "string",
-    "rumorType": "string",
-    "currencySpent": "number",
-    "targetPlayer": "string"
+  "id": "c5ee1573-8c3c-449c-9900-b81b34c736d7",
+  "content": "The mayor was seen talking to suspicious characters",
+  "category": "role",
+  "isActive": true,
+  "createdAt": "2025-09-20T09:15:25.220Z",
+  "updatedAt": "2025-09-20T09:15:25.220Z"
+}
+```
+
+- Purchase a rumor - Player spends currency to get a random rumor based on their role and currency amount.
+
+```
+Endpoint: /player-rumors
+Method: POST
+Request:
+{
+  "playerId": "player-doctor-001",
+  "playerRole": "doctor",
+  "gameId": "game-001",
+  "spentCurrency": 120
+}
+Response:
+{
+  "id": "d08a88c3-21ee-44f9-9e20-8ae34baa8bc9",
+  "playerId": "player-doctor-001",
+  "rumorId": "c5ee1573-8c3c-449c-9900-b81b34c736d7",
+  "gameId": "game-001",
+  "purchasedAt": "2025-09-20T09:15:40.839Z",
+  "spentCurrency": 120,
+  "rumor": {
+    "id": "c5ee1573-8c3c-449c-9900-b81b34c736d7",
+    "content": "Someone was spotted near the old church",
+    "category": "appearance",
+    "isActive": true,
+    "createdAt": "2025-09-20T09:15:25.220Z",
+    "updatedAt": "2025-09-20T09:15:25.220Z"
   }
 }
 ```
 
-**Inbound Events**
+- Get a specific a specific purchase record by purchase ID.
 
-- The service listens for events from other services to generate rumors:
+```
+Endpoint: /player-rumors/:id
+# Optional query parameters:
+# ?gameId - specific game
+# ?playerId - specific player
+Method: GET
+Response:
+{
+  "id": "d08a88c3-21ee-44f9-9e20-8ae34baa8bc9",
+  "playerId": "player-doctor-001",
+  "rumorId": "c5ee1573-8c3c-449c-9900-b81b34c736d7",
+  "gameId": "game-001",
+  "purchasedAt": "2025-09-20T09:15:40.839Z",
+  "spentCurrency": 120,
+  "rumor": {
+    "id": "c5ee1573-8c3c-449c-9900-b81b34c736d7",
+    "content": "Someone was spotted near the old church",
+    "category": "appearance",
+    "isActive": true,
+    "createdAt": "2025-09-20T09:15:25.220Z",
+    "updatedAt": "2025-09-20T09:15:25.220Z"
+  }
+}
+```
+
+#### Event Broadcasting
+
+When a rumor is purchased, the service emits events for chat integration:
 
 ```json
 {
-  "event": "task_completed",
+  "type": "RUMOR_PURCHASED",
+  "gameId": "game-123",
+  "message": "A detective just purchased a role rumor for 350 coins",
+  "timestamp": "2025-09-20T10:30:00Z",
+  "metadata": {
+    "playerId": "player-456",
+    "rumorCategory": "role",
+    "spentCurrency": 350,
+    "purchaseId": "purchase-789"
+  }
+}
+```
+
+#### Inbound Events
+
+The service listens for events from other services to generate rumors:
+
+**From Town Service**
+
+```json
+{
+  "event": "player_moved",
   "data": {
     "playerId": "string",
-    "taskType": "string",
-    "location": "string",
+    "fromLocation": "string",
+    "toLocation": "string",
     "timestamp": "string"
   }
 }
 ```
 
+- Generates **location rumors** (“Player Y was last seen at the warehouse”).
+
+---
+
+**From Game Service**
+
+```json
+{
+  "event": "phase_changed",
+  "data": {
+    "gameId": "string",
+    "phase": "day|night|voting",
+    "timestamp": "string"
+  }
+}
+```
+
+- Controls rumor availability (e.g., no buying at night).
+
+```json
+{
+  "event": "player_status_updated",
+  "data": {
+    "playerId": "string",
+    "status": "alive|dead|exiled",
+    "timestamp": "string"
+  }
+}
+```
+
+- Filters rumors about dead players.
+
 ### Communication Service
 
-- Endpoint to send a message to a chat room.
+- Create a new chat room. (Admin/System)
 
-```Endpoint: /chat/send
+```Endpoint: /chat/rooms
 Method: POST
 Request:
 {
-  "chatRoomId": "abc123",
-  "senderId": "player123",
-  "content": "Did anyone see who was near the warehouse?"
+  "name": "Mafia Strategy Room",
+  "type": "mafia",
+  "gameId": "game-uuid-123",
+  "locationId": "location-uuid-456",
+  "maxParticipants": 10
 }
 Response:
 {
-  "messageId": "msg987",
-  "chatRoomId": "abc123",
-  "senderId": "player123",
-  "content": "Did anyone see who was near the warehouse?",
-  "createdAt": "2025-09-07T12:00:00Z"
+  "id": "room-uuid-789",
+  "name": "Mafia Strategy Room",
+  "type": "mafia",
+  "gameId": "game-uuid-123",
+  "locationId": "location-uuid-456",
+  "active": true,
+  "maxParticipants": 10,
+  "createdAt": "2025-09-21T12:00:00Z"
 }
 ```
 
-- Fetch all messages for a chat room.
+- Send message to chat-room
 
 ```
-Endpoint: /chat/:chatRoomId/messages
+Endpoint: /chat/rooms/:roomId/messages
+Method: POST
+Request:
+{
+  "senderId": "player-uuid-123",
+  "content": "Did anyone see who was near the warehouse?",
+  "type": "text"
+}
+Response:
+{
+  "id": "msg-uuid-987",
+  "chatRoomId": "room-uuid-789",
+  "senderId": "player-uuid-123",
+  "content": "Did anyone see who was near the warehouse?",
+  "type": "text",
+  "createdAt": "2025-09-21T12:00:00Z"
+}
+```
+
+- Fetch messages for a chat room with pagination.
+
+```
+Endpoint: /chat/rooms/:roomId/messages
 Method: GET
-Respponse:
-[
-  {
-    "messageId": "msg987",
-    "senderId": "player123",
-    "content": "Did anyone see who was near the warehouse?",
-    "createdAt": "2025-09-07T12:00:00Z"
-  },
-  {
-    "messageId": "msg988",
-    "senderId": "player456",
-    "content": "I saw Player X heading towards the dock.",
-    "createdAt": "2025-09-07T12:01:30Z"
-  }
-]
-```
-
-- Fetch all chat rooms a player has access to (Mafia, location-based, or global during voting hours).
-
-```
-Endpoint: /chat/rooms/:playerId
-Method: GET
+# Optional query params:
+# ?playerId: Filter messages visible to this player
+# ?limit: Maximum number of messages, default 50
+# ?offset: Number of messages to skip, default 0
 Response:
 [
   {
-    "chatRoomId": "room123",
-    "name": "Global Voting Chat",
-    "type": "global"
+    "id": "msg-uuid-987",
+    "senderId": "player-uuid-123",
+    "content": "Did anyone see who was near the warehouse?",
+    "type": "text",
+    "createdAt": "2025-09-21T12:00:00Z"
   },
   {
-    "chatRoomId": "room456",
-    "name": "Mafia Strategy",
-    "type": "mafia"
+    "id": "msg-uuid-988",
+    "senderId": "player-uuid-456",
+    "content": "I saw Player X heading towards the dock.",
+    "type": "text",
+    "createdAt": "2025-09-21T12:01:30Z"
   }
 ]
+```
+
+- Fetch all chat rooms a player has access to.
+
+```
+Endpoint: /chat/players/:playerId/rooms
+Method: GET
+# Mandatory query params:
+# ?gameId
+Response:
+[
+  {
+    "id": "room-uuid-123",
+    "name": "Global Voting Chat",
+    "type": "voting",
+    "gameId": "game-uuid-123",
+    "active": true
+  },
+  {
+    "id": "room-uuid-456",
+    "name": "Mafia Strategy",
+    "type": "mafia",
+    "gameId": "game-uuid-123",
+    "active": true
+  }
+]
+```
+
+- Join a chat-room
+
+```
+Endpoint:  /chat/rooms/:roomId/join
+Method: POST
+Request:
+{
+  "playerId": "player-uuid-123"
+}
+Response:
+{
+  "message": "Successfully joined chat room"
+}
+```
+
+- Leave a chat-room
+
+```
+Endpoint:  /chat/rooms/:roomId/leave
+Method: POST
+Request:
+{
+  "playerId": "player-uuid-123"
+}
+Response:
+{
+  "message": "Successfully left chat room"
+}
+```
+
+#### WebSocket Events
+
+Players connect to the WebSocket server with authentication parameters.
+
+**Connection URL:**
+
+```
+ws://localhost:3000?playerId=player-uuid-123&gameId=game-uuid-456
+```
+
+**`join_room`**
+
+Join a chat room to receive real-time messages.
+
+**Payload:**
+
+```json
+{
+  "roomId": "room-uuid-789"
+}
+```
+
+**`leave_room`**
+
+Leave a chat room to stop receiving messages.
+
+**Payload:**
+
+```json
+{
+  "roomId": "room-uuid-789"
+}
+```
+
+**`send_message`**
+
+Send a message through WebSocket (alternative to REST API).
+
+**Payload:**
+
+```json
+{
+  "roomId": "room-uuid-789",
+  "content": "Hello everyone!",
+  "type": "text"
+}
+```
+
+**`new_message` (Received)**
+
+Real-time message broadcast to room participants.
+
+**Payload:**
+
+```json
+{
+  "id": "msg-uuid-123",
+  "chatRoomId": "room-uuid-789",
+  "senderId": "player-uuid-456",
+  "content": "Hello everyone!",
+  "type": "text",
+  "createdAt": "2025-09-21T12:00:00Z"
+}
+```
+
+**`player_joined` (Received)**
+
+Notification when a player joins the room.
+
+**Payload:**
+
+```json
+{
+  "playerId": "player-uuid-789",
+  "roomId": "room-uuid-123",
+  "timestamp": "2025-09-21T12:00:00Z"
+}
+```
+
+**`player_left` (Received)**
+
+Notification when a player leaves the room.
+
+**Payload:**
+
+```json
+{
+  "playerId": "player-uuid-789",
+  "roomId": "room-uuid-123",
+  "timestamp": "2025-09-21T12:00:00Z"
+}
 ```
 
 ### Task Service
@@ -1916,3 +2197,112 @@ Types: `feat `, `fix `, `docs `, `style `, `refactor `, `test `, `chore `
 ## Test coverage
 
 - Unit Tests - 80% code coverage minimum
+
+## Quick Start Development Script
+
+### Rumors Service
+
+**1. Start the Service**
+
+```bash
+# Start PostgreSQL database and the service
+./scripts/start.sh
+```
+
+This script will:
+
+- Start PostgreSQL container with Docker Compose
+- Wait for database to be ready
+- Launch Prisma Studio for database inspection
+- Start the NestJS service on http://localhost:3000
+
+**2. Populate Database**
+
+```bash
+# Add initial rumor data (run after service is up)
+./scripts/populate-db.sh
+```
+
+This script will:
+
+- Check if the API is reachable
+- Count existing rumors in the database
+- Add 20 diverse rumors (5 per category) if database is empty
+- Skip population if data already exists
+
+**3. Test Event System**
+
+```bash
+# Test role-based rumor purchases with event emission
+./scripts/test-events.sh
+```
+
+This script demonstrates:
+
+- Detective purchasing role rumors (300+ currency)
+- Citizen purchasing location rumors (150-199 currency)
+- Mafioso purchasing task rumors (200-299 currency)
+- Invalid purchase attempts and error handling
+- Event emission for chat system integration
+
+### Communication Service
+
+For rapid development setup, use the provided start-dev script:
+
+```bash
+# Make script executable (first time only)
+chmod +x scripts/start-dev.sh
+
+# Start complete development environment
+./scripts/start-dev.sh
+```
+
+This script will:
+
+- Start PostgreSQL database (localhost:5433)
+- Start Redis cache (localhost:6379)
+- Start the chat service (localhost:3001)
+- Initialize database with sample data
+- Provide test player IDs and game IDs for immediate testing
+
+**Sample Test Data Provided:**
+
+- Game ID: `550e8400-e29b-41d4-a716-446655440100`
+- Player 1 (Townsperson): `550e8400-e29b-41d4-a716-446655440201`
+- Player 2 (Mafia): `550e8400-e29b-41d4-a716-446655440202`
+- Player 3 (Dead): `550e8400-e29b-41d4-a716-446655440203`
+
+**Quick Health Check:**
+
+```bash
+curl http://localhost:3001/health
+```
+
+## Docker Deployment
+
+### Rumors Service
+
+This service and its versions are deployed on Docker Hub on a public repo at https://hub.docker.com/r/valeriafz/rumors-service:
+
+```bash
+# Build production image
+docker build -t valeriafz/rumors-service:latest .
+
+# Run with Docker Compose
+docker-compose up --build
+```
+
+### Communication Service
+
+The service is containerized and available on Docker Hub at https://hub.docker.com/r/valeriafz/mafia-communication-service:
+
+```bash
+# Pull the latest version
+docker pull valeriafz/mafia-communication-service:1.0.0
+
+# Run with Docker Compose
+docker-compose up -d
+
+# Build locally
+docker build -t mafia-communication-service .
+```
