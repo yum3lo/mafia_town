@@ -15,6 +15,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db/user_management-service.sql:/docker-entrypoint-initdb.d/init.sql
 
+  postgres-server:
+    image: postgres:latest
+    container_name: postgres-server
+    restart: always
+    environment:
+      POSTGRES_USER: mafia_user
+      POSTGRES_PASSWORD: mafia_pass
+      POSTGRES_DB: mafia_users
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   redis_db:
     image: redis:7
     container_name: game_service_cache
@@ -37,6 +50,15 @@ services:
     command: ["sh", "-c", "npm install redis && node game-service.mjs"]
     restart: "on-failure"
 
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    restart: always
+    ports:
+      - "6389:6389"
+    volumes:
+      - redis_data:/data
+
   user-management:
     image: yum3lo/mafia-user_management-service:1.2
     container_name: user_management-service
@@ -58,6 +80,84 @@ services:
       REDIS_HOST: redis_db
       REDIS_PORT: 6379
 
+  communication-service:
+    image: valeriafz/mafia-communication-service:1.0
+    container_name: mafia-communication-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@communication-postgres:5432/communication-db
+      - REDIS_URL=redis://communication-redis:6379
+      - PORT=3001
+    depends_on:
+      - communication-postgres
+      - communication-redis
+    networks:
+      - mafia-network
+    restart: unless-stopped
+
+  communication-postgres:
+    image: postgres:15-alpine
+    container_name: communication-postgres
+    environment:
+      POSTGRES_DB: communication-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - communication_postgres_data:/var/lib/postgresql/data
+    networks:
+      - mafia-network
+
+  communication-redis:
+    image: redis:7-alpine
+    container_name: communication-redis
+    ports:
+      - "6380:6379"
+    networks:
+      - mafia-network
+
+  rumor-postgres:
+    image: postgres:15
+    container_name: rumor-service-postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
+    ports:
+      - "5434:5432"
+    volumes:
+      - rumor_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rumor-app:
+    image: valeriafz/rumors-service:latest
+    container_name: rumor-service-app
+    restart: always
+    ports:
+      - "3003:3000"
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@rumor-postgres:5432/${POSTGRES_DB}?schema=public"
+      PORT: 3000
+      NODE_ENV: development
+    depends_on:
+      rumor-postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   redis_data:
+  communication_postgres_data:
+  rumor_postgres_data:
+
+networks:
+  mafia-network:
+    driver: bridge
