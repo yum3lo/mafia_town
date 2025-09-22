@@ -15,6 +15,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db/user_management-service.sql:/docker-entrypoint-initdb.d/init.sql
 
+  postgres-server:
+    image: postgres:latest
+    container_name: postgres-server
+    restart: always
+    environment:
+      POSTGRES_USER: mafia_user
+      POSTGRES_PASSWORD: mafia_pass
+      POSTGRES_DB: mafia_users
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   redis_db:
     image: redis:7
     container_name: game_service_cache
@@ -36,6 +49,15 @@ services:
     working_dir: /app
     command: ["sh", "-c", "npm install redis && node game-service.mjs"]
     restart: "on-failure"
+
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    restart: always
+    ports:
+      - "6389:6389"
+    volumes:
+      - redis_data:/data
 
   user-management:
     image: yum3lo/mafia-user_management-service:1.2
