@@ -1887,6 +1887,16 @@ Payload: {
   "task_description": "Perform a routine checkup on locations x, y and z."
 }
 Response: 201 Created
+Response body:
+{
+  "task_id": 101,
+  "role": "cop",
+  "task_description": "Perform a routine checkup on locations x, y and z.",
+  "status": "open",
+  "current_assignee": null,
+  "created_at": "2025-09-22T09:10:12Z"
+}
+
 ```
 
 - Endpoint for tasks retrieval
@@ -1894,21 +1904,38 @@ Response: 201 Created
 ```
 Endpoint: /tasks
 Method: GET
-Response: {
+# Optional query params: 
+# ?status: displays task status (open|assigned|in_progress|completed|cancelled)
+# ?limit=50&?offset=0: pagination for displaying a set number of tasks
+Response: 200 OK
+Response body:
+{
   "tasks": [
     {
-      "task_id": 1,
+      "task_id": 101,
       "role": "cop",
-      "task_description": "Perform a routine checkup on locations x, y and z."
+      "task_description": "Perform a routine checkup on locations x, y and z.",
+      "status": "open",
+      "current_assignee": null
     },
     {
-      "task_id": 2,
+      "task_id": 102,
       "role": "doctor",
-      "task_description": "Perform a physical on player x."
+      "task_description": "Perform a physical on player 12.",
+      "status": "assigned",
+      "current_assignee": 2
+    },
+    {
+      "task_id": 103,
+      "role": "investigator",
+      "task_description": "Interview witness at location 7.",
+      "status": "completed",
+      "current_assignee": null
     }
-  ]
+  ],
+  "meta": { "limit": 50, "offset": 0, "total": 3 }
 }
-Response: 200 OK
+
 ```
 
 - Endpoint for task retrieval
@@ -1916,12 +1943,17 @@ Response: 200 OK
 ```
 Endpoint: /tasks/{task_id}
 Method: GET
-Response: {
-  "task_id": 1,
-  "role": "cop",
-  "task_description": "Perform a routine checkup on locations x, y and z."
-}
 Response: 200 OK
+Response body:
+{
+  "task_id": 101,
+  "role": "cop",
+  "task_description": "Perform a routine checkup on locations x, y and z.",
+  "status": "open",
+  "current_assignee": null,
+  "created_at": "2025-09-22T09:10:12Z",
+  "updated_at": "2025-09-22T09:10:12Z"
+}
 ```
 
 - Endpoint for updating task
@@ -1953,9 +1985,18 @@ Endpoint: /tasks/assign
 Method: POST
 Payload: {
   "user_id": 1,
-  "task_id": 3
+  "task_id": 102
 }
 Response: 201 Created
+Response body:
+{
+  "assignment_id": 1001,
+  "task_id": 102,
+  "assignee_id": 1,
+  "assigned_by": 999,
+  "created_at": "2025-09-22T10:05:00Z",
+  "note": "Assigned via operator UI"
+}
 ```
 
 - Endpoint for removing assigned task
@@ -1965,19 +2006,142 @@ Endpoint: /tasks/assign
 Method: DELETE
 Payload: {
   "user_id": 1,
-  "task_id": 3
+  "task_id": 102
 }
 Response: 204 No Content
 ```
 
+- Endpoint for listing assignment audit for a task
+```
+Endpoint: /tasks/{task_id}/history/assignments
+Method: GET
+Response: 200 OK
+Response body:
+[
+  {
+    "assignment_id": 1001,
+    "task_id": 102,
+    "assignee_id": 1,
+    "created_at": "2025-09-22T10:05:00Z"
+  },
+  {
+    "assignment_id": 1002,
+    "task_id": 102,
+    "assignee_id": 2,
+    "created_at": "2025-09-21T14:00:00Z"
+  }
+]
+```
+
+
 #### Task status endpoint
 
-- Endpoint for getting task status at the end of the day
+- Endpoint for changing a task's status
 
+```
+Endpoint: /tasks/{task_id}/status
+Method: PATCH
+Payload: {
+  "status": "in_progress",
+  "updated_by": 2,
+  "note": "Started by assignee"
+}
+Response: 200 OK
+Response body:
+{
+  "task_id": 102,
+  "status": "in_progress",
+  "current_assignee": 1,
+  "updated_at": "2025-09-22T11:00:00Z"
+}
+```
+
+- Endpoint for completing a task
+```
+Endpoint: /tasks/{task_id}/complete
+Method: POST
+Payload: {
+  "completed_by": 1,
+  "status": "completed"
+}
+Response: 200 OK
+Response body:
+{
+  "task_id": 102,
+  "status": "completed",
+  "current_assignee": null,
+  "completed_at": "2025-09-22T11:30:00Z"
+}
+```
+
+- Endpoint for viewing history of task completions
+```
+Endpoint: /tasks/{task_id}/history/completions
+Method: GET
+Response: 200 OK
+Response body:
+[
+  {
+    "user_id": 1,
+    "status": "completed",
+    "completed_at": "2025-09-22T11:30:00Z"
+  },
+  {
+    "user_id": 2,
+    "status": "failed",
+    "completed_at": "2025-09-20T09:00:00Z"
+  }
+]
+```
+
+### Task helper endpoint
+- Endpoint for listing all available tasks to assign
+```
+Endpoint: /tasks/available
+Method: GET
+# Optional query params: 
+# ?role: search by role-specific tasks
+# ?limit=50&?offset=0: offset results
+Response: 200 OK
+Response body:
+{
+  "tasks": [
+    {
+      "task_id": 101,
+      "role": "cop",
+      "task_description": "Perform a routine checkup on locations x, y and z.",
+      "created_at": "2025-09-22T09:10:12Z"
+    },
+    {
+      "task_id": 104,
+      "role": "cop",
+      "task_description": "Patrol sector 5 between 20:00-22:00.",
+      "created_at": "2025-09-22T08:00:00Z"
+    }
+  ]
+}
+```
+
+- Endpoint for fetching candidate users for a given task (for delegation)
+```
+Endpoint: /tasks/{task_id}/candidates
+Method: GET
+Response: 200 OK
+Response body:
+[
+  { "user_id": 1, "eligible_by": ["role:doctor"] },
+  { "user_id": 3, "eligible_by": ["role:cop"] }
+]
+```
+
+- Endpoint for getting task status at the end of the day
 ```
 Endpoint: /tasks/status
 Method: GET
-Response: {
+Response: 200 OK
+Response body:
+{
+  "day": "1",
   "tasks": [
     {
       "user_id": 1,
@@ -1986,11 +2150,15 @@ Response: {
     {
       "user_id": 2,
       "task_completed": false
+    },
+    {
+      "user_id": 3,
+      "task_completed": true
     }
   ]
 }
-Response: 200 OK
 ```
+
 
 ### Voting Service
 
