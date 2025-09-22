@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: user_management_db
+    restart: always
+    environment:
+      POSTGRES_USER: mafia_user
+      POSTGRES_PASSWORD: mafia_pass
+      POSTGRES_DB: mafia_users
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/user_management-service.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis_db:
+    image: redis:7
+    container_name: game_service_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  redis-seeder:
+    image: node:18
+    container_name: redis_seeder
+    depends_on:
+      - redis_db
+    volumes:
+      - ./db/game-service.mjs:/app/game-service.mjs
+    environment:
+      REDIS_URL: redis://redis_db:6379
+    working_dir: /app
+    command: ["sh", "-c", "npm install redis && node game-service.mjs"]
+    restart: "on-failure"
+
+  user-management:
+    image: yum3lo/mafia-user_management-service:1.2
+    container_name: user_management-service
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgres://mafia_user:mafia_pass@postgres:5432/mafia_users
+
+  game-service:
+    image: yum3lo/mafia-game-service:1.2
+    container_name: game_service
+    depends_on:
+      - redis_db
+    ports:
+      - "3002:3002"
+    environment:
+      REDIS_HOST: redis_db
+      REDIS_PORT: 6379
+
+volumes:
+  postgres_data:
+  redis_data:
