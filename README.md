@@ -2289,7 +2289,36 @@ curl http://localhost:3001/health
 ```
 
 ## Docker Deployment
+### Town Service
 
+This service and its versions are deployed on Docker Hub on a public repo at https://hub.docker.com/repository/docker/nelldino/character-service/general
+
+```bash
+#Pull the latest version
+docker build -t nelldino/character-service:1.0 
+
+# Run with Docker Compose
+docker-compose up --build
+
+# Build production image
+docker build -t nelldino/town-service:1.0
+
+```
+
+### Character Service
+
+The service is containerized and available on Docker Hub at https://hub.docker.com/repository/docker/nelldino/town-service/general
+
+```bash
+# Pull the latest version
+docker pull nelldino/character-service:1.0
+
+# Run with Docker Compose
+docker-compose up -d
+
+# Build locally
+docker build -t nelldino/character-serviceȘ1.0 
+```
 ### Rumors Service
 
 This service and its versions are deployed on Docker Hub on a public repo at https://hub.docker.com/r/valeriafz/rumors-service:
