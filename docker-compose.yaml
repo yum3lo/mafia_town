@@ -42,21 +42,21 @@ services:
       - postgres_communication_data:/var/lib/postgresql/data
       - ./db/communication_service.sql:/docker-entrypoint-initdb.d/init.sql
 
-  postgres_rumor:
+  postgres_rumors:
     image: postgres:15
-    container_name: rumor_db
+    container_name: rumors_db
     restart: always
     environment:
-      POSTGRES_USER: ${PG_RUMOR_USER}
-      POSTGRES_PASSWORD: ${PG_RUMOR_PASSWORD}
-      POSTGRES_DB: ${PG_RUMOR_DB}
+      POSTGRES_USER: ${PG_RUMORS_USER}
+      POSTGRES_PASSWORD: ${PG_RUMORS_PASSWORD}
+      POSTGRES_DB: ${PG_RUMORS_DB}
       POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
     ports:
       - "5462:5432"
     volumes:
-      - postgres_rumor_data:/var/lib/postgresql/data
+      - postgres_rumors_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_RUMOR_USER} -d ${PG_RUMOR_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_RUMORS_USER} -d ${PG_RUMORS_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -78,7 +78,8 @@ services:
     volumes:
       - ./db/game_service.mjs:/app/game_service.mjs
     environment:
-      REDIS_URL: redis://redis_game:6379
+      REDIS_HOST: redis_game
+      REDIS_PORT: 6379
     working_dir: /app
     command: ["sh", "-c", "npm install redis && node game_service.mjs"]
     restart: "on-failure"
@@ -119,10 +120,11 @@ services:
     ports:
       - "3002:3002"
     environment:
-      REDIS_URL: redis://redis_game:6379
+      REDIS_HOST: redis_game
+      REDIS_PORT: 6379
 
   communication_service:
-    image: valeriafz/mafia-communication-service:1.0.0
+    image: valeriafz/mafia-communication-service:latest
     container_name: communication_service
     ports:
       - "3003:3003"
@@ -136,25 +138,25 @@ services:
       - redis_communication
     restart: unless-stopped
 
-  rumor_service:
-    image: valeriafz/rumors-service:1.0.0
-    container_name: rumor_service
+  rumors_service:
+    image: valeriafz/rumors-service:v1.0.0
+    container_name: rumors_service
     restart: always
     ports:
       - "3004:3004"
     environment:
-      DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
+      DATABASE_URL: "postgresql://${PG_RUMORS_USER}:${PG_RUMORS_PASSWORD}@postgres_rumors:5432/${PG_RUMORS_DB}?schema=public"
       PORT: 3004
       NODE_ENV: development
     depends_on:
-      postgres_rumor:
+      postgres_rumors:
         condition: service_healthy
 
 volumes:
   postgres_user_management_data:
   postgres_shop_data:
   postgres_communication_data:
-  postgres_rumor_data:
+  postgres_rumors_data:
   redis_game_data:
   redis_roleplay_data:
   redis_communication_data:
