@@ -4,7 +4,7 @@
 		"name": "user-management",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "48492495",
-		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-27112c7e-21c6-4262-b199-3e52925e70b2?action=share&source=collection_link&creator=48492495"
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-27112c7e-21c6-4262-b199-3e52925e70b2?action=share&source=collection_link&creator=48492495"
 	},
 	"item": [
 		{
@@ -19,7 +19,8 @@
 							"});"
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -60,7 +61,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -89,7 +89,8 @@
 							""
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -98,7 +99,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"email\": \"player@example.com\",\n    \"username\": \"playerName\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
+					"raw": "{\n\t\"email\": \"player1@example.com\",\n    \"username\": \"player3\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -148,7 +149,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -160,7 +160,7 @@
 							"path": ""
 						}
 					],
-					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"createdAt\": \"2025-01-15T10:30:00Z\",\r\n        \"message\": \"Account created successfully\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"An account with this email already exists\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"This username is already taken\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"This device is already registered to another account\",\r\n        \"conflictingUser\": \"existingUser\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Invalid input data\",\r\n        \"errors\": {\r\n            \"email\": \"Invalid email format\",\r\n            \"password\": \"Password must be at least 8 characters\",\r\n            \"username\": \"Username must be 3-20 characters\"\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Registration failed due to server error\"\r\n    }\r\n]"
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"createdAt\": \"2025-01-15T10:30:00Z\",\r\n        \"message\": \"Account created successfully\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"An account with this email already exists\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"This username is already taken\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"This device is already registered to another account\",\r\n        \"conflictingUser\": \"existingUser\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Invalid input data\",\r\n        \"errors\": {\r\n            \"email\": \"Invalid email format\",\r\n            \"password\": \"Password must be at least 8 characters\",\r\n            \"username\": \"Username must be 3-20 characters\"\r\n        }\r\n    }\r\n]"
 				}
 			]
 		},
@@ -186,7 +186,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"amount\": 50,\n  \"operation\": \"subtract\",\n  \"reason\": \"shop_purchase\"\n}",
+					"raw": "{\n  \"amount\": 50,\n  \"operation\": \"add\",\n  \"reason\": \"item_purchase\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -240,7 +240,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -269,7 +268,8 @@
 							""
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -310,7 +310,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -333,7 +332,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"username\": \"playerName\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
+					"raw": "{\n\t\"username\": \"player1\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -377,7 +376,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -389,7 +387,7 @@
 							"path": ""
 						}
 					],
-					"body": "[\n    {\n        \"status\": \"success\",\n        \"accessToken\": \"jwt_token_here\",\n        \"refreshToken\": \"refresh_token_here\",\n        \"expiresAt\": \"2025-09-16T15:30:00Z\",\n        \"refreshExpiresAt\": \"2025-09-23T15:30:00Z\",\n        \"userId\": \"user_1\",\n        \"username\": \"playerName\"\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Invalid email or password\"\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Email and password are required\"\n    }\n]"
+					"body": "[\n    {\n        \"status\": \"success\",\n        \"accessToken\": \"jwt_token_here\",\n        \"refreshToken\": \"refresh_token_here\",\n        \"expiresAt\": \"2025-09-16T15:30:00Z\",\n        \"refreshExpiresAt\": \"2025-09-23T15:30:00Z\",\n        \"userId\": \"user_1\",\n        \"username\": \"playerName\"\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Invalid username or password\"\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Username and password are required\"\n    }\n]"
 				}
 			]
 		},
@@ -423,10 +421,21 @@
 					"name": "Validate token",
 					"originalRequest": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"token\": \"jwt_token_here\"\n}"
+							"raw": "{\n    \"token\": \"jwt_token_here\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/validate",
@@ -444,7 +453,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -490,10 +498,21 @@
 					"name": "Bulk user lookup",
 					"originalRequest": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"userIds\": [\n        \"user_123\",\n        \"user_456\",\n        \"user_789\"\n    ]\n}"
+							"raw": "{\n\t\"userIds\": [\n        \"user_123\",\n        \"user_456\",\n        \"user_789\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{base_url}}/users/bulk",
@@ -511,7 +530,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -534,7 +552,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"amount\": 25,\n  \"operation\": \"subtract\",\n  \"reason\": \"item_purchase\"\n}",
+					"raw": "{\n  \"amount\": 25,\n  \"operation\": \"add\",\n  \"reason\": \"item_purchase\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -582,7 +600,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -638,7 +655,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}

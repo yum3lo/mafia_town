@@ -4,7 +4,7 @@
 		"name": "game",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "48492495",
-		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-df16e07e-812e-4f96-b8f6-ed738af36d56?action=share&source=collection_link&creator=48492495"
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-df16e07e-812e-4f96-b8f6-ed738af36d56?action=share&source=collection_link&creator=48492495"
 	},
 	"item": [
 		{
@@ -63,7 +63,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -117,7 +116,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -129,7 +127,7 @@
 							"path": ""
 						}
 					],
-					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameCode\": \"PSY1M\",\r\n            \"hostUserId\": \"user_1\",\r\n            \"gameStatus\": \"waiting\",\r\n            \"maxPlayers\": 15,\r\n            \"currentPlayers\": 2,\r\n            \"players\": [\r\n                \"user_1\",\r\n                \"user_2\"\r\n            ]\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_789\",\r\n            \"gameStatus\": \"in_progress\",\r\n            \"currentPhase\": \"day\",\r\n            \"dayCount\": 3,\r\n            \"players\": [\r\n                {\r\n                    \"userId\": \"user_123\",\r\n                    \"isAlive\": true,\r\n                    \"role\": \"mafia\",\r\n                    \"career\": \"godfather\"\r\n                },\r\n                {\r\n                    \"userId\": \"user_456\",\r\n                    \"isAlive\": false,\r\n                    \"role\": \"citizen\",\r\n                    \"career\": \"baker\"\r\n                }\r\n            ],\r\n            \"aliveCount\": 8,\r\n            \"totalPlayers\": 12\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameCode\": \"PSY1M\",\r\n            \"hostUserId\": \"user_1\",\r\n            \"gameStatus\": \"waiting\",\r\n            \"maxPlayers\": 15,\r\n            \"currentPlayers\": 2,\r\n            \"players\": [\r\n                {\r\n                    \"userId\": \"user_1\"\r\n                },\r\n                {\r\n                    \"userId\": \"user_2\"\r\n                }\r\n            ]\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameStatus\": \"in_progress\",\r\n            \"currentPhase\": \"day\",\r\n            \"dayCount\": 3,\r\n            \"players\": [\r\n                {\r\n                    \"userId\": \"user_1\",\r\n                    \"isAlive\": true,\r\n                    \"role\": \"mafia\",\r\n                    \"career\": \"godfather\"\r\n                },\r\n                {\r\n                    \"userId\": \"user_2\",\r\n                    \"isAlive\": false,\r\n                    \"role\": \"citizen\",\r\n                    \"career\": \"baker\"\r\n                }\r\n            ],\r\n            \"aliveCount\": 8,\r\n            \"totalPlayers\": 12\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
 				}
 			]
 		},
@@ -195,7 +193,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -257,7 +254,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -280,7 +276,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"user_2\",\r\n    \"gameCode\": \"AYA4G\"\r\n}",
+					"raw": "{\r\n    \"userId\": \"user_535\",\r\n    \"gameCode\": \"AYA4G\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -326,7 +322,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -338,7 +333,7 @@
 							"path": ""
 						}
 					],
-					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"gameId\": \"game_1\",\r\n        \"gameStatus\": \"waiting\",\r\n        \"playerCount\": 2\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game has reached maximum capacity\",\r\n        \"maxPlayers\": 15,\r\n        \"currentPlayers\": 15\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"gameId\": \"game_1\",\r\n        \"gameStatus\": \"waiting\",\r\n        \"playerCount\": 2\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game has reached maximum capacity\",\r\n        \"maxPlayers\": 15,\r\n        \"currentPlayers\": 15\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Invalid game code\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"User already in game\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
 				}
 			]
 		},
@@ -349,7 +344,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"user_2\"\r\n}",
+					"raw": "{\r\n    \"userId\": \"user_434\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -357,13 +352,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/leave",
+					"raw": "{{base_url}}/games/game_1758892125218/leave",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"games",
-						"game_1",
+						"game_1758892125218",
 						"leave"
 					]
 				}
@@ -395,7 +390,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -464,7 +458,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -487,7 +480,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"winCondition\": \"mafia_victory\",\r\n    \"winners\": [\"user_1\", \"user_2\"]\r\n}",
+					"raw": "{\r\n    \"winCondition\": \"mafia_victory\",\r\n    \"winners\": [\r\n        {\r\n            \"userId\": \"user_1\"\r\n        },\r\n        {\r\n            \"userId\": \"user_2\"\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -538,7 +531,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -550,7 +542,7 @@
 							"path": ""
 						}
 					],
-					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Game ended\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameStatus\": \"ended\",\r\n            \"winCondition\": \"mafia_victory\",\r\n            \"winners\": [\"user_1\", \"user_2\"]\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Game ended\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameStatus\": \"ended\",\r\n            \"winCondition\": \"mafia_victory\",\r\n            \"winners\": [\r\n                {\r\n                    \"userId\": \"user_1\"\r\n                },\r\n                {\r\n                    \"userId\": \"user_2\"\r\n                }\r\n            ]\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
 				}
 			]
 		},
@@ -561,7 +553,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"newPhase\": \"night\"\r\n}",
+					"raw": "{\r\n  \"newPhase\": \"day\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -612,7 +604,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -679,7 +670,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -748,7 +738,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -771,7 +760,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"eventType\": \"player_death\",\r\n    \"message\": \"player2 was found dead!\",\r\n    \"targetPlayers\": [\"user_1\", \"user_3\"],\r\n    \"metadata\": {\r\n        \"eliminatedPlayerId\": \"user_2\",\r\n        \"cause\": \"mafia_kill\"\r\n    }\r\n}\r\n\r\n// WHEN PLAYER GETS EXILED\r\n// {\r\n//     \"eventType\": \"player_elimination\",\r\n//     \"message\": \"player2 has been voted out of town!\",\r\n//     \"targetPlayers\": \"all\",\r\n//     \"metadata\": {\r\n//         \"eliminatedPlayerId\": \"user_2\",\r\n//         \"voteCount\": 5,\r\n//         \"cause\": \"voted_out\"\r\n//     }\r\n// }",
+					"raw": "{\r\n    \"eventType\": \"player_death\",\r\n    \"message\": \"player4 was found dead!\",\r\n    \"targetPlayers\": [\r\n        {\r\n            \"userId\": \"user_2\"\r\n        },\r\n        {\r\n            \"userId\": \"user_3\"\r\n        }\r\n    ],\r\n    \"metadata\": {\r\n        \"eliminatedPlayerId\": \"user_4\",\r\n        \"cause\": \"mafia_kill\"\r\n    }\r\n}\r\n\r\n// WHEN PLAYER GETS EXILED\r\n// {\r\n//     \"eventType\": \"player_elimination\",\r\n//     \"message\": \"player2 has been voted out of town!\",\r\n//     \"targetPlayers\": \"all\",\r\n//     \"metadata\": {\r\n//         \"eliminatedPlayerId\": \"user_2\",\r\n//         \"voteCount\": 5,\r\n//         \"cause\": \"voted_out\"\r\n//     }\r\n// }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -822,7 +811,6 @@
 						{
 							"key": "Content-Type",
 							"value": "application/json",
-							"name": "Content-Type",
 							"description": "",
 							"type": "text"
 						}
@@ -834,7 +822,7 @@
 							"path": ""
 						}
 					],
-					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Event broadcasted successfully\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Event type must be one of: player_death, player_elimination, healing, rumor, visit\"\r\n    }\r\n]"
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"message\": \"Event broadcasted successfully\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
 				}
 			]
 		}
