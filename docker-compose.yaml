@@ -74,6 +74,7 @@ services:
       - "${PG_CHARACTER_PORT}:5432"
     volumes:
       - postgres_character_data:/var/lib/postgresql/data
+      - ./db/character_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}"]
       interval: 10s
@@ -93,6 +94,7 @@ services:
       - "${PG_TOWN_PORT}:5432"
     volumes:
       - postgres_town_data:/var/lib/postgresql/data
+      - ./db/town_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PG_TOWN_USER} -d ${PG_TOWN_DB}"]
       interval: 10s
