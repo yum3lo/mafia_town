@@ -24,9 +24,10 @@ services:
       POSTGRES_PASSWORD: ${PG_SHOP_PASSWORD}
       POSTGRES_DB: ${PG_SHOP_DB}
     ports:
-      - "5442:5432"
+      - "{$PG_SHOP_PORT}:5432"
     volumes:
       - postgres_shop_data:/var/lib/postgresql/data
+      - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/init.sql
 
   postgres_communication:
     image: postgres:15
@@ -127,7 +128,7 @@ services:
     container_name: roleplay_cache
     restart: always
     ports:
-      - "6389:6379"
+      - "${REDIS_ROLEPLAY_PORT}:6379"
     volumes:
       - redis_roleplay_data:/data
 
@@ -189,6 +190,30 @@ services:
     depends_on:
       postgres_rumors:
         condition: service_healthy
+  
+  shop_service:
+    image: mycallangel0/shop-service:latest
+    container_name: shop-service
+    depends_on:
+      - postgres_shop
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}
+      SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
+      SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
+    ports:
+      - "${SERVER_SHOP_PORT}:8080"
+  
+  roleplay_service:
+    image: mycallangel0/roleplay-service:latest
+    container_name: roleplay-service
+    depends_on:
+      - redis_roleplay
+    environment:
+      SPRING_DATA_REDIS_HOST: redis_roleplay
+      SPRING_DATA_REDIS_PORT: ${REDIS_ROLEPLAY_PORT}
+      REDIS_EXPIRATION_TIME: 30
+    ports:
+      - "${SERVER_ROLEPLAY_PORT}:8081"
 
   character-service:
     image: nelldino/character-service:1.0
