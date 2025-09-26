@@ -61,12 +61,50 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres_character:
+    image: postgres:15
+    container_name: character_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_CHARACTER_USER}
+      POSTGRES_PASSWORD: ${PG_CHARACTER_PASSWORD}
+      POSTGRES_DB: ${PG_CHARACTER_DB}
+    ports:
+      - "${PG_CHARACTER_PORT}:5432"
+    volumes:
+      - postgres_character_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  postgres_town:
+    image: postgres:15
+    container_name: town_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_TOWN_USER}
+      POSTGRES_PASSWORD: ${PG_TOWN_PASSWORD}
+      POSTGRES_DB: ${PG_TOWN_DB}
+    ports:
+      - "${PG_TOWN_PORT}:5432"
+    volumes:
+      - postgres_town_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_TOWN_USER} -d ${PG_TOWN_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   redis_game:
     image: redis:7
     container_name: game_cache
     restart: always
     ports:
-      - "${REDIS_GAME_PORT}:6379"
+      - "6379:6379"
     volumes:
       - redis_game_data:/data
 
@@ -78,8 +116,8 @@ services:
     volumes:
       - ./db/game_service.mjs:/app/game_service.mjs
     environment:
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
+      REDIS_HOST: redis_game
+      REDIS_PORT: 6379
     working_dir: /app
     command: ["sh", "-c", "npm install redis && node game_service.mjs"]
     restart: "on-failure"
@@ -113,15 +151,15 @@ services:
       DATABASE_URL: postgres://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}
 
   game_service:
-    image: yum3lo/mafia-game-service:1.3
+    image: yum3lo/mafia-game-service:1.2
     container_name: game_service
     depends_on:
       - redis_game
     ports:
-      - "${SERVER_GAME_PORT}:3002"
+      - "3002:3002"
     environment:
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
+      REDIS_HOST: redis_game
+      REDIS_PORT: 6379
 
   communication_service:
     image: valeriafz/mafia-communication-service:latest
@@ -152,11 +190,52 @@ services:
       postgres_rumors:
         condition: service_healthy
 
+  character-service:
+    image: nelldino/character-service:1.0
+    container_name: character-service
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${CHARACTER_SERVICE_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      DATABASE_URL: postgresql://${PG_CHARACTER_USER}:${PG_CHARACTER_PASSWORD}@postgres_character:5432/${PG_CHARACTER_DB}
+      PORT: ${CHARACTER_SERVICE_PORT}
+    ports:
+      - "${CHARACTER_SERVICE_PORT}:${CHARACTER_SERVICE_PORT}"
+    depends_on:
+      postgres_character:
+        condition: service_healthy
+
+  town-service:
+    image: nelldino/town-service:1.4 
+    container_name: town-service
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${TOWN_SERVICE_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      DATABASE_URL: postgresql://${PG_TOWN_USER}:${PG_TOWN_PASSWORD}@postgres_town:5432/${PG_TOWN_DB}
+      PORT: ${TOWN_SERVICE_PORT}
+    ports:
+      - "${TOWN_SERVICE_PORT}:${TOWN_SERVICE_PORT}"
+    command: uvicorn main:app --host 0.0.0.0 --port ${TOWN_SERVICE_PORT} --reload  
+    depends_on:
+      postgres_town:
+        condition: service_healthy
+
 volumes:
   postgres_user_management_data:
   postgres_shop_data:
   postgres_communication_data:
   postgres_rumors_data:
+  postgres_character_data:
+  postgres_town_data:
   redis_game_data:
   redis_roleplay_data:
   redis_communication_data:
