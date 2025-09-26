@@ -27,6 +27,7 @@ services:
       - "5442:5432"
     volumes:
       - postgres_shop_data:/var/lib/postgresql/data
+      - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/init.sql
 
   postgres_communication:
     image: postgres:15
@@ -151,6 +152,30 @@ services:
     depends_on:
       postgres_rumors:
         condition: service_healthy
+  
+  shop_service:
+    image: mycallangel0/shop-service:latest
+    container_name: shop-service
+    depends_on:
+      - postgres_shop
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}
+      SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
+      SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
+    ports:
+      - "8080:8080"
+  
+  roleplay_service:
+    image: mycallangel0/roleplay-service:latest
+    container_name: roleplay-service
+    depends_on:
+      - redis_roleplay
+    environment:
+      SPRING_DATA_REDIS_HOST: redis_roleplay
+      SPRING_DATA_REDIS_PORT: 6379
+      REDIS_EXPIRATION_TIME: 30
+    ports:
+      - "8081:8080"
 
 volumes:
   postgres_user_management_data:
