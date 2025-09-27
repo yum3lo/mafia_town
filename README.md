@@ -909,132 +909,140 @@ Response: {
 
 ### Shop Service
 
-#### Shop Endpoints
+#### Customization Shop Endpoints
 
 - Endpoint for listing all of the available items
-
 ```
 Endpoint: /items
 Method: GET
 Response: [
   {
-    "id": "item_1",
-    "name": "Fire Extinguisher",
-    "description": "Offers protection against the arsonist  during the night (Dissapears in the daytime)",
+    "id": 1,
+    "name": "Blonde Hairr",
+    "description": "Looking I-legally blonde!",
+    "type": "HAIR",
+    "price": 200
   },
   {
-    "id": "item_2",
-    "name": "Garlic String",
-    "description": "Offers protection against the vampires suring the night (Dissapears in the daytime)",
+    "id": 2,
+    "name": "Gold Necklace",
+    "description": "Because rappers thought it was cool",
+    "type": "JEWELRY",
+    "price": 350
   },
 ]
-
 ```
 
-- Endpoint for listing all of the items available in the shop during the game
-
+- Endpoint for creating a clothing item
 ```
-Endpoint: /shop
-Method: GET
-Response: [
-  {
-    "id": "item_1",
-    "name": "Fire Extinguisher",
-    "description": "Offers protection against the arsonist  during the night (Dissapears in the daytime)",
-  },
-]
-
-```
-
-- Endpoint for purchasing an item
-
-```
-Endpoint: /purchase
+Endpoint: /items
 Method: POST
 Payload: {
-  "userId": "user",
-  "itemId": "item",
+   "name": "Gold Necklace",
+   "description": "Because rappers thought it was cool",
+   "type": "JEWELRY",
+   "price": 350
+ }
+Response: {
+   "id": 2,
+   "name": "Gold Necklace",
+   "description": "Because rappers thought it was cool",
+   "type": "JEWELRY",
+   "price": 350
 }
+```
+
+- Endpoint for updating a clothing item
+```
+Endpoint: /items/{id}
+Method: PUT
+Payload: { 
+  "name": "Golden Necklace",
+  "description": "Some people say it's fake gold. Doesn't taste like it!",
+  "type": "JEWELRY",
+  "price": 400
+}
+Response: {
+  "id": 2
+  "name": "Golden Necklace",
+  "description": "Some people say it's fake gold. Doesn't taste like it!",
+  "type": "JEWELRY",
+  "price": 400
+}
+```
+
+- Endpoint for deleting a clothing item
+```
+Endpoint: /items/{id}
+Method: DELETE
 Response: {
   "status": "success"
 }
-
 ```
 
 ### Roleplay Service
 
-#### Role actions endpoints
-
-- Endpoint for perform an action associated with the player’s role (e.g., Mafia kill, Sheriff investigation)
-
-```
-Endpoint: /roles/{playerId}/actions
-Method: POST
-Payload: {
-  "targetId": "user",
-  "action": "kill",
-}
-Response: {
-  "success": true,
-  "description": "Target protected by garlic",
-  "timestamp": "2025-09-07T19:05:00Z"
-}
-```
-
-- Endpoint for retrieving a log of all role-based actions attempted by a player.
-
-```
-Endpoint: /roles/{playerId}/actions/history
-Method: GET
-Response: [
-  { "action": "kill", "targetId": "user_1", "success": false, "timestamp": "2025-09-07T19:00:00Z" },
-  { "action": "investigate", "targetId": "user_2", "success": true, "timestamp": "2025-09-07T19:05:00Z" }
-]
-```
-
 #### Announcement endpoints
-
-- Endpoint for creating a filtered announcement (e.g., “_[Player]_ was killed last night” without exposing the killer). role (e.g., Mafia kill, Sheriff investigation)
-
+- Endpoint for creating an announcement
 ```
-Endpoint: /announcements
+Endpoint: /lobbies/{lobbyId}/announcements
 Method: POST
 Payload: {
-  "type": "death",
-  "details": {
-    "userId": "user_1"
-  }
+  "id": "3",
+  "content": "Randomizer was killed by MyCallAngel0",
+  "timestamp": "2025-09-22T12:30:00",
+  "day": 1
 }
 Response: 201 OK
 ```
 
-- Endpoint for getting the announcements created by the Roleplay Service to be forwarded to the Game Service.
-
+- Endpoint for getting all the lobby announcements
 ```
-Endpoint: /announcements
+Endpoint: /lobbies/{lobbyId}/announcements
 Method: GET
 Response: [
-  { "id": "ann_1", "type": "death", "message": "[Player] was killed during the night" },
-  { "id": "ann_2", "type": "investigation", "message": "Sheriff investigated [Player 456]" }
+  { "id": "1", "content": "Randomizer was killed by MyCallAngel0", "day": 1, "timestamp": "2025-09-22T12:30:00" },
+  { "id": "2", "content": "yum3lo investigated MyCallAngel0", "day": 1 "timestamp": "2025-09-22T12:35:00" }
 ]
 ```
 
-#### Ability validation endpoints
-
-- Endpoint for checking if a player’s role action is allowed based on the role rules and defensive items.
-
+- Endpoint for getting a single lobby announcements
 ```
-Endpoint: /validate
-Method: POST
+Endpoint: /lobbies/{lobbyId}/announcements/{id}
+Method: GET
+Response: { 
+    "id": "1", 
+    "content": "Randomizer was killed by MyCallAngel0", 
+    "day": 1, 
+    "timestamp": "2025-09-22T12:30:00" 
+}
+```
+
+- Endpoint for updating a lobby announcements
+```
+Endpoint: /lobbies/{lobbyId}/announcements/{id}
+Method: PUT
 Payload: {
-  "userId": "user_1",
-  "action": "kill",
-  "targetId": "user_456"
+  "id": "3",
+  "content": "yum3lo was killed by MyCallAngel0",
+  "timestamp": "2025-09-22T12:30:00",
+  "day": 1
 }
-Response: {
-  "valid": false,
-  "reason": "The house was protected from your attacks"
-}
+Response: 200 OK
+```
+
+- Endpoint for deleting a lobby announcements
+```
+Endpoint: /lobbies/{lobbyId}/announcements/{id}
+Method: DELETE
+Response: 200 OK
+```
+
+- Endpoint for deleting all lobby announcements
+```
+Endpoint: /lobbies/{lobbyId}/announcements
+Method: DELETE
+Response: 200 OK
 ```
 
 ### Town Service
@@ -2536,4 +2544,28 @@ docker-compose up -d
 
 # Build locally
 docker build -t mafia-communication-service .
+```
+
+### Shop Service
+
+This service and its versions are deployed on Docker Hub on a public repo at
+https://hub.docker.com/repository/docker/mycallangel0/shop-service/general:
+```bash
+# Build production image
+docker build -t mycallangel0/shop-service:latest
+
+# Run with Docker Compose
+docker-compose up --build
+```
+
+### Roleplay Service
+
+This service and its versions are deployed on Docker Hub on a public repo at
+https://hub.docker.com/repository/docker/mycallangel0/roleplay-service/general:
+```bash
+# Build production image
+docker build -t mycallangel0/roleplay-service:latest
+
+# Run with Docker Compose
+docker-compose up --build
 ```

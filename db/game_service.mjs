@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 
 const client = createClient({
-  url: "redis://redis_db:6379"
+  url: `redis://${process.env.REDIS_GAME_HOST}:${process.env.REDIS_GAME_PORT || 6379}`
 });
 
 const seed = async () => {
