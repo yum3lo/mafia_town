@@ -177,7 +177,6 @@ The service implements role-based access control through currency requirements:
 | **Special Roles** | `role` rumors       | 300+             | Detective, Scout           |
 | **All Roles**     | `appearance` rumors | 100-149          | Any role can access        |
 
-
 #### Task Service
 
 The Task Service will be written in Go with PostgreSQL, designed to assign daily tasks to players based on their roles and careers. Tasks may involve using specific items, visiting locations, or interacting with other players, and completing them rewards in-game currency. PostgreSQL stores task definitions, player progress, and reward history with relational integrity, ensuring accurate tracking of completed and pending tasks. For the communication pattern, the service will expose REST APIs for Game Service queries about available tasks and player progress. Additionally, it will publish events to notify other services, such as Rumors Service or Character Service, about task completions or state changes, enabling real-time updates without tight coupling. This design allows Task Service to reliably manage task assignments while keeping interactions lightweight and scalable.
@@ -204,13 +203,13 @@ The Town and Character Services (FastAPI + PostgreSQL) track locations and movem
 
 WebSockets provide live chat, notifications, and voting updates, ensuring interactive gameplay and responsive, decoupled communication between services.
 
-| Member           | Service(s)                                | Responsibilities                                                                                                                                                 | Technology Stack                              |
-| ---------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Cucos Maria      | **User Management Service, Game Service** | Manage user profiles, authentication, in-game currency, device/location info; handle day/night cycle, lobby management, event notifications, and initiate voting | Typescript (NodeJS) + PostgreSQL + Redis      |
-| Mihalachi Mihail | **Shop Service, Roleplay Service**        | Handle in-game item purchases, currency management, daily preparation mechanics; enforce role abilities, generate filtered announcements, balance daily activity | Java (Springboot) + Redis                     |
-| Garbuz Nelli     | **Town Service, Character Service**       | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features                          | Python (FastAPI) + PostgreSQL                 |
-| Frunza Valeria   | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats                          | Typescript (NestJS) + Prisma/Type ORM + PostgreSQL + Redis|
-| Lupan Lucian     | **Task Service, Voting Service**          | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results                         | Go + PostgreSQL                               |
+| Member           | Service(s)                                | Responsibilities                                                                                                                                                 | Technology Stack                                           |
+| ---------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Cucos Maria      | **User Management Service, Game Service** | Manage user profiles, authentication, in-game currency, device/location info; handle day/night cycle, lobby management, event notifications, and initiate voting | Typescript (NodeJS) + PostgreSQL + Redis                   |
+| Mihalachi Mihail | **Shop Service, Roleplay Service**        | Handle in-game item purchases, currency management, daily preparation mechanics; enforce role abilities, generate filtered announcements, balance daily activity | Java (Springboot) + Redis                                  |
+| Garbuz Nelli     | **Town Service, Character Service**       | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features                          | Python (FastAPI) + PostgreSQL                              |
+| Frunza Valeria   | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats                          | Typescript (NestJS) + Prisma/Type ORM + PostgreSQL + Redis |
+| Lupan Lucian     | **Task Service, Voting Service**          | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results                         | Go + PostgreSQL                                            |
 
 ## Data Management
 
@@ -342,13 +341,13 @@ Method: DELETE
 
 // SUCCESS
 Response: {
-  "status": "success", 
+  "status": "success",
   "message": "Account deleted successfully"
 }
 
 // USER NOT FOUND
 Response: {
-  "status": "error", 
+  "status": "error",
   "message": "User not found"
 }
 ```
@@ -397,7 +396,7 @@ Response: {
       "username": "playerName"
     },
     {
-      "userId": "user_456", 
+      "userId": "user_456",
       "username": "player2"
     },
     {
@@ -1116,6 +1115,7 @@ Response: 204 No content
 ```
 
 #### User Movements endpoints
+
 To avoid sending a huge list of movements and requiring the Rumours Service to filter by timestamp, the Town Service includes the game day number with each movement event.
 When a movement is recorded, the Town Service determines the game day by comparing the movement’s timestamp to the day boundaries.
 
@@ -1129,12 +1129,13 @@ Payload:
     "user_id": "user_123",
     "from_location": "loc_2",
     "to_location": "loc_1",
-    "timestamp": "2025-09-07T09:30:00Z", 
+    "timestamp": "2025-09-07T09:30:00Z",
     "gameDay": 1
-    
+
   }
 Response: 201 OK
 ```
+
 - Endpoint to list all the movements (with optional filtering)
 
 ```
@@ -1239,14 +1240,14 @@ Response: {
     "hair_accessory": "baseball_cap",
     "jewelry": "silver_ring",
     "shoes": "leather_boots"
-  }, 
+  },
   "currencyType": "global",
   "globalCurrency": 250,
   "currencySpent": 100
 }
 ```
 
-- Endpoint for updating character appearance 
+- Endpoint for updating character appearance
 
 ```
 Endpoint: /characters/{user_id}
@@ -1460,7 +1461,7 @@ Endpoint:  /rumors
 # Optional query parameters:
 # ?category=role|task|appearance|location
 # ?active=true|false
-Method: GET 
+Method: GET
 Response:
 [
   {
@@ -1904,7 +1905,7 @@ Response body:
 ```
 Endpoint: /tasks
 Method: GET
-# Optional query params: 
+# Optional query params:
 # ?status: displays task status (open|assigned|in_progress|completed|cancelled)
 # ?limit=50&?offset=0: pagination for displaying a set number of tasks
 Response: 200 OK
@@ -2012,6 +2013,7 @@ Response: 204 No Content
 ```
 
 - Endpoint for listing assignment audit for a task
+
 ```
 Endpoint: /tasks/{task_id}/history/assignments
 Method: GET
@@ -2032,7 +2034,6 @@ Response body:
   }
 ]
 ```
-
 
 #### Task status endpoint
 
@@ -2057,6 +2058,7 @@ Response body:
 ```
 
 - Endpoint for completing a task
+
 ```
 Endpoint: /tasks/{task_id}/complete
 Method: POST
@@ -2075,6 +2077,7 @@ Response body:
 ```
 
 - Endpoint for viewing history of task completions
+
 ```
 Endpoint: /tasks/{task_id}/history/completions
 Method: GET
@@ -2095,11 +2098,13 @@ Response body:
 ```
 
 ### Task helper endpoint
+
 - Endpoint for listing all available tasks to assign
+
 ```
 Endpoint: /tasks/available
 Method: GET
-# Optional query params: 
+# Optional query params:
 # ?role: search by role-specific tasks
 # ?limit=50&?offset=0: offset results
 Response: 200 OK
@@ -2123,6 +2128,7 @@ Response body:
 ```
 
 - Endpoint for fetching candidate users for a given task (for delegation)
+
 ```
 Endpoint: /tasks/{task_id}/candidates
 Method: GET
@@ -2135,6 +2141,7 @@ Response body:
 ```
 
 - Endpoint for getting task status at the end of the day
+
 ```
 Endpoint: /tasks/status
 Method: GET
@@ -2158,7 +2165,6 @@ Response body:
   ]
 }
 ```
-
 
 ### Voting Service
 
@@ -2353,7 +2359,8 @@ Follow conventional commits specification:
 <optional body>
 ```
 
-Types: 
+Types:
+
 - Changes relevant to the API:
   - `feat` commits that add, adjust or remove a new feature to the API
   - `fix` commits that fix an API bug of a preceded `feat` commit
@@ -2457,13 +2464,14 @@ curl http://localhost:3001/health
 ```
 
 ## Docker Deployment
+
 ### Town Service
 
 This service and its versions are deployed on Docker Hub on a public repo at https://hub.docker.com/repository/docker/nelldino/character-service/general
 
 ```bash
 #Pull the latest version
-docker build -t nelldino/character-service:1.0 
+docker build -t nelldino/character-service:1.0
 
 # Run with Docker Compose
 docker-compose up --build
@@ -2485,8 +2493,9 @@ docker pull nelldino/character-service:1.0
 docker-compose up -d
 
 # Build locally
-docker build -t nelldino/character-serviceȘ1.0 
+docker build -t nelldino/character-serviceȘ1.0
 ```
+
 ### Rumors Service
 
 This service and its versions are deployed on Docker Hub on a public repo at https://hub.docker.com/r/valeriafz/rumors-service:
@@ -2497,6 +2506,21 @@ docker build -t valeriafz/rumors-service:latest .
 
 # Run with Docker Compose
 docker-compose up --build
+
+# In case of prisma errors check if user exists
+docker exec -it rumor_db psql -U rumor_user -d mafia_rumor
+
+# Enter password, grant permissions if needed:
+CREATE USER rumor_user WITH PASSWORD 'yourpassword';
+CREATE DATABASE rumor_db OWNER rumor_user;
+GRANT ALL PRIVILEGES ON DATABASE rumor_db TO rumor_user;
+
+# Migrate the prisma schemas inside the container
+docker exec -it rumor_service npx prisma migrate dev --name init --schema=./prisma/schema.prisma
+
+# Populate the empty database
+chmod +x ./db/rumors_service.sh
+./db/rumors_service.sh
 ```
 
 ### Communication Service
