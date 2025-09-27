@@ -15,12 +15,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/mock/users/550e8400-e29b-41d4-a716-446655440201",
+							"raw": "http://localhost:3003/mock/users/550e8400-e29b-41d4-a716-446655440201",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3001",
+							"port": "3003",
 							"path": [
 								"mock",
 								"users",
@@ -36,12 +36,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/mock/game/550e8400-e29b-41d4-a716-446655440100/player/550e8400-e29b-41d4-a716-446655440201/status",
+							"raw": "http://localhost:3003/mock/game/550e8400-e29b-41d4-a716-446655440100/player/550e8400-e29b-41d4-a716-446655440201/status",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3001",
+							"port": "3003",
 							"path": [
 								"mock",
 								"game",
@@ -60,16 +60,16 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/mock/game/{550e8400-e29b-41d4-a716-446655440100/state",
+							"raw": "http://localhost:3003/mock/game/550e8400-e29b-41d4-a716-446655440100/state",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3001",
+							"port": "3003",
 							"path": [
 								"mock",
 								"game",
-								"{550e8400-e29b-41d4-a716-446655440100",
+								"550e8400-e29b-41d4-a716-446655440100",
 								"state"
 							]
 						}
@@ -82,12 +82,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/mock/roles/550e8400-e29b-41d4-a716-446655440201",
+							"raw": "http://localhost:3003/mock/roles/550e8400-e29b-41d4-a716-446655440201",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3001",
+							"port": "3003",
 							"path": [
 								"mock",
 								"roles",
@@ -103,12 +103,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/mock/location/550e8400-e29b-41d4-a716-446655440201",
+							"raw": "http://localhost:3003/mock/location/550e8400-e29b-41d4-a716-446655440201",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3001",
+							"port": "3003",
 							"path": [
 								"mock",
 								"location",
@@ -124,12 +124,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/mock/location/550e8400-e29b-41d4-a716-446655442001/players",
+							"raw": "http://localhost:3003/mock/location/550e8400-e29b-41d4-a716-446655442001/players",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3001",
+							"port": "3003",
 							"path": [
 								"mock",
 								"location",
@@ -155,12 +155,12 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3001/mock/events/rumor",
+							"raw": "http://localhost:3003/mock/events/rumor",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3001",
+							"port": "3003",
 							"path": [
 								"mock",
 								"events",
@@ -254,12 +254,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3001/chat/rooms",
+					"raw": "http://localhost:3003/chat/rooms",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3001",
+					"port": "3003",
 					"path": [
 						"chat",
 						"rooms"
@@ -302,16 +302,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2aa/messages",
+					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/messages",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3001",
+					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
-						"c0f5c5ba-074a-462a-9716-4eda1159a2aa",
+						"550e8400-e29b-41d4-a716-446655441001",
 						"messages"
 					]
 				}
@@ -324,16 +324,16 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2aa/messages",
+					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/messages",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3001",
+					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
-						"c0f5c5ba-074a-462a-9716-4eda1159a2aa",
+						"550e8400-e29b-41d4-a716-446655441001",
 						"messages"
 					],
 					"query": [
@@ -379,16 +379,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2aa/join",
+					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/join",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3001",
+					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
-						"c0f5c5ba-074a-462a-9716-4eda1159a2aa",
+						"550e8400-e29b-41d4-a716-446655441001",
 						"join"
 					]
 				}
@@ -417,16 +417,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3001/chat/rooms/c0f5c5ba-074a-462a-9716-4eda1159a2ab/leave",
+					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/leave",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3001",
+					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
-						"c0f5c5ba-074a-462a-9716-4eda1159a2ab",
+						"550e8400-e29b-41d4-a716-446655441001",
 						"leave"
 					]
 				}
@@ -458,12 +458,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3001/chat/players/550e8400-e29b-41d4-a716-446655440201/rooms?gameId=550e8400-e29b-41d4-a716-446655440100",
+					"raw": "http://localhost:3003/chat/players/550e8400-e29b-41d4-a716-446655440201/rooms?gameId=550e8400-e29b-41d4-a716-446655440100",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3001",
+					"port": "3003",
 					"path": [
 						"chat",
 						"players",

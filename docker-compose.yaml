@@ -131,6 +131,11 @@ services:
       DATABASE_URL: postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}
       REDIS_URL: redis://redis_communication:6379
       PORT: 3003
+      USER_SERVICE_URL: http://localhost:3003/mock
+      GAME_SERVICE_URL: http://localhost:3003/mock
+      ROLEPLAY_SERVICE_URL: http://localhost:3003/mock
+      TOWN_SERVICE_URL: http://localhost:3003/mock
+      VOTING_SERVICE_URL: http://localhost:3003/mock
     depends_on:
       - postgres_communication
       - redis_communication
