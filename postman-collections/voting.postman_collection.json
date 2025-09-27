@@ -1,0 +1,265 @@
+{
+  "info": {
+    "name": "Voting Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Round",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"name\": \"Day 3 Vote\", \"starts_at\": \"2025-09-22T12:00:00Z\" }"
+        }
+      }
+    },
+    {
+      "name": "List Rounds",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Rounds (filter status=open)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds?status=open",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "open"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Active Round",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds/active",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds",
+            "active"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Close Round",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds/{{round_id}}/close",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds",
+            "{{round_id}}",
+            "close"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Round Results",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds/{{round_id}}/results",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds",
+            "{{round_id}}",
+            "results"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Round Logs",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds/logs",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds",
+            "logs"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cast/Change Vote",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/votes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "votes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"user_id\": 1, \"voted_user_id\": 3, \"round_id\": \"round-9f3a2b\" }"
+        }
+      }
+    },
+    {
+      "name": "List Votes (for round)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/votes?round_id=round-9f3a2b&limit=500&offset=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "votes"
+          ],
+          "query": [
+            {
+              "key": "round_id",
+              "value": "round-9f3a2b"
+            },
+            {
+              "key": "limit",
+              "value": "500"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Single Player Vote",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/votes/2?round_id=round-9f3a2b",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "votes",
+            "2"
+          ],
+          "query": [
+            {
+              "key": "round_id",
+              "value": "round-9f3a2b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Remove Vote",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/votes/2?round_id=round-9f3a2b",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "votes",
+            "2"
+          ],
+          "query": [
+            {
+              "key": "round_id",
+              "value": "round-9f3a2b"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

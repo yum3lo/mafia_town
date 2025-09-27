@@ -1,0 +1,297 @@
+{
+  "info": {
+    "name": "Task Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Task",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8000/tasks",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"role\": \"cop\", \"task_description\": \"Perform a routine checkup on locations x, y and z.\" }"
+        }
+      }
+    },
+    {
+      "name": "List Tasks",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/tasks",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Task",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/tasks/1",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Task",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8000/tasks/1",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"role\": \"cop\",\"task_description\":\"Updated description\" }"
+        }
+      }
+    },
+    {
+      "name": "Delete Task",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8000/tasks/1",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Assign Task",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8000/tasks/assign",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "assign"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"user_id\": 1, \"task_id\": 2}"
+        }
+      }
+    },
+    {
+      "name": "Remove Assignment",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8000/tasks/assign",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "assign"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"user_id\": 1, \"task_id\": 2 }"
+        }
+      }
+    },
+    {
+      "name": "Assignment History",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/tasks/2/history/assignments",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "2",
+            "history",
+            "assignments"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Change Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8000/tasks/2/status",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "2",
+            "status"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"status\":\"in_progress\",\"updated_by\":2,\"note\":\"Started by assignee\" }"
+        }
+      }
+    },
+    {
+      "name": "Complete Task",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8000/tasks/2/complete",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "2",
+            "complete"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"completed_by\": 1, \"status\":\"completed\" }"
+        }
+      }
+    },
+    {
+      "name": "Completion History",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/tasks/2/history/completions",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "2",
+            "history",
+            "completions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Available Tasks",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/tasks/available",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "available"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Candidates",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/tasks/1/candidates",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "1",
+            "candidates"
+          ]
+        }
+      }
+    },
+    {
+      "name": "End of day status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/tasks/status",
+          "host": [
+            "http://localhost:8000"
+          ],
+          "path": [
+            "tasks",
+            "status"
+          ]
+        }
+      }
+    }
+  ]
+}

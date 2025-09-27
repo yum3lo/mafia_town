@@ -179,27 +179,27 @@ The service implements role-based access control through currency requirements:
 
 #### Task Service
 
-The Task Service will be written in Go with PostgreSQL, designed to assign daily tasks to players based on their roles and careers. Tasks may involve using specific items, visiting locations, or interacting with other players, and completing them rewards in-game currency. PostgreSQL stores task definitions, player progress, and reward history with relational integrity, ensuring accurate tracking of completed and pending tasks. For the communication pattern, the service will expose REST APIs for Game Service queries about available tasks and player progress. Additionally, it will publish events to notify other services, such as Rumors Service or Character Service, about task completions or state changes, enabling real-time updates without tight coupling. This design allows Task Service to reliably manage task assignments while keeping interactions lightweight and scalable.
+The Task Service will be written in Python (Django) with PostgreSQL, designed to assign daily tasks to players based on their roles and careers. Tasks may involve using specific items, visiting locations, or interacting with other players, and completing them rewards in-game currency. PostgreSQL stores task definitions, player progress, and reward history with relational integrity, ensuring accurate tracking of completed and pending tasks. For the communication pattern, the service will expose REST APIs for Game Service queries about available tasks and player progress. Additionally, it will publish events to notify other services, such as Rumors Service or Character Service, about task completions or state changes, enabling real-time updates without tight coupling. This design allows Task Service to reliably manage task assignments while keeping interactions lightweight and scalable.
 
 #### Voting Service
 
-The Voting Service will be written in Go with PostgreSQL and is responsible for collecting and counting votes each evening to determine which players are eliminated under the Mafia mechanics. It records who voted for whom on each day, as well as the final outcome of each vote. PostgreSQL ensures accurate, auditable storage of all voting data. For the communication pattern, the service provides REST APIs for the Game Service to retrieve voting results and current tallies, while also exposing event notifications to update related services in real time. This architecture maintains consistency and responsiveness, allowing the Game Service to reflect voting outcomes immediately while keeping Voting Service decoupled from other gameplay systems.
+The Voting Service will be written in Python (Django) with PostgreSQL and is responsible for collecting and counting votes each evening to determine which players are eliminated under the Mafia mechanics. It records who voted for whom on each day, as well as the final outcome of each vote. PostgreSQL ensures accurate, auditable storage of all voting data. For the communication pattern, the service provides REST APIs for the Game Service to retrieve voting results and current tallies, while also exposing event notifications to update related services in real time. This architecture maintains consistency and responsiveness, allowing the Game Service to reflect voting outcomes immediately while keeping Voting Service decoupled from other gameplay systems.
 
 ### Communication Patterns
 
 #### Synchronous (REST APIs)
 
-Services communicate directly using request/response interactions when immediate feedback is required. This pattern is suitable for user-facing operations such as login, booking queries, or data retrieval. The technology stack includes Go with PostgreSQL, Python (FastAPI) with PostgreSQL, Java (Spring Boot) with Redis for caching or session management, TypeScript (NestJS) with Prisma ORM and PostgreSQL, and TypeScript (NodeJS) with PostgreSQL and Redis. REST APIs provide simplicity and are easy to debug, but they create temporary coupling between services, meaning that slow or unavailable downstream services can block requests.
+Services communicate directly using request/response interactions when immediate feedback is required. This pattern is suitable for user-facing operations such as login, booking queries, or data retrieval. The technology stack includes Python (Django) with PostgreSQL, Python (FastAPI) with PostgreSQL, Java (Spring Boot) with Redis for caching or session management, TypeScript (NestJS) with Prisma ORM and PostgreSQL, and TypeScript (NodeJS) with PostgreSQL and Redis. REST APIs provide simplicity and are easy to debug, but they create temporary coupling between services, meaning that slow or unavailable downstream services can block requests.
 
 #### Real-Time (WebSockets)
 
-For low-latency, bidirectional communication, services use WebSockets. This approach supports live chat, notifications, and other real-time user interactions. Technologies include SignalR or native WebSocket implementations in NodeJS or Go. WebSockets provide instant updates and a responsive user experience, but maintaining open connections requires careful resource management and scaling considerations.
+For low-latency, bidirectional communication, services use WebSockets. This approach supports live chat, notifications, and other real-time user interactions. Technologies include SignalR or native WebSocket implementations in NodeJS. WebSocketsGo provide instant updates and a responsive user experience, but maintaining open connections requires careful resource management and scaling considerations.
 
 ### Communication Contract
 
 Services communicate using REST APIs for immediate queries and WebSockets for real-time updates. The User Management and Game Services (NodeJS + PostgreSQL + Redis) handle user profiles, authentication, in-game currency, device and location info, day/night cycles, lobby management, event notifications, and voting initiation. The Shop and Roleplay Services (Spring Boot + Redis) manage item purchases, currency, daily preparation, role abilities, announcements, and activity balancing.
 
-The Town and Character Services (FastAPI + PostgreSQL) track locations and movements, manage character customization, inventory, asset slots, and creative features. Rumors and Communication Services (NestJS + Prisma ORM + PostgreSQL) generate purchasable role-based rumors and manage global and private chats, voting-hour communication, and Mafia group chats. Task and Voting Services (Go + PostgreSQL) assign daily tasks by role, reward currency, collect and count votes, and notify the Game Service of results.
+The Town and Character Services (FastAPI + PostgreSQL) track locations and movements, manage character customization, inventory, asset slots, and creative features. Rumors and Communication Services (NestJS + Prisma ORM + PostgreSQL) generate purchasable role-based rumors and manage global and private chats, voting-hour communication, and Mafia group chats. Task and Voting Services (Django + PostgreSQL) assign daily tasks by role, reward currency, collect and count votes, and notify the Game Service of results.
 
 WebSockets provide live chat, notifications, and voting updates, ensuring interactive gameplay and responsive, decoupled communication between services.
 
@@ -209,7 +209,7 @@ WebSockets provide live chat, notifications, and voting updates, ensuring intera
 | Mihalachi Mihail | **Shop Service, Roleplay Service**        | Handle in-game item purchases, currency management, daily preparation mechanics; enforce role abilities, generate filtered announcements, balance daily activity | Java (Springboot) + Redis                                  |
 | Garbuz Nelli     | **Town Service, Character Service**       | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features                          | Python (FastAPI) + PostgreSQL                              |
 | Frunza Valeria   | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats                          | Typescript (NestJS) + Prisma/Type ORM + PostgreSQL + Redis |
-| Lupan Lucian     | **Task Service, Voting Service**          | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results                         | Go + PostgreSQL                                            |
+| Lupan Lucian     | **Task Service, Voting Service**          | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results                         | Django (REST Framework) + PostgreSQL                                            |
 
 ## Data Management
 
@@ -2001,8 +2001,7 @@ Response body:
 {
   "assignment_id": 1001,
   "task_id": 102,
-  "assignee_id": 1,
-  "assigned_by": 999,
+  "assignee_id": 1
   "created_at": "2025-09-22T10:05:00Z",
   "note": "Assigned via operator UI"
 }
@@ -2176,80 +2175,156 @@ Response body:
 
 ### Voting Service
 
-#### Voting control endpoints
 
-- Endpoint for voting a player
+### Voting endpoints
+
+- Endpoint to create/start a voting round for a game
 
 ```
-Endpoint: /votes
+Endpoint: POST /games/{game_id}/rounds
 Method: POST
-Payload: {
-  "user_id": 1,
-  "voted_user_id": 3
+Payload:
+{
+  "name": "Day 3 Vote",
+  "starts_at": Datetime.now(),
 }
 Response: 201 Created
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "game_id": "game-AAA",
+  "name": "Day 3 Vote",
+  "status": "open",
+  "starts_at": "2025-09-22T12:00:00Z",
+  "created_at": "2025-09-22T12:00:00Z"
+}
+
+```
+
+- Endpoint to close a voting round
+
+```
+Endpoint: PATCH /games/{game_id}/rounds/{round_id}/close
+Method: PATCH
+Payload: {} 
+Response: 200 OK
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "game_id": "game-AAA",
+  "status": "closed",
+  "closed_at": "2025-09-22T12:30:00Z"
+}
+```
+
+- Endpoint to list rounds for a game
+
+```
+Endpoint: GET /games/{game_id}/rounds?status=open|closed
+Method: GET
+Response: 200 OK
+Response body:
+{
+  "rounds": [
+    { "round_id": "round-9f3a2b", "status": "open",  "starts_at": "2025-09-21T11:00:00Z", "ends_at": null },
+    { "round_id": "round-8e2b1c", "status": "closed", "starts_at": "2025-09-21T11:55:00Z", "ends_at": "2025-09-21T12:00:00Z" }
+  ]
+}
+```
+
+- Endpoint to get the current voting round for a game
+```
+Endpoint: GET /games/{game_id}/rounds/active
+Method: GET
+Response: 200 OK
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "status": "open",
+  "starts_at": "2025-09-21T11:00:00Z",
+  "ends_at": null
+}
+```
+
+#### Voting control endpoints
+
+- Endpoint to cast or change a user's vote for the active round
+
+```
+Endpoint: POST /games/{game_id}/votes
+Method: POST
+Payload:
+{
+  "user_id": 1,
+  "voted_user_id": 3,
+  "round_id": "round-9f3a2b"
+}
+Response: 201 Created
+Response body:
+{
+  "user_id": 1,
+  "voted_user_id": 3,
+  "round_id": "round-9f3a2b"
+}
 ```
 
 - Endpoint for getting all votes
 
 ```
-Endpoint: /votes
+Endpoint: GET /games/{game_id}/votes?round_id={round_id}&?limit=500&?offset=0
 Method: GET
-Response: {
+Response: 200 OK
+Response body:
+{
   "votes": [
-    {
-      "user_id": 1,
-      "voted_user_id": 3
-    },
-    {
-      "user_id": 2,
-      "voted_user_id": 1
-    }
+    { "user_id": 1, "voted_user_id": 3},
+    { "user_id": 2, "voted_user_id": 1}
   ]
 }
-Response: 200 OK
 ```
 
-- Endpoint for getting a player's vote
-
+- Endpoint to get a single player's vote for a given round
 ```
-Endpoint: /votes/{user_id}
+Endpoint: GET /games/{game_id}/votes/{user_id}?round_id={round_id}
 Method: GET
-Response: {
-  "user_id": 2,
-  "voted_user_id": 1
-}
 Response: 200 OK
+Response body:
+{
+  "user_id": 2,
+  "voted_user_id": 1,
+  "round_id": "round-9f3a2b"
+}
 ```
 
-- Endpoint for removing a vote on a player
-
+- Endpoint to remove a user's vote
 ```
-Endpoint: /votes/{user_id}
+Endpoint: DELETE /games/{game_id}/votes/{user_id}?round_id={round_id}
 Method: DELETE
 Response: 204 No Content
 ```
 
 #### Voting results endpoints
 
-- Endpoint for getting the voting results
+- Endpoint to get voting results for a closed round
 
 ```
-Endpoint: /votes/results
+Endpoint: GET /games/{game_id}/rounds/{round_id}/results
 Method: GET
-Response: {
-  "results": [
-    {
-      "user_id": 1,
-      "votes": 5
-    },
-    {
-      "user_id": 2,
-      "votes": 1
-    }
-  ]
-}
 Response: 200 OK
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "game_id": "game-AAA",
+  "generated_at": "2025-09-22T12:30:01Z",
+  "results": [
+    { "user_id": 1, "votes": 5 },
+    { "user_id": 2, "votes": 1 }
+  ],
+  "total_votes": 6,
+  "tied": false,
+  "voted_out_id": 1
+}
+
 ```
 
 #### Voting logs endpoints
@@ -2257,74 +2332,29 @@ Response: 200 OK
 - Endpoint for creating voting logs
 
 ```
-Endpoint: /votes/logs/{day}
-Method: PUT
-Payload: {
-  "voting": [
-    {
-      "user_id": 1,
-      "voted_user_id": 2
-    },
-    {
-      "user_id": 2,
-      "voted_user_id": 1
-    },
-    {
-      "user_id": 3,
-      "voted_user_id": 1
-    }
-  ],
-  "results": [
-    {
-      "user_id": 1,
-      "votes": 2
-    },
-    {
-      "user_id": 2,
-      "votes": 1
-    }
-  ],
-  "voted_out_id": 1
-}
-Response: 201 Created
-```
-
-- Endpoint for getting voting logs
-
-```
-Endpoint: /votes/logs
+Endpoint: GET /games/{game_id}/rounds/logs
 Method: GET
-Response: {
-  "day1": {
-    "voting": [
-      {
-        "user_id": 1,
-        "voted_user_id": 2
-      },
-      {
-        "user_id": 2,
-        "voted_user_id": 1
-      },
-      {
-        "user_id": 3,
-        "voted_user_id": 1
-      }
-    ],
-    "results": [
-      {
-        "user_id": 1,
-        "votes": 2
-      },
-      {
-        "user_id": 2,
-        "votes": 1
-      }
-    ],
-    "voted_out_id": 1
-  }
+Response: 200 OK
+Response body:
+{
+  "logs": [
+    {
+      "round_id": "round-8e2b1c",
+      "name": "Day 2 Vote",
+      "closed_at": "2025-09-21T12:00:00Z",
+      "voted_out_id": 4
+    },
+    {
+      "round_id": "round-7d1a0f",
+      "name": "Day 1 Vote",
+      "closed_at": "2025-09-20T12:00:00Z",
+      "voted_out_id": null
+    }
+  ]
 }
-Reponse: 200 OK
 ```
+
+
 
 ## Github workflow
 
@@ -2501,7 +2531,7 @@ docker pull nelldino/character-service:1.0
 docker-compose up -d
 
 # Build locally
-docker build -t nelldino/character-serviceȘ1.0
+docker build -t nelldino/character-service:1.0
 ```
 
 ### Rumors Service
@@ -2569,3 +2599,40 @@ docker build -t mycallangel0/roleplay-service:latest
 # Run with Docker Compose
 docker-compose up --build
 ```
+
+### Task Service
+
+This service is available on Docker Hub at:
+https://hub.docker.com/repository/docker/lucianlupan/task_service/general
+```bash
+# Pull the latest version from Docker Hub
+docker pull lucianlupan/task_service:1.0
+
+# Or build the production image locally
+docker build -t lucianlupan/task_service:1.0 .
+
+# Populate the docker image with data
+docker compose exec -T task_service bash < ./db/task_service.sh
+
+# Run the service with Docker Compose
+docker-compose up --build
+```
+
+### Voting Service
+
+This service is available on Docker Hub at:
+https://hub.docker.com/repository/docker/lucianlupan/voting_service/general
+```bash
+# Pull the latest version from Docker Hub
+docker pull lucianlupan/voting_service:1.0
+
+# Or build the production image locally
+docker build -t lucianlupan/voting_service:1.0 .
+
+# Populate the docker image with data
+docker compose exec -T voting_service bash < ./db/voting_service.sh
+
+# Run the service with Docker Compose
+docker-compose up --build
+```
+
