@@ -12,14 +12,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "127.0.0.1:8080/lobbies/waterflame/announcements",
+					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "3004",
 					"path": [
 						"lobbies",
 						"waterflame",
@@ -36,7 +36,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"id\": \"3\",\r\n  \"content\": \"Randomizer was killed by MyCallAngel0\",\r\n  \"timestamp\": \"2025-09-22T12:30:00\",\r\n  \"day\": 1\r\n}\r\n",
+					"raw": "{\r\n  \"id\": \"3\",\r\n  \"content\": \"Randomizer was killed by MyCallAngel0\",\r\n  \"timestamp\": \"2025-09-22T12:30:00\",\r\n  \"day\": 1,\r\n  \"broadcastTo\": \"MAFIA\",\r\n  \"metadata\": {\r\n    \"eliminated_player\": \"user_456\",\r\n    \"cause\": \"mafia_kiss\"\r\n  }\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -44,14 +44,14 @@
 					}
 				},
 				"url": {
-					"raw": "127.0.0.1:8080/lobbies/waterflame/announcements",
+					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "3004",
 					"path": [
 						"lobbies",
 						"waterflame",
@@ -68,7 +68,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"id\": \"23\",\r\n  \"content\": \"Randomizer was killed by yum3lo\",\r\n  \"timestamp\": \"2025-09-22T12:30:00\",\r\n  \"day\": 2\r\n}\r\n",
+					"raw": "{\r\n  \"content\": \"Randomizer was killed by MyCallAngel0\",\r\n  \"timestamp\": \"2025-09-22T12:30:00\",\r\n  \"day\": 2,\r\n  \"broadcastTo\": \"EVERYONE\",\r\n  \"metadata\": {\r\n    \"eliminated_player\": \"user_456\",\r\n    \"cause\": \"mafia_kiss\"\r\n  }\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -76,19 +76,19 @@
 					}
 				},
 				"url": {
-					"raw": "127.0.0.1:8080/lobbies/waterflame/announcements/23",
+					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements/3",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "3004",
 					"path": [
 						"lobbies",
 						"waterflame",
 						"announcements",
-						"23"
+						"3"
 					]
 				}
 			},
@@ -100,19 +100,19 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "127.0.0.1:8080/lobbies/waterflame/announcements/123",
+					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements/2",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "3004",
 					"path": [
 						"lobbies",
 						"waterflame",
 						"announcements",
-						"123"
+						"2"
 					]
 				}
 			},
@@ -124,14 +124,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "127.0.0.1:8080/lobbies/waterflame/announcements",
+					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "3004",
 					"path": [
 						"lobbies",
 						"waterflame",
@@ -143,9 +143,32 @@
 		},
 		{
 			"name": "Get an announcement from lobbyId \"waterflame\"",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements/3",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3004",
+					"path": [
+						"lobbies",
+						"waterflame",
+						"announcements",
+						"3"
+					]
+				}
 			},
 			"response": []
 		}
