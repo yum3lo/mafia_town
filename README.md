@@ -2001,8 +2001,7 @@ Response body:
 {
   "assignment_id": 1001,
   "task_id": 102,
-  "assignee_id": 1,
-  "assigned_by": 999,
+  "assignee_id": 1
   "created_at": "2025-09-22T10:05:00Z",
   "note": "Assigned via operator UI"
 }
@@ -2176,80 +2175,156 @@ Response body:
 
 ### Voting Service
 
-#### Voting control endpoints
 
-- Endpoint for voting a player
+### Voting endpoints
+
+- Endpoint to create/start a voting round for a game
 
 ```
-Endpoint: /votes
+Endpoint: POST /games/{game_id}/rounds
 Method: POST
-Payload: {
-  "user_id": 1,
-  "voted_user_id": 3
+Payload:
+{
+  "name": "Day 3 Vote",
+  "starts_at": Datetime.now(),
 }
 Response: 201 Created
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "game_id": "game-AAA",
+  "name": "Day 3 Vote",
+  "status": "open",
+  "starts_at": "2025-09-22T12:00:00Z",
+  "created_at": "2025-09-22T12:00:00Z"
+}
+
+```
+
+- Endpoint to close a voting round
+
+```
+Endpoint: PATCH /games/{game_id}/rounds/{round_id}/close
+Method: PATCH
+Payload: {} 
+Response: 200 OK
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "game_id": "game-AAA",
+  "status": "closed",
+  "closed_at": "2025-09-22T12:30:00Z"
+}
+```
+
+- Endpoint to list rounds for a game
+
+```
+Endpoint: GET /games/{game_id}/rounds?status=open|closed
+Method: GET
+Response: 200 OK
+Response body:
+{
+  "rounds": [
+    { "round_id": "round-9f3a2b", "status": "open",  "starts_at": "2025-09-21T11:00:00Z", "ends_at": null },
+    { "round_id": "round-8e2b1c", "status": "closed", "starts_at": "2025-09-21T11:55:00Z", "ends_at": "2025-09-21T12:00:00Z" }
+  ]
+}
+```
+
+- Endpoint to get the current voting round for a game
+```
+Endpoint: GET /games/{game_id}/rounds/active
+Method: GET
+Response: 200 OK
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "status": "open",
+  "starts_at": "2025-09-21T11:00:00Z",
+  "ends_at": null
+}
+```
+
+#### Voting control endpoints
+
+- Endpoint to cast or change a user's vote for the active round
+
+```
+Endpoint: POST /games/{game_id}/votes
+Method: POST
+Payload:
+{
+  "user_id": 1,
+  "voted_user_id": 3,
+  "round_id": "round-9f3a2b"
+}
+Response: 201 Created
+Response body:
+{
+  "user_id": 1,
+  "voted_user_id": 3,
+  "round_id": "round-9f3a2b"
+}
 ```
 
 - Endpoint for getting all votes
 
 ```
-Endpoint: /votes
+Endpoint: GET /games/{game_id}/votes?round_id={round_id}&?limit=500&?offset=0
 Method: GET
-Response: {
+Response: 200 OK
+Response body:
+{
   "votes": [
-    {
-      "user_id": 1,
-      "voted_user_id": 3
-    },
-    {
-      "user_id": 2,
-      "voted_user_id": 1
-    }
+    { "user_id": 1, "voted_user_id": 3},
+    { "user_id": 2, "voted_user_id": 1}
   ]
 }
-Response: 200 OK
 ```
 
-- Endpoint for getting a player's vote
-
+- Endpoint to get a single player's vote for a given round
 ```
-Endpoint: /votes/{user_id}
+Endpoint: GET /games/{game_id}/votes/{user_id}?round_id={round_id}
 Method: GET
-Response: {
-  "user_id": 2,
-  "voted_user_id": 1
-}
 Response: 200 OK
+Response body:
+{
+  "user_id": 2,
+  "voted_user_id": 1,
+  "round_id": "round-9f3a2b"
+}
 ```
 
-- Endpoint for removing a vote on a player
-
+- Endpoint to remove a user's vote
 ```
-Endpoint: /votes/{user_id}
+Endpoint: DELETE /games/{game_id}/votes/{user_id}?round_id={round_id}
 Method: DELETE
 Response: 204 No Content
 ```
 
 #### Voting results endpoints
 
-- Endpoint for getting the voting results
+- Endpoint to get voting results for a closed round
 
 ```
-Endpoint: /votes/results
+Endpoint: GET /games/{game_id}/rounds/{round_id}/results
 Method: GET
-Response: {
-  "results": [
-    {
-      "user_id": 1,
-      "votes": 5
-    },
-    {
-      "user_id": 2,
-      "votes": 1
-    }
-  ]
-}
 Response: 200 OK
+Response body:
+{
+  "round_id": "round-9f3a2b",
+  "game_id": "game-AAA",
+  "generated_at": "2025-09-22T12:30:01Z",
+  "results": [
+    { "user_id": 1, "votes": 5 },
+    { "user_id": 2, "votes": 1 }
+  ],
+  "total_votes": 6,
+  "tied": false,
+  "voted_out_id": 1
+}
+
 ```
 
 #### Voting logs endpoints
@@ -2257,74 +2332,29 @@ Response: 200 OK
 - Endpoint for creating voting logs
 
 ```
-Endpoint: /votes/logs/{day}
-Method: PUT
-Payload: {
-  "voting": [
-    {
-      "user_id": 1,
-      "voted_user_id": 2
-    },
-    {
-      "user_id": 2,
-      "voted_user_id": 1
-    },
-    {
-      "user_id": 3,
-      "voted_user_id": 1
-    }
-  ],
-  "results": [
-    {
-      "user_id": 1,
-      "votes": 2
-    },
-    {
-      "user_id": 2,
-      "votes": 1
-    }
-  ],
-  "voted_out_id": 1
-}
-Response: 201 Created
-```
-
-- Endpoint for getting voting logs
-
-```
-Endpoint: /votes/logs
+Endpoint: GET /games/{game_id}/rounds/logs
 Method: GET
-Response: {
-  "day1": {
-    "voting": [
-      {
-        "user_id": 1,
-        "voted_user_id": 2
-      },
-      {
-        "user_id": 2,
-        "voted_user_id": 1
-      },
-      {
-        "user_id": 3,
-        "voted_user_id": 1
-      }
-    ],
-    "results": [
-      {
-        "user_id": 1,
-        "votes": 2
-      },
-      {
-        "user_id": 2,
-        "votes": 1
-      }
-    ],
-    "voted_out_id": 1
-  }
+Response: 200 OK
+Response body:
+{
+  "logs": [
+    {
+      "round_id": "round-8e2b1c",
+      "name": "Day 2 Vote",
+      "closed_at": "2025-09-21T12:00:00Z",
+      "voted_out_id": 4
+    },
+    {
+      "round_id": "round-7d1a0f",
+      "name": "Day 1 Vote",
+      "closed_at": "2025-09-20T12:00:00Z",
+      "voted_out_id": null
+    }
+  ]
 }
-Reponse: 200 OK
 ```
+
+
 
 ## Github workflow
 
@@ -2501,7 +2531,7 @@ docker pull nelldino/character-service:1.0
 docker-compose up -d
 
 # Build locally
-docker build -t nelldino/character-serviceȘ1.0
+docker build -t nelldino/character-service:1.0
 ```
 
 ### Rumors Service
@@ -2569,3 +2599,40 @@ docker build -t mycallangel0/roleplay-service:latest
 # Run with Docker Compose
 docker-compose up --build
 ```
+
+### Task Service
+
+This service is available on Docker Hub at:
+https://hub.docker.com/repository/docker/lucianlupan/task_service/general
+```bash
+# Pull the latest version from Docker Hub
+docker pull lucianlupan/task_service:1.0
+
+# Or build the production image locally
+docker build -t lucianlupan/task_service:1.0 .
+
+# Populate the docker image with data
+docker compose exec -T task_service bash < ./db/task_service.sh
+
+# Run the service with Docker Compose
+docker-compose up --build
+```
+
+### Voting Service
+
+This service is available on Docker Hub at:
+https://hub.docker.com/repository/docker/lucianlupan/voting_service/general
+```bash
+# Pull the latest version from Docker Hub
+docker pull lucianlupan/voting_service:1.0
+
+# Or build the production image locally
+docker build -t lucianlupan/voting_service:1.0 .
+
+# Populate the docker image with data
+docker compose exec -T voting_service bash < ./db/voting_service.sh
+
+# Run the service with Docker Compose
+docker-compose up --build
+```
+
