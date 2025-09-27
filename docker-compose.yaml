@@ -36,7 +36,7 @@ services:
       - "${PG_SHOP_PORT}:5432"
     volumes:
       - postgres_shop_data:/var/lib/postgresql/data
-      - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/customization_shop_service.sql
 
   postgres_communication:
     image: postgres:15
