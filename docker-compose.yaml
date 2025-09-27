@@ -15,7 +15,11 @@ services:
       - postgres_user_management_data:/var/lib/postgresql/data
       - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -81,7 +85,11 @@ services:
       - postgres_character_data:/var/lib/postgresql/data
       - ./db/character_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -179,15 +187,20 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}
       REDIS_URL: redis://redis_communication:6379
-      PORT: ${SERVER_COMMUNICATION_PORT}
+      PORT: 3003
+      USER_SERVICE_URL: http://localhost:3003/mock
+      GAME_SERVICE_URL: http://localhost:3003/mock
+      ROLEPLAY_SERVICE_URL: http://localhost:3003/mock
+      TOWN_SERVICE_URL: http://localhost:3003/mock
+      VOTING_SERVICE_URL: http://localhost:3003/mock
     depends_on:
       - postgres_communication
       - redis_communication
     restart: unless-stopped
 
-  rumors_service:
+  rumor_service:
     image: valeriafz/rumors-service:v1.0.0
-    container_name: rumors_service
+    container_name: rumor_service
     restart: always
     ports:
       - "${SERVER_RUMORS_PORT}:${SERVER_RUMORS_PORT}"
@@ -198,7 +211,7 @@ services:
     depends_on:
       postgres_rumors:
         condition: service_healthy
-  
+
   shop_service:
     image: mycallangel0/shop-service:v1.0.0
     container_name: shop-service
@@ -210,7 +223,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
     ports:
       - "${SERVER_SHOP_PORT}:8080"
-  
+
   roleplay_service:
     image: mycallangel0/roleplay-service:v1.0.0
     container_name: roleplay-service
@@ -228,7 +241,13 @@ services:
     container_name: character-service
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_CHARACTER_PORT}/health"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:${SERVER_CHARACTER_PORT}/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -243,7 +262,7 @@ services:
         condition: service_healthy
 
   town-service:
-    image: nelldino/town-service:1.4 
+    image: nelldino/town-service:1.4
     container_name: town-service
     restart: always
     healthcheck:
