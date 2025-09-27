@@ -15,11 +15,7 @@ services:
       - postgres_user_management_data:/var/lib/postgresql/data
       - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -52,21 +48,22 @@ services:
       - postgres_communication_data:/var/lib/postgresql/data
       - ./db/communication_service.sql:/docker-entrypoint-initdb.d/init.sql
 
-  postgres_rumors:
+  postgres_rumor:
     image: postgres:15
-    container_name: rumors_db
+    container_name: rumor_db
     restart: always
     environment:
-      POSTGRES_USER: ${PG_RUMORS_USER}
-      POSTGRES_PASSWORD: ${PG_RUMORS_PASSWORD}
-      POSTGRES_DB: ${PG_RUMORS_DB}
+      POSTGRES_USER: ${PG_RUMOR_USER}
+      POSTGRES_PASSWORD: ${PG_RUMOR_PASSWORD}
+      POSTGRES_DB: ${PG_RUMOR_DB}
       POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
     ports:
-      - "${PG_RUMORS_PORT}:5432"
+      - "${PG_RUMOR_PORT}:5432"
     volumes:
-      - postgres_rumors_data:/var/lib/postgresql/data
+      - postgres_rumor_data:/var/lib/postgresql/data
+      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/rumor_init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_RUMORS_USER} -d ${PG_RUMORS_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_RUMOR_USER} -d ${PG_RUMOR_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -85,11 +82,7 @@ services:
       - postgres_character_data:/var/lib/postgresql/data
       - ./db/character_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -145,10 +138,17 @@ services:
     image: redis:7
     container_name: game_cache
     restart: always
-    ports:
-      - "${REDIS_GAME_PORT}:6379"
+    environment:
+      REDIS_GAME_HOST: redis_game
+      REDIS_GAME_PORT: 6379
     volumes:
       - redis_game_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   redis_seeder_game:
     image: node:18
@@ -191,7 +191,7 @@ services:
     ports:
       - "${SERVER_USER_MANAGEMENT_PORT}:${SERVER_USER_MANAGEMENT_PORT}"
     environment:
-      DATABASE_URL: postgres://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}
+      DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
 
   game_service:
     image: yum3lo/mafia-game-service:1.3
@@ -202,7 +202,7 @@ services:
       - "${SERVER_GAME_PORT}:${SERVER_GAME_PORT}"
     environment:
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
+      REDIS_GAME_PORT: 6379
 
   communication_service:
     image: valeriafz/mafia-communication-service:latest
@@ -211,14 +211,9 @@ services:
       - "${SERVER_COMMUNICATION_PORT}:${SERVER_COMMUNICATION_PORT}"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}
+      DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
-      PORT: 3003
-      USER_SERVICE_URL: http://localhost:3003/mock
-      GAME_SERVICE_URL: http://localhost:3003/mock
-      ROLEPLAY_SERVICE_URL: http://localhost:3003/mock
-      TOWN_SERVICE_URL: http://localhost:3003/mock
-      VOTING_SERVICE_URL: http://localhost:3003/mock
+      PORT: ${SERVER_COMMUNICATION_PORT}
     depends_on:
       - postgres_communication
       - redis_communication
@@ -231,55 +226,52 @@ services:
     ports:
       - "${SERVER_RUMORS_PORT}:${SERVER_RUMORS_PORT}"
     environment:
-      DATABASE_URL: "postgresql://${PG_RUMORS_USER}:${PG_RUMORS_PASSWORD}@postgres_rumors:5432/${PG_RUMORS_DB}?schema=public"
+      DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
       PORT: ${SERVER_RUMORS_PORT}
       NODE_ENV: development
     depends_on:
-      postgres_rumors:
+      postgres_rumor:
         condition: service_healthy
+    volumes:
+      - postgres_rumor_data:/var/lib/postgresql/data
+      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
 
   shop_service:
-    image: mycallangel0/shop-service:v1.0.0
+    image: mycallangel0/shop-service:v1.1.0
     container_name: shop-service
     depends_on:
       - postgres_shop
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
     ports:
-      - "${SERVER_SHOP_PORT}:8080"
+      - "${SERVER_SHOP_PORT}:${SERVER_SHOP_PORT}"
 
   roleplay_service:
-    image: mycallangel0/roleplay-service:v1.0.0
+    image: mycallangel0/roleplay-service:v1.1.0
     container_name: roleplay-service
     depends_on:
-      - redis_roleplay
+      - redis_game
     environment:
-      SPRING_DATA_REDIS_HOST: redis_roleplay
-      SPRING_DATA_REDIS_PORT: ${REDIS_ROLEPLAY_PORT}
+      SPRING_DATA_REDIS_HOST: redis_game
+      SPRING_DATA_REDIS_PORT: 6379
       REDIS_EXPIRATION_TIME: 30
     ports:
-      - "${SERVER_ROLEPLAY_PORT}:8081"
+      - "${SERVER_ROLEPLAY_PORT}:8080"
 
-  character-service:
+  character_service:
     image: nelldino/character-service:1.0
     container_name: character-service
     restart: always
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:${SERVER_CHARACTER_PORT}/health",
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_CHARACTER_PORT}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     environment:
-      DATABASE_URL: postgresql://${PG_CHARACTER_USER}:${PG_CHARACTER_PASSWORD}@postgres_character:5432/${PG_CHARACTER_DB}
+      DATABASE_URL: "postgresql://${PG_CHARACTER_USER}:${PG_CHARACTER_PASSWORD}@postgres_character:5432/${PG_CHARACTER_DB}"
       PORT: ${SERVER_CHARACTER_PORT}
     ports:
       - "${SERVER_CHARACTER_PORT}:${SERVER_CHARACTER_PORT}"
@@ -287,7 +279,7 @@ services:
       postgres_character:
         condition: service_healthy
 
-  town-service:
+  town_service:
     image: nelldino/town-service:1.4
     container_name: town-service
     restart: always
@@ -298,7 +290,7 @@ services:
       retries: 3
       start_period: 40s
     environment:
-      DATABASE_URL: postgresql://${PG_TOWN_USER}:${PG_TOWN_PASSWORD}@postgres_town:5432/${PG_TOWN_DB}
+      DATABASE_URL: "postgresql://${PG_TOWN_USER}:${PG_TOWN_PASSWORD}@postgres_town:5432/${PG_TOWN_DB}"
       PORT: ${SERVER_TOWN_PORT}
     ports:
       - "${SERVER_TOWN_PORT}:${SERVER_TOWN_PORT}"
@@ -320,6 +312,11 @@ services:
       POSTGRES_DB: ${PG_TASK_DB}
     ports:
       - "${SERVER_TASK_PORT}:8000"
+    volumes:
+      - ./db/task_service.sh:/app/task_service.sh:ro
+    command: sh -c "/app/task_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+
 
   voting_service:
     image: lucianlupan/voting_service:1.0
@@ -334,12 +331,16 @@ services:
       POSTGRES_DB: ${PG_VOTING_DB}
     ports:
       - "${SERVER_VOTING_PORT}:8000"
+    volumes:
+      - ./db/voting_service.sh:/app/voting_service.sh:ro
+    command: sh -c "/app/voting_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
 
 volumes:
   postgres_user_management_data:
   postgres_shop_data:
   postgres_communication_data:
-  postgres_rumors_data:
+  postgres_rumor_data:
   postgres_character_data:
   postgres_town_data:
   postgres_tasks_data:
