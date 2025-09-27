@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Script to populate the database with initial rumor data if it's empty
-# Usage: ./scripts/populate-db.sh
+# Usage: ./db/rumors_service.sh
 
 set -e
 
-API_URL="http://localhost:3000"
+API_URL="http://localhost:3004"
 SCRIPT_DIR="$(dirname "$0")"
 DATA_FILE="$SCRIPT_DIR/rumor-data.json"
 

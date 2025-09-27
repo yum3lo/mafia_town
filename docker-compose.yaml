@@ -137,7 +137,7 @@ services:
     restart: unless-stopped
 
   rumor_service:
-    image: valeriafz/rumors-service:1.0.0
+    image: valeriafz/rumors-service:v1.0.0
     container_name: rumor_service
     restart: always
     ports:
