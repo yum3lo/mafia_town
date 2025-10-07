@@ -15,7 +15,11 @@ services:
       - postgres_user_management_data:/var/lib/postgresql/data
       - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -82,7 +86,11 @@ services:
       - postgres_character_data:/var/lib/postgresql/data
       - ./db/character_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -214,6 +222,11 @@ services:
       DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
       PORT: ${SERVER_COMMUNICATION_PORT}
+      USER_SERVICE_URL: http://localhost:${SERVER_COMMUNICATION_PORT}/mock
+      GAME_SERVICE_URL: http://localhost:${SERVER_COMMUNICATION_PORT}/mock
+      ROLEPLAY_SERVICE_URL: http://localhost:${SERVER_COMMUNICATION_PORT}/mock
+      TOWN_SERVICE_URL: http://localhost:${SERVER_COMMUNICATION_PORT}/mock
+      VOTING_SERVICE_URL: http://localhost:${SERVER_COMMUNICATION_PORT}/mock
     depends_on:
       - postgres_communication
       - redis_communication
@@ -265,7 +278,13 @@ services:
     container_name: character-service
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_CHARACTER_PORT}/health"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:${SERVER_CHARACTER_PORT}/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -316,8 +335,6 @@ services:
       - ./db/task_service.sh:/app/task_service.sh:ro
     command: sh -c "/app/task_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
-
-
   voting_service:
     image: lucianlupan/voting_service:1.0
     container_name: voting-service
@@ -334,7 +351,6 @@ services:
     volumes:
       - ./db/voting_service.sh:/app/voting_service.sh:ro
     command: sh -c "/app/voting_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-
 
 volumes:
   postgres_user_management_data:
