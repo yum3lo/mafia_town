@@ -28,3 +28,6 @@
 [submodule "mafia-game-service"]
 	path = mafia-game-service
 	url = https://github.com/yum3lo/mafia-game-service
+[submodule "mafia-gateway"]
+	path = mafia-gateway
+	url = https://github.com/yum3lo/mafia-gateway
