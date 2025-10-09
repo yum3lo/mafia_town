@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:1.0
+    image: yum3lo/mafia-gateway:1.2
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -211,11 +211,12 @@ services:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
 
   game_service:
-    image: yum3lo/mafia-game-service:1.4
+    image: yum3lo/mafia-game-service:1.5
     container_name: game_service
     depends_on:
       - redis_game
     environment:
+      SERVER_GAME_PORT: 3002
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
       REDIS_GAME_PORT: 6379
 
