@@ -25,12 +25,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8000/locations",
-					"protocol": "http",
+					"raw": "{{baseURL}}/locations",
 					"host": [
-						"localhost"
+						"{{baseURL}}"
 					],
-					"port": "8000",
 					"path": [
 						"locations"
 					]
@@ -53,12 +51,10 @@
 					"raw": "  {\n    \"name\": \"Informator Bureau\",\n    \"type\": \"special\",\n    \"description\": \"Quest information center\",\n    \"coordinates\": { \"x\": 15, \"y\": 40 }\n  }"
 				},
 				"url": {
-					"raw": "http://localhost:8000/locations",
-					"protocol": "http",
+					"raw": "{{baseURL}}/locations",
 					"host": [
-						"localhost"
+						"{{baseURL}}"
 					],
-					"port": "8000",
 					"path": [
 						"locations"
 					]
@@ -72,15 +68,18 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8000/locations/loc_33ab960f",
+					"raw": "http://127.0.0.1:3000/locations/550e8400-e29b-41d4-a716-446655442001",
 					"protocol": "http",
 					"host": [
-						"localhost"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
-					"port": "8000",
+					"port": "3000",
 					"path": [
 						"locations",
-						"loc_33ab960f"
+						"550e8400-e29b-41d4-a716-446655442001"
 					]
 				}
 			},
@@ -101,7 +100,7 @@
 					"raw": "{\n  \"name\": \"Informator Bureau\",\n  \"description\": \"Quest information center\",\n  \"coordinates\": { \"x\": 12, \"y\": 27 }\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8000/locations/loc_33ab960f",
+					"raw": "http://localhost:8000/locations/loc_a1549c0f",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -109,7 +108,7 @@
 					"port": "8000",
 					"path": [
 						"locations",
-						"loc_33ab960f"
+						"loc_a1549c0f"
 					]
 				}
 			},
@@ -147,15 +146,18 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"user_id\": \"user_22\",\n  \"from_location\": \"loc_2\",\n  \"to_location\": \"loc_33ab960f\",\n  \"timestamp\": \"2025-09-07T09:30:00Z\",\n  \"gameDay\": 1\n}"
+					"raw": "{\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440999\",\n  \"from_location\": \"550e8400-e29b-41d4-a716-446655442004\",\n  \"to_location\": \"550e8400-e29b-41d4-a716-446655442005\",\n  \"timestamp\": \"2025-09-07T09:30:00Z\",\n  \"gameDay\": 1\n}\n"
 				},
 				"url": {
-					"raw": "http://localhost:8000/movements",
+					"raw": "http://127.0.0.1:3000/movements",
 					"protocol": "http",
 					"host": [
-						"localhost"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
-					"port": "8000",
+					"port": "3000",
 					"path": [
 						"movements"
 					]
@@ -195,20 +197,53 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8000/locations/loc_33ab960f/movements",
+					"raw": "http://127.0.0.1:3000/locations/550e8400-e29b-41d4-a716-446655442005/movements",
 					"protocol": "http",
 					"host": [
-						"localhost"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
-					"port": "8000",
+					"port": "3000",
 					"path": [
 						"locations",
-						"loc_33ab960f",
+						"550e8400-e29b-41d4-a716-446655442005",
 						"movements"
 					]
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": ""
 		}
 	]
 }
