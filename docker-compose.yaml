@@ -274,7 +274,7 @@ services:
       REDIS_EXPIRATION_TIME: 30
 
   character_service:
-    build: ../mafia-character-service
+    build: nelldino/character-service:1.1
     container_name: character-service
     restart: always
     environment:
@@ -286,7 +286,7 @@ services:
         condition: service_healthy
 
   town_service:
-    build: ../mafia-town-service
+    build: nelldino/town-service:1.5
     container_name: town-service
     restart: always
     environment:
