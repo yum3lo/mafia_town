@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:1.8
+    image: yum3lo/mafia-gateway:1.9
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -202,7 +202,7 @@ services:
       - redis_communication_data:/data
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:1.4
+    image: yum3lo/mafia-user_management-service:1.5
     container_name: user_management_service
     depends_on:
       postgres_user_management:
@@ -219,6 +219,8 @@ services:
       SERVER_GAME_PORT: 3002
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
       REDIS_GAME_PORT: 6379
+    ports:
+    - "3002:3002"
 
   communication_service:
     image: valeriafz/mafia-communication-service:latest
