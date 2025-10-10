@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:1.7
+    image: yum3lo/mafia-gateway:1.8
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -274,7 +274,7 @@ services:
       REDIS_EXPIRATION_TIME: 30
 
   character_service:
-    build: nelldino/character-service:1.1
+    image: nelldino/character-service:1.1
     container_name: character-service
     restart: always
     environment:
@@ -286,7 +286,7 @@ services:
         condition: service_healthy
 
   town_service:
-    build: nelldino/town-service:1.5
+    image: nelldino/town-service:1.5
     container_name: town-service
     restart: always
     environment:

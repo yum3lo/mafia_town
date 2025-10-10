@@ -171,6 +171,39 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Assign Roles",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    \"Randomizer\",\r\n    \"Nelldino\",\r\n    \"Lucian\",\r\n    \"yum3l0\",\r\n    \"valeriafz\",\r\n    \"niksaysit\",\r\n    \"Cataly\",\r\n    \"Rina\",\r\n    \"InnocentPancake\",\r\n    \"Edyson\",\r\n    \"AndreiKalash34\"\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1:3004/roles",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3004",
+					"path": [
+						"roles"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
