@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:1.3
+    image: yum3lo/mafia-gateway:1.7
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -274,22 +274,25 @@ services:
       REDIS_EXPIRATION_TIME: 30
 
   character_service:
-    image: nelldino/character-service:1.0
+    build: ../mafia-character-service
     container_name: character-service
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_CHARACTER_USER}:${PG_CHARACTER_PASSWORD}@postgres_character:5432/${PG_CHARACTER_DB}"
+      PORT: 3006
+    command: uvicorn main:app --host 0.0.0.0 --port 3006 --reload
     depends_on:
       postgres_character:
         condition: service_healthy
 
   town_service:
-    image: nelldino/town-service:1.4
+    build: ../mafia-town-service
     container_name: town-service
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_TOWN_USER}:${PG_TOWN_PASSWORD}@postgres_town:5432/${PG_TOWN_DB}"
-    command: uvicorn main:app --host 0.0.0.0 --port ${SERVER_TOWN_PORT} --reload
+      PORT: 3007
+    command: uvicorn main:app --host 0.0.0.0 --port 3007 --reload
     depends_on:
       postgres_town:
         condition: service_healthy
