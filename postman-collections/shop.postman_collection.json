@@ -93,6 +93,35 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get Shop Items",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"day\": 4,\r\n    \"players\": {\r\n        \"Randomizer\": \"Mafioso\",\r\n        \"Nelldino\": \"Gambler\",\r\n        \"Lucian\": \"Townsfolk\",\r\n        \"yum3l0\": \"Intimidator\",\r\n        \"valeriafz\": \"Detective\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/marketplace",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"marketplace"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
