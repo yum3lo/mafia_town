@@ -68,7 +68,9 @@ BEGIN
     -- Insert sample character
     IF NOT EXISTS (SELECT 1 FROM characters) THEN
         INSERT INTO characters (id, user_id, currency_type, global_currency, currency_spent) VALUES
-        ('550e8400-e29b-41d4-a716-446655440201', 'user_123', 'global', 250, 100);
+        ('550e8400-e29b-41d4-a716-446655440201', 'user_123', 'global', 250, 100),
+        ('550e8400-e29b-41d4-a716-446655440202', 'user_456', 'global', 100, 20),
+        ('550e8400-e29b-41d4-a716-446655440203', 'user_789', 'in-game', 0, 0);
 
         -- Insert sample assets
         INSERT INTO assets (id, category, name, description, image_url) VALUES
@@ -88,11 +90,17 @@ BEGIN
         ('550e8400-e29b-41d4-a716-446655440201', 'red_jacket', 'coat'),
         ('550e8400-e29b-41d4-a716-446655440201', 'gold_watch', 'accessory'),
         ('550e8400-e29b-41d4-a716-446655440201', 'cheerful_smile', 'face'),
-        ('550e8400-e29b-41d4-a716-446655440201', 'dark_jeans', 'pants');
+        ('550e8400-e29b-41d4-a716-446655440201', 'dark_jeans', 'pants'),
+        ('550e8400-e29b-41d4-a716-446655440202', 'red_jacket', 'coat'),
+        ('550e8400-e29b-41d4-a716-446655440202', 'gold_watch', 'accessory'),
+        ('550e8400-e29b-41d4-a716-446655440203', 'blonde_curly', 'hair'),
+        ('550e8400-e29b-41d4-a716-446655440203', 'cheerful_smile', 'face');
 
         -- Insert inventory items for character
         INSERT INTO character_inventory (character_id, item_id, quantity) VALUES
-        ('550e8400-e29b-41d4-a716-446655440201', 'body_armor', 1);
+        ('550e8400-e29b-41d4-a716-446655440201', 'body_armor', 1),
+        ('550e8400-e29b-41d4-a716-446655440202', 'body_armor', 2),
+        ('550e8400-e29b-41d4-a716-446655440203', 'body_armor', 1);
 
         RAISE NOTICE 'Sample data inserted successfully';
     END IF;

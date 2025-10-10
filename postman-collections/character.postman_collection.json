@@ -22,12 +22,12 @@
 					"raw": "{\n  \"userId\": \"user_123\",\n  \"assets\": {\n    \"hair\": \"blonde_curly\",\n    \"coat\": \"red_jacket\",\n    \"accessory\": \"gold_watch\",\n    \"face\": \"cheerful_smile\",\n    \"pants\": \"dark_jeans\"\n  },\n  \"slots\": {\n    \"hair_accessory\": \"baseball_cap\",\n    \"jewelry\": \"silver_ring\",\n    \"shoes\": \"leather_boots\"\n  },\n  \"currencyType\": \"global\",\n  \"globalCurrency\": 250,\n  \"currencySpent\": 100\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8001/characters",
+					"raw": "http://localhost:3000/characters",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3000",
 					"path": [
 						"characters"
 					]
@@ -41,12 +41,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8001/characters/user_123",
+					"raw": "http://localhost:3005/characters/user_123",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"characters",
 						"user_123"
@@ -70,12 +70,12 @@
 					"raw": "{\n  \"userId\": \"user_123\",\n  \"assets\": {\n    \"hair\": \"black_straight\",\n    \"coat\": \"blue_hoodie\",\n    \"accessory\": \"sunglasses\"\n  },\n  \"slots\": {\n    \"hair_accessory\": \"headband\",\n    \"jewelry\": \"gold_necklace\"\n  },\n  \"currencyType\": \"global\",\n  \"globalCurrency\": 250,\n  \"currencySpent\": 100\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8001/characters/user_123",
+					"raw": "http://localhost:3005/characters/user_123",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"characters",
 						"user_123"
@@ -90,12 +90,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8001/assets",
+					"raw": "http://localhost:3005/assets",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"assets"
 					]
@@ -109,12 +109,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8001/assets/slots",
+					"raw": "http://localhost:3005/assets/slots",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"assets",
 						"slots"
@@ -149,12 +149,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8001/assets/user/user_123",
+					"raw": "http://localhost:3005/assets/user/user_123",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"assets",
 						"user",
@@ -179,12 +179,12 @@
 					"raw": "{\n  \"itemId\": \"body_armor\",\n  \"name\": \"Bulletproof Vest\",\n  \"quantity\": 1,\n  \"expiresNextDay\": true,\n  \"currencyType\": \"in-game\",\n  \"purchasePrice\": 150,\n  \"type\": \"protection\",\n  \"description\": \"Protects against mafia attacks during night phase\"\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8001/inventory/user_123/items",
+					"raw": "http://localhost:3005/inventory/user_123/items",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"inventory",
 						"user_123",
@@ -200,12 +200,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8001/inventory/user_123",
+					"raw": "http://localhost:3005/inventory/user_123",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"inventory",
 						"user_123"
@@ -229,12 +229,12 @@
 					"raw": "{\n  \"usageContext\": \"night_attack_defense\",\n  \"gameId\": \"game_789\",\n  \"targetLocation\": \"warehouse_district\"\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8001/inventory/user_123/items/body_armor/use",
+					"raw": "http://localhost:3005/inventory/user_123/items/body_armor/use",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"inventory",
 						"user_123",
@@ -252,12 +252,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8001/inventory/user_123/items/type/protection",
+					"raw": "http://localhost:3005/inventory/user_123/items/type/protection",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"inventory",
 						"user_123",
@@ -275,12 +275,12 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8001/inventory/user_123/items/body_armor",
+					"raw": "http://localhost:3005/inventory/user_123/items/body_armor",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8001",
+					"port": "3005",
 					"path": [
 						"inventory",
 						"user_123",
@@ -290,6 +290,44 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "CHARACTER_SERVICE_PORT",
+			"value": ""
 		}
 	]
 }
