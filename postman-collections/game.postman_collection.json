@@ -4,17 +4,27 @@
 		"name": "game",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "48492495",
-		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-df16e07e-812e-4f96-b8f6-ed738af36d56?action=share&source=collection_link&creator=48492495"
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-df16e07e-812e-4f96-b8f6-ed738af36d56?action=share&source=collection_link&creator=48492495"
 	},
 	"item": [
 		{
 			"name": "Create game",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"hostUserId\": \"user_1\",\r\n  \"maxPlayers\": 15\r\n}",
+					"raw": "{\r\n  \"hostUserId\": \"user_2\",\r\n  \"maxPlayers\": 15\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -22,12 +32,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/create",
+					"raw": "{{base_url}}/create",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"create"
 					]
 				}
@@ -81,15 +90,24 @@
 		{
 			"name": "Get game status",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/games/game_1",
+					"raw": "{{base_url}}/game_1",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1"
 					]
 				}
@@ -134,6 +152,16 @@
 		{
 			"name": "Update player alive status",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "PATCH",
 				"header": [],
 				"body": {
@@ -146,12 +174,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/players/user_1/status",
+					"raw": "{{base_url}}/game_1/players/user_1/status",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1",
 						"players",
 						"user_1",
@@ -218,12 +245,11 @@
 					"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1",
+					"raw": "{{base_url}}/game_1",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1"
 					]
 				}
@@ -276,7 +302,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"user_535\",\r\n    \"gameCode\": \"AYA4G\"\r\n}",
+					"raw": "{\r\n    \"userId\": \"user_6\",\r\n    \"gameCode\": \"AYA4G\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -284,13 +310,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/join",
+					"raw": "{{base_url}}/join",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
-						"game_1",
 						"join"
 					]
 				}
@@ -352,12 +376,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1758892125218/leave",
+					"raw": "{{base_url}}/game_1758892125218/leave",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1758892125218",
 						"leave"
 					]
@@ -420,12 +443,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/start",
+					"raw": "{{base_url}}/game_1/start",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1",
 						"start"
 					]
@@ -469,18 +491,28 @@
 							"path": ""
 						}
 					],
-					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameStatus\": \"in_progress\",\r\n            \"currentPhase\": \"day\",\r\n            \"dayCount\": 1,\r\n            \"totalPlayers\": 12,\r\n            \"message\": \"Game started! Day 1 begins.\"\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"game\": {\r\n            \"gameId\": \"game_1\",\r\n            \"gameStatus\": \"in_progress\",\r\n            \"currentPhase\": \"day\",\r\n            \"dayCount\": 1,\r\n            \"totalPlayers\": 12,\r\n            \"message\": \"Game started! Day 1 begins.\"\r\n        }\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Need at least 6 players to start the game.\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
 				}
 			]
 		},
 		{
 			"name": "End game",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "PATCH",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"winCondition\": \"mafia_victory\",\r\n    \"winners\": [\r\n        {\r\n            \"userId\": \"user_1\"\r\n        },\r\n        {\r\n            \"userId\": \"user_2\"\r\n        }\r\n    ]\r\n}",
+					"raw": "{\r\n    \"winCondition\": \"mafia_victory\",\r\n    \"winners\": [\r\n        {\r\n            \"userId\": \"user_1\"\r\n        },\r\n        {\r\n            \"userId\": \"user_4\"\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -488,13 +520,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/end",
+					"raw": "{{base_url}}/game_1760212484398/end",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
-						"game_1",
+						"game_1760212484398",
 						"end"
 					]
 				}
@@ -561,12 +592,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/phase",
+					"raw": "{{base_url}}/game_1/phase",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1",
 						"phase"
 					]
@@ -632,12 +662,11 @@
 					"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/phase",
+					"raw": "{{base_url}}/game_1/phase",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1",
 						"phase"
 					]
@@ -698,12 +727,11 @@
 					"raw": "{\r\n  \"hostUserId\": \"user_123\",\r\n  \"maxPlayers\": 15\r\n}"
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/players/user_1",
+					"raw": "{{base_url}}/game_1/players/user_1",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
 						"game_1",
 						"players",
 						"user_1"
@@ -756,11 +784,21 @@
 		{
 			"name": "Broadcast game event",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"eventType\": \"player_death\",\r\n    \"message\": \"player4 was found dead!\",\r\n    \"targetPlayers\": [\r\n        {\r\n            \"userId\": \"user_2\"\r\n        },\r\n        {\r\n            \"userId\": \"user_3\"\r\n        }\r\n    ],\r\n    \"metadata\": {\r\n        \"eliminatedPlayerId\": \"user_4\",\r\n        \"cause\": \"mafia_kill\"\r\n    }\r\n}\r\n\r\n// WHEN PLAYER GETS EXILED\r\n// {\r\n//     \"eventType\": \"player_elimination\",\r\n//     \"message\": \"player2 has been voted out of town!\",\r\n//     \"targetPlayers\": \"all\",\r\n//     \"metadata\": {\r\n//         \"eliminatedPlayerId\": \"user_2\",\r\n//         \"voteCount\": 5,\r\n//         \"cause\": \"voted_out\"\r\n//     }\r\n// }",
+					"raw": "{\r\n    \"eventType\": \"player_death\",\r\n    \"message\": \"player4 was found dead!\",\r\n    \"metadata\": {\r\n        \"eliminatedPlayerId\": \"user_3\",\r\n        \"cause\": \"mafia_kill\"\r\n    }\r\n}\r\n\r\n// WHEN PLAYER GETS EXILED\r\n// {\r\n//     \"eventType\": \"player_elimination\",\r\n//     \"message\": \"player2 has been voted out of town!\",\r\n//     \"metadata\": {\r\n//         \"eliminatedPlayerId\": \"user_2\",\r\n//         \"voteCount\": 5,\r\n//         \"cause\": \"voted_out\"\r\n//     }\r\n// }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -768,13 +806,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/games/game_1/broadcast",
+					"raw": "{{base_url}}/game_1760163109382/broadcast",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"games",
-						"game_1",
+						"game_1760163109382",
 						"broadcast"
 					]
 				}
