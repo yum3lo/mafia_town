@@ -9,6 +9,16 @@
 		{
 			"name": "Get All Items",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -26,6 +36,16 @@
 		{
 			"name": "Create Item",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -96,11 +116,8 @@
 		},
 		{
 			"name": "Get Shop Items",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",

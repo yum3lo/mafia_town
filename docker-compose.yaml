@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:1.9
+    image: yum3lo/mafia-gateway:2.0
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -21,8 +21,8 @@ services:
       - user_management_service
       - game_service
       - communication_service
-      - shop_service
-      - roleplay_service
+      - shop-service
+      - roleplay-service
       - character_service
       - town_service
       - task_service
@@ -255,25 +255,31 @@ services:
       - postgres_rumor_data:/var/lib/postgresql/data
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
 
-  shop_service:
-    image: mycallangel0/shop-service:v1.1.0
+  shop-service:
+    image: mycallangel0/shop-service:v1.2.0
     container_name: shop-service
     depends_on:
       - postgres_shop
+    ports:
+      - "3005:3005"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
+      SERVER_PORT: 3005
 
-  roleplay_service:
-    image: mycallangel0/roleplay-service:v1.1.0
+  roleplay-service:
+    image: mycallangel0/roleplay-service:v1.2.0
     container_name: roleplay-service
     depends_on:
       - redis_game
+    ports:
+      - "3008:3008"
     environment:
       SPRING_DATA_REDIS_HOST: redis_game
       SPRING_DATA_REDIS_PORT: 6379
       REDIS_EXPIRATION_TIME: 30
+      SERVER_PORT: 3008
 
   character_service:
     image: nelldino/character-service:1.1
