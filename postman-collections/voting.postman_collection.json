@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Voting Service",
+    "name": "Voting Service (with SSE)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -259,6 +259,52 @@
             }
           ]
         }
+      }
+    },
+    {
+      "name": "Subscribe to Round SSE (EventStream)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/games/game-AAA/rounds/{{round_id}}/stream",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "games",
+            "game-AAA",
+            "rounds",
+            "{{round_id}}",
+            "stream"
+          ]
+        },
+        "description": "Open an EventSource / SSE connection to receive server-sent events for a specific round. The server will send events with event name `round_event` and `data` payloads."
+      }
+    },
+    {
+      "name": "Subscribe to Round SSE (curl example)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          }
+        ],
+        "url": {
+          "raw": "curl -N {{base_url}}/games/game-AAA/rounds/{{round_id}}/stream -H \"Accept: text/event-stream\"",
+          "host": [
+            "curl -N {{base_url}}/games/game-AAA/rounds/{{round_id}}/stream -H \"Accept: text/event-stream\""
+          ],
+          "path": []
+        },
+        "description": "This item demonstrates how to use curl to keep a streaming connection open. Replace {{round_id}} with an actual round id and run this from your terminal:\n\ncurl -N {{base_url}}/games/game-AAA/rounds/<round_id>/stream -H \"Accept: text/event-stream\""
       }
     }
   ]
