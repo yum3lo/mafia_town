@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:2.0
+    image: yum3lo/mafia-gateway:2.1
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -17,9 +17,10 @@ services:
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
       TASK_SERVICE_URL: ${TASK_SERVICE_URL}
       VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       - user_management_service
-      - game_service
       - communication_service
       - shop-service
       - roleplay-service
@@ -27,6 +28,12 @@ services:
       - town_service
       - task_service
       - voting_service
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   postgres_user_management:
     image: postgres:15
@@ -202,23 +209,28 @@ services:
       - redis_communication_data:/data
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:1.5
+    image: yum3lo/mafia-user_management-service:1.6
     container_name: user_management_service
     depends_on:
       postgres_user_management:
         condition: service_healthy
     environment:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
 
   game_service:
-    image: yum3lo/mafia-game-service:1.5
+    image: yum3lo/mafia-game-service:1.7
     container_name: game_service
     depends_on:
       - redis_game
+      - gateway
     environment:
       SERVER_GAME_PORT: 3002
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
       REDIS_GAME_PORT: 6379
+      GATEWAY_URL: http://gateway:3000
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
     ports:
     - "3002:3002"
 
