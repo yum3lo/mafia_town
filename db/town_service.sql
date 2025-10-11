@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS locations (
 -- Movement History table
 CREATE TABLE IF NOT EXISTS movement_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    character_id UUID NOT NULL,
+    -- character_id is VARCHAR to support external/user IDs like 'user_22'
+    character_id VARCHAR(100) NOT NULL,
     from_location_id UUID,
     to_location_id UUID NOT NULL,
     movement_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

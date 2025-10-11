@@ -1,6 +1,33 @@
 version: "3.9"
 
 services:
+  gateway:
+    image: yum3lo/mafia-gateway:2.0
+    container_name: gateway
+    ports:
+      - "${GATEWAY_PORT}:3000"
+    environment:
+      USER_MANAGEMENT_URL: ${USER_MANAGEMENT_URL}
+      GAME_SERVICE_URL: ${GAME_SERVICE_URL}
+      COMMUNICATION_SERVICE_URL: ${COMMUNICATION_SERVICE_URL}
+      RUMORS_SERVICE_URL: ${RUMORS_SERVICE_URL}
+      SHOP_SERVICE_URL: ${SHOP_SERVICE_URL}
+      ROLEPLAY_SERVICE_URL: ${ROLEPLAY_SERVICE_URL}
+      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
+      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
+      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
+      VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
+    depends_on:
+      - user_management_service
+      - game_service
+      - communication_service
+      - shop-service
+      - roleplay-service
+      - character_service
+      - town_service
+      - task_service
+      - voting_service
+
   postgres_user_management:
     image: postgres:15
     container_name: user_management_db
@@ -9,13 +36,15 @@ services:
       POSTGRES_USER: ${PG_USER_MANAGEMENT_USER}
       POSTGRES_PASSWORD: ${PG_USER_MANAGEMENT_PASSWORD}
       POSTGRES_DB: ${PG_USER_MANAGEMENT_DB}
-    ports:
-      - "${PG_USER_MANAGEMENT_PORT}:5432"
     volumes:
       - postgres_user_management_data:/var/lib/postgresql/data
       - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -30,8 +59,6 @@ services:
       POSTGRES_USER: ${PG_SHOP_USER}
       POSTGRES_PASSWORD: ${PG_SHOP_PASSWORD}
       POSTGRES_DB: ${PG_SHOP_DB}
-    ports:
-      - "${PG_SHOP_PORT}:5432"
     volumes:
       - postgres_shop_data:/var/lib/postgresql/data
       - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/customization_shop_service.sql
@@ -46,8 +73,6 @@ services:
       POSTGRES_USER: ${PG_COMMUNICATION_USER}
       POSTGRES_PASSWORD: ${PG_COMMUNICATION_PASSWORD}
       POSTGRES_DB: ${PG_COMMUNICATION_DB}
-    ports:
-      - "${PG_COMMUNICATION_PORT}:5432"
     volumes:
       - postgres_communication_data:/var/lib/postgresql/data
       - ./db/communication_service.sql:/docker-entrypoint-initdb.d/init.sql
@@ -63,8 +88,6 @@ services:
       POSTGRES_PASSWORD: ${PG_RUMOR_PASSWORD}
       POSTGRES_DB: ${PG_RUMOR_DB}
       POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
-    ports:
-      - "${PG_RUMOR_PORT}:5432"
     volumes:
       - postgres_rumor_data:/var/lib/postgresql/data
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/rumor_init.sql:ro
@@ -84,13 +107,15 @@ services:
       POSTGRES_USER: ${PG_CHARACTER_USER}
       POSTGRES_PASSWORD: ${PG_CHARACTER_PASSWORD}
       POSTGRES_DB: ${PG_CHARACTER_DB}
-    ports:
-      - "${PG_CHARACTER_PORT}:5432"
     volumes:
       - postgres_character_data:/var/lib/postgresql/data
       - ./db/character_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PG_CHARACTER_USER} -d ${PG_CHARACTER_DB}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -106,8 +131,6 @@ services:
       POSTGRES_USER: ${PG_TOWN_USER}
       POSTGRES_PASSWORD: ${PG_TOWN_PASSWORD}
       POSTGRES_DB: ${PG_TOWN_DB}
-    ports:
-      - "${PG_TOWN_PORT}:5432"
     volumes:
       - postgres_town_data:/var/lib/postgresql/data
       - ./db/town_service.sql:/docker-entrypoint-initdb.d/init.sql
@@ -229,41 +252,43 @@ services:
       - mafia_network
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:1.3
+    image: yum3lo/mafia-user_management-service:1.5
     container_name: user_management_service
     depends_on:
       postgres_user_management:
         condition: service_healthy
-    ports:
-      - "${SERVER_USER_MANAGEMENT_PORT}:${SERVER_USER_MANAGEMENT_PORT}"
     environment:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
     networks:
       - mafia_network
 
   game_service:
-    image: yum3lo/mafia-game-service:1.3
+    image: yum3lo/mafia-game-service:1.5
     container_name: game_service
     depends_on:
       - redis_game
-    ports:
-      - "${SERVER_GAME_PORT}:${SERVER_GAME_PORT}"
     environment:
+      SERVER_GAME_PORT: 3002
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
       REDIS_GAME_PORT: 6379
     networks:
       - mafia_network
+    ports:
+    - "3002:3002"
 
   communication_service:
     image: valeriafz/mafia-communication-service:latest
     container_name: communication_service
-    ports:
-      - "${SERVER_COMMUNICATION_PORT}:${SERVER_COMMUNICATION_PORT}"
     environment:
       NODE_ENV: production
       DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
-      PORT: ${SERVER_COMMUNICATION_PORT}
+      PORT: 3003
+      USER_SERVICE_URL: http://localhost:3003/mock
+      GAME_SERVICE_URL: http://localhost:3003/mock
+      ROLEPLAY_SERVICE_URL: http://localhost:3003/mock
+      TOWN_SERVICE_URL: http://localhost:3003/mock
+      VOTING_SERVICE_URL: http://localhost:3003/mock
     depends_on:
       - postgres_communication
       - redis_communication
@@ -275,12 +300,10 @@ services:
     image: valeriafz/rumors-service:v1.0.0
     container_name: rumor_service
     restart: always
-    ports:
-      - "${SERVER_RUMORS_PORT}:${SERVER_RUMORS_PORT}"
     environment:
       DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
-      PORT: ${SERVER_RUMORS_PORT}
       NODE_ENV: development
+      PORT: 3004
     depends_on:
       postgres_rumor:
         condition: service_healthy
@@ -290,49 +313,44 @@ services:
     networks:
       - mafia_network
 
-  shop_service:
-    image: mycallangel0/shop-service:v1.1.0
+  shop-service:
+    image: mycallangel0/shop-service:v1.2.0
     container_name: shop-service
     depends_on:
       - postgres_shop
+    ports:
+      - "3005:3005"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
-    ports:
-      - "${SERVER_SHOP_PORT}:${SERVER_SHOP_PORT}"
+      SERVER_PORT: 3005
     networks:
       - mafia_network
 
-  roleplay_service:
-    image: mycallangel0/roleplay-service:v1.1.0
+  roleplay-service:
+    image: mycallangel0/roleplay-service:v1.2.0
     container_name: roleplay-service
     depends_on:
       - redis_game
+    ports:
+      - "3008:3008"
     environment:
       SPRING_DATA_REDIS_HOST: redis_game
       SPRING_DATA_REDIS_PORT: 6379
       REDIS_EXPIRATION_TIME: 30
-    ports:
-      - "${SERVER_ROLEPLAY_PORT}:8080"
+      SERVER_PORT: 3008
     networks:
       - mafia_network
 
   character_service:
-    image: nelldino/character-service:1.0
+    image: nelldino/character-service:1.1
     container_name: character-service
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_CHARACTER_PORT}/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     environment:
       DATABASE_URL: "postgresql://${PG_CHARACTER_USER}:${PG_CHARACTER_PASSWORD}@postgres_character:5432/${PG_CHARACTER_DB}"
-      PORT: ${SERVER_CHARACTER_PORT}
-    ports:
-      - "${SERVER_CHARACTER_PORT}:${SERVER_CHARACTER_PORT}"
+      PORT: 3006
+    command: uvicorn main:app --host 0.0.0.0 --port 3006 --reload
     depends_on:
       postgres_character:
         condition: service_healthy
@@ -340,21 +358,13 @@ services:
       - mafia_network
 
   town_service:
-    image: nelldino/town-service:1.4
+    image: nelldino/town-service:1.5
     container_name: town-service
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_TOWN_PORT}/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     environment:
       DATABASE_URL: "postgresql://${PG_TOWN_USER}:${PG_TOWN_PASSWORD}@postgres_town:5432/${PG_TOWN_DB}"
-      PORT: ${SERVER_TOWN_PORT}
-    ports:
-      - "${SERVER_TOWN_PORT}:${SERVER_TOWN_PORT}"
-    command: uvicorn main:app --host 0.0.0.0 --port ${SERVER_TOWN_PORT} --reload
+      PORT: 3007
+    command: uvicorn main:app --host 0.0.0.0 --port 3007 --reload
     depends_on:
       postgres_town:
         condition: service_healthy
@@ -374,15 +384,11 @@ services:
       POSTGRES_PASSWORD: ${PG_TASK_PASSWORD}
       REDIS_URL: ${REDIS_TASK_URL}
       POSTGRES_DB: ${PG_TASK_DB}
-    ports:
-      - "${SERVER_TASK_PORT}:8000"
     volumes:
       - ./db/task_service.sh:/app/task_service.sh:ro
     command: sh -c "/app/task_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     networks:
       - mafia_network
-
-
 
   voting_service:
     image: lucianlupan/voting_service:1.0
@@ -404,7 +410,6 @@ services:
     command: sh -c "/app/voting_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8001"
     networks:
       - mafia_network
-
 
 volumes:
   postgres_user_management_data:
