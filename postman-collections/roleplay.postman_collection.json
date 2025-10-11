@@ -9,18 +9,29 @@
 		{
 			"name": "Get all lobby announcements for lobbyId \"waterflame\"",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements",
+					"raw": "127.0.0.1:3000/roleplay/lobbies/waterflame/announcements",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "3004",
+					"port": "3000",
 					"path": [
+						"roleplay",
 						"lobbies",
 						"waterflame",
 						"announcements"
@@ -44,15 +55,16 @@
 					}
 				},
 				"url": {
-					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements",
+					"raw": "127.0.0.1:3000/roleplay/lobbies/waterflame/announcements",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "3004",
+					"port": "3000",
 					"path": [
+						"roleplay",
 						"lobbies",
 						"waterflame",
 						"announcements"
@@ -64,6 +76,16 @@
 		{
 			"name": "Update announcement from lobbyId \"waterflame\"",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
 				"method": "PUT",
 				"header": [],
 				"body": {
@@ -76,15 +98,16 @@
 					}
 				},
 				"url": {
-					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements/3",
+					"raw": "127.0.0.1:3000/roleplay/lobbies/waterflame/announcements/3",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "3004",
+					"port": "3000",
 					"path": [
+						"roleplay",
 						"lobbies",
 						"waterflame",
 						"announcements",
@@ -97,18 +120,29 @@
 		{
 			"name": "Delete an announcement from lobbyId \"waterflame\"",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements/2",
+					"raw": "127.0.0.1:3000/roleplay/lobbies/waterflame/announcements/2",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "3004",
+					"port": "3000",
 					"path": [
+						"roleplay",
 						"lobbies",
 						"waterflame",
 						"announcements",
@@ -121,18 +155,29 @@
 		{
 			"name": "Delete all lobby announcements for lobbyId \"waterflame\"",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements",
+					"raw": "127.0.0.1:3000/roleplay/lobbies/waterflame/announcements",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "3004",
+					"port": "3000",
 					"path": [
+						"roleplay",
 						"lobbies",
 						"waterflame",
 						"announcements"
@@ -147,6 +192,16 @@
 				"disableBodyPruning": true
 			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -154,15 +209,16 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "127.0.0.1:3004/lobbies/waterflame/announcements/3",
+					"raw": "127.0.0.1:3000/roleplay/lobbies/waterflame/announcements/3",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "3004",
+					"port": "3000",
 					"path": [
+						"roleplay",
 						"lobbies",
 						"waterflame",
 						"announcements",
@@ -174,11 +230,18 @@
 		},
 		{
 			"name": "Assign Roles",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJwbGF5ZXIxIiwiaWF0IjoxNzYwMTYwNzkzLCJleHAiOjE3NjAxNjQzOTN9.NLXjfwRkcm01bB5UxoXD2j1t-HE-_K6tn41dXVtCZqw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -190,15 +253,16 @@
 					}
 				},
 				"url": {
-					"raw": "127.0.0.1:3004/roles",
+					"raw": "127.0.0.1:3000/roleplay/roles",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "3004",
+					"port": "3000",
 					"path": [
+						"roleplay",
 						"roles"
 					]
 				}
