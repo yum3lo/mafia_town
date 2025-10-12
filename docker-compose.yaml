@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:2.1
+    image: yum3lo/mafia-gateway:2.2
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -26,8 +26,8 @@ services:
       - roleplay-service
       - character_service
       - town_service
-      - task_service
-      - voting_service
+      - task-service
+      - voting-service
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
       interval: 10s
@@ -207,6 +207,24 @@ services:
       - "${REDIS_COMMUNICATION_PORT}:6379"
     volumes:
       - redis_communication_data:/data
+  
+  redis_task:
+    image: redis:7
+    container_name: redis_task
+    restart: always
+    ports:
+      - "6382:6379"
+    volumes:
+      - redis_task_data:/data
+  
+  redis_voting:
+    image: redis:7
+    container_name: redis_voting
+    restart: always
+    ports:
+      - "6383:6379"
+    volumes:
+      - redis_voting_data:/data
 
   user_management_service:
     image: yum3lo/mafia-user_management-service:1.6
@@ -317,35 +335,39 @@ services:
       postgres_town:
         condition: service_healthy
 
-  task_service:
+  task-service:
     image: lucianlupan/task_service:1.0
     container_name: task-service
     depends_on:
       - postgres_tasks
+      - redis_task
     environment:
       POSTGRES_HOST: postgres_tasks
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${PG_TASK_USER}
       POSTGRES_PASSWORD: ${PG_TASK_PASSWORD}
       POSTGRES_DB: ${PG_TASK_DB}
+      REDIS_URL: "redis://redis_task:6379"
     volumes:
       - ./db/task_service.sh:/app/task_service.sh:ro
     command: sh -c "/app/task_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
-  voting_service:
+  voting-service:
     image: lucianlupan/voting_service:1.0
     container_name: voting-service
     depends_on:
       - postgres_voting
+      - redis_voting
     environment:
       POSTGRES_HOST: postgres_voting
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${PG_VOTING_USER}
       POSTGRES_PASSWORD: ${PG_VOTING_PASSWORD}
       POSTGRES_DB: ${PG_VOTING_DB}
+      REDIS_URL: "redis://redis_voting:6379"
     volumes:
       - ./db/voting_service.sh:/app/voting_service.sh:ro
-    command: sh -c "/app/voting_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "/app/voting_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8001"
 
 volumes:
   postgres_user_management_data:
@@ -359,3 +381,5 @@ volumes:
   redis_game_data:
   redis_roleplay_data:
   redis_communication_data:
+  redis_task_data:
+  redis_voting_data:
