@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS locations (
 -- Movement History table
 CREATE TABLE IF NOT EXISTS movement_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    -- character_id is VARCHAR to support external/user IDs like 'user_22'
     character_id VARCHAR(100) NOT NULL,
     from_location_id UUID,
     to_location_id UUID NOT NULL,
@@ -36,9 +35,22 @@ CREATE TABLE IF NOT EXISTS location_connections (
     FOREIGN KEY (to_location_id) REFERENCES locations(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS current_player_locations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    player_id VARCHAR(100) NOT NULL,
+    location_id UUID NOT NULL,
+    game_id UUID NOT NULL,
+    arrived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    game_day INTEGER DEFAULT 1,
+    FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE,
+    UNIQUE(player_id, game_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_movement_character_id ON movement_history(character_id);
 CREATE INDEX IF NOT EXISTS idx_movement_game_id ON movement_history(game_id);
 CREATE INDEX IF NOT EXISTS idx_location_connections ON location_connections(from_location_id, to_location_id);
+CREATE INDEX IF NOT EXISTS idx_current_player_location ON current_player_locations(location_id);
+CREATE INDEX IF NOT EXISTS idx_current_player_game ON current_player_locations(player_id, game_id);
 
 DO $$
 DECLARE
