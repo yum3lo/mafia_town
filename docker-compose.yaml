@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:2.0
+    image: yum3lo/mafia-gateway:2.7
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -17,6 +17,8 @@ services:
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
       TASK_SERVICE_URL: ${TASK_SERVICE_URL}
       VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
+      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
+      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
     depends_on:
       - user_management_service
       - game_service
@@ -27,6 +29,7 @@ services:
       - town_service
       - task_service
       - voting_service
+      - redis_game
 
   postgres_user_management:
     image: postgres:15
