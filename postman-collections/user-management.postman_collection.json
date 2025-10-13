@@ -4,7 +4,7 @@
 		"name": "user-management",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "48492495",
-		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-27112c7e-21c6-4262-b199-3e52925e70b2?action=share&source=collection_link&creator=48492495"
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-27112c7e-21c6-4262-b199-3e52925e70b2?action=share&source=collection_link&creator=48492495"
 	},
 	"item": [
 		{
@@ -25,6 +25,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -95,11 +105,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"email\": \"player1@example.com\",\n    \"username\": \"player3\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
+					"raw": "{\n\t\"email\": \"player1@example.com\",\n    \"username\": \"player1\",\n    \"password\": \"hashedPassword\",\n    \"deviceFingerprint\": \"device_hash_abc123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -274,6 +287,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "DELETE",
 				"header": [],
 				"url": {
@@ -471,11 +494,21 @@
 		{
 			"name": "Bulk user lookup",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"userIds\": [\n        \"user_1\",\n        \"user_2\",\n        \"user_3\"\n    ]\n}",
+					"raw": "{\n\t\"userIds\": [\n        \"user_1\",\n        \"user_2\",\n        \"user_3\",\n        \"user_4\",\n        \"user_5\",\n        \"user_6\"\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -483,11 +516,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/users/bulk",
+					"raw": "{{base_url}}/internal/users/bulk",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
+						"internal",
 						"users",
 						"bulk"
 					]
@@ -618,6 +652,16 @@
 		{
 			"name": "Get currency balances",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
