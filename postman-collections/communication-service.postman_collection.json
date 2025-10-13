@@ -3,7 +3,8 @@
 		"_postman_id": "365b11de-5089-45b2-9dcb-bb4ac3ff3c46",
 		"name": "communication-service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "47748940"
+		"_exporter_id": "47748940",
+		"_collection_link": "https://vfrunza-9ba76a59-9113892.postman.co/workspace/Personal-Workspace~51281074-0e91-4220-a7a8-11746dc0dda8/collection/47748940-365b11de-5089-45b2-9dcb-bb4ac3ff3c46?action=share&source=collection_link&creator=47748940"
 	},
 	"item": [
 		{
@@ -15,12 +16,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3003/mock/users/550e8400-e29b-41d4-a716-446655440201",
-							"protocol": "http",
+							"raw": "{{base_url}}/mock/users/550e8400-e29b-41d4-a716-446655440201",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3003",
 							"path": [
 								"mock",
 								"users",
@@ -36,12 +35,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3003/mock/game/550e8400-e29b-41d4-a716-446655440100/player/550e8400-e29b-41d4-a716-446655440201/status",
-							"protocol": "http",
+							"raw": "{{base_url}}/mock/game/550e8400-e29b-41d4-a716-446655440100/player/550e8400-e29b-41d4-a716-446655440201/status",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3003",
 							"path": [
 								"mock",
 								"game",
@@ -60,12 +57,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3003/mock/game/550e8400-e29b-41d4-a716-446655440100/state",
-							"protocol": "http",
+							"raw": "{{base_url}}/mock/game/550e8400-e29b-41d4-a716-446655440100/state",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3003",
 							"path": [
 								"mock",
 								"game",
@@ -82,12 +77,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3003/mock/roles/550e8400-e29b-41d4-a716-446655440201",
-							"protocol": "http",
+							"raw": "{{base_url}}/mock/roles/550e8400-e29b-41d4-a716-446655440201",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3003",
 							"path": [
 								"mock",
 								"roles",
@@ -103,12 +96,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3003/mock/location/550e8400-e29b-41d4-a716-446655440201",
-							"protocol": "http",
+							"raw": "{{base_url}}/mock/location/550e8400-e29b-41d4-a716-446655440201",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3003",
 							"path": [
 								"mock",
 								"location",
@@ -124,12 +115,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3003/mock/location/550e8400-e29b-41d4-a716-446655442001/players",
-							"protocol": "http",
+							"raw": "{{base_url}}/mock/location/550e8400-e29b-41d4-a716-446655442001/players",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3003",
 							"path": [
 								"mock",
 								"location",
@@ -235,6 +224,16 @@
 		{
 			"name": "create chatroom",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ2YWxlcmlhNyIsImlhdCI6MTc2MDM2NTA5MSwiZXhwIjoxNzYwMzY4NjkxfQ.woKTeilMg9x21oLFHtpnOwirHo8E4xVktfpxrVxRxU0",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -246,7 +245,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Global Chat\",\n  \"type\": \"global\",\n  \"gameId\": \"550e8400-e29b-41d4-a716-446655440100\",\n  \"locationId\": \"550e8400-e29b-41d4-a716-446655442001\", // optional\n  \"maxParticipants\": 50 // optional\n}",
+					"raw": "{\n  \"name\": \"Mafia Chat\",\n  \"type\": \"global\",\n  \"gameId\": \"550e8400-e29b-41d4-a716-446655440100\",\n  \"locationId\": \"550e8400-e29b-41d4-a716-446655442001\", \n  \"maxParticipants\": 50 \n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -254,12 +253,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3003/chat/rooms",
-					"protocol": "http",
+					"raw": "{{base_url}}/chat/rooms",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3003",
 					"path": [
 						"chat",
 						"rooms"
@@ -302,12 +299,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/messages",
-					"protocol": "http",
+					"raw": "{{base_url}}/chat/rooms/550e8400-e29b-41d4-a716-446655441001/messages",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
@@ -324,12 +319,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/messages",
-					"protocol": "http",
+					"raw": "{{base_url}}/chat/rooms/550e8400-e29b-41d4-a716-446655441001/messages",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
@@ -360,6 +353,16 @@
 		{
 			"name": "Join room",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ2YWxlcmlhNyIsImlhdCI6MTc2MDM2NTA5MSwiZXhwIjoxNzYwMzY4NjkxfQ.woKTeilMg9x21oLFHtpnOwirHo8E4xVktfpxrVxRxU0",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -371,7 +374,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"playerId\": \"550e8400-e29b-41d4-a716-446655440201\"\n}",
+					"raw": "{\n  \"playerId\": \"user_2\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -379,16 +382,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/join",
-					"protocol": "http",
+					"raw": "{{base_url}}/chat/rooms/4df545b7-8b06-4450-afd6-56fe79d1506c/join",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
-						"550e8400-e29b-41d4-a716-446655441001",
+						"4df545b7-8b06-4450-afd6-56fe79d1506c",
 						"join"
 					]
 				}
@@ -417,12 +418,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3003/chat/rooms/550e8400-e29b-41d4-a716-446655441001/leave",
-					"protocol": "http",
+					"raw": "{{base_url}}/chat/rooms/550e8400-e29b-41d4-a716-446655441001/leave",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3003",
 					"path": [
 						"chat",
 						"rooms",
@@ -458,12 +457,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3003/chat/players/550e8400-e29b-41d4-a716-446655440201/rooms?gameId=550e8400-e29b-41d4-a716-446655440100",
-					"protocol": "http",
+					"raw": "{{base_url}}/chat/players/550e8400-e29b-41d4-a716-446655440201/rooms?gameId=550e8400-e29b-41d4-a716-446655440100",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3003",
 					"path": [
 						"chat",
 						"players",
@@ -479,6 +476,148 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "get all chat rooms",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ2YWxlcmlhNyIsImlhdCI6MTc2MDM3NTI3NCwiZXhwIjoxNzYwMzc4ODc0fQ.T_82Tn5l8UY7JdTORXbbdao84L9cFwoc4VW0sv6N2zU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Mafia Chat\",\n  \"type\": \"global\",\n  \"gameId\": \"550e8400-e29b-41d4-a716-446655440100\",\n  \"locationId\": \"550e8400-e29b-41d4-a716-446655442001\", \n  \"maxParticipants\": 50 \n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/chat/rooms?gameId=game_1760365525165",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"chat",
+						"rooms"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "active",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "gameId",
+							"value": "game_1760365525165"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get status/health",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ2YWxlcmlhNyIsImlhdCI6MTc2MDM3NTI3NCwiZXhwIjoxNzYwMzc4ODc0fQ.T_82Tn5l8UY7JdTORXbbdao84L9cFwoc4VW0sv6N2zU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Mafia Chat\",\n  \"type\": \"global\",\n  \"gameId\": \"550e8400-e29b-41d4-a716-446655440100\",\n  \"locationId\": \"550e8400-e29b-41d4-a716-446655442001\", \n  \"maxParticipants\": 50 \n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/chat/status",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"chat",
+						"status"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "active",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": ""
 		}
 	]
 }

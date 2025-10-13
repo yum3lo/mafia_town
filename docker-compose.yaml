@@ -32,7 +32,15 @@ services:
       - voting_service
       - redis_game
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/health",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -210,7 +218,7 @@ services:
       - "${REDIS_COMMUNICATION_PORT}:6379"
     volumes:
       - redis_communication_data:/data
-  
+
   redis_task:
     image: redis:7
     container_name: redis_task
@@ -219,7 +227,7 @@ services:
       - "6382:6379"
     volumes:
       - redis_task_data:/data
-  
+
   redis_voting:
     image: redis:7
     container_name: redis_voting
@@ -239,8 +247,8 @@ services:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
-    ports: 
-      - "3001:3001" 
+    ports:
+      - "3001:3001"
 
   game_service:
     image: yum3lo/mafia-game-service:1.7
@@ -255,24 +263,24 @@ services:
       GATEWAY_URL: http://gateway:3000
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
     ports:
-    - "3002:3002"
+      - "3002:3002"
 
   communication_service:
-    image: valeriafz/mafia-communication-service:latest
+    image: valeriafz/mafia-communication-service:1.5
     container_name: communication_service
     environment:
       NODE_ENV: production
       DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
       PORT: 3003
-      USER_SERVICE_URL: http://localhost:3003/mock
-      GAME_SERVICE_URL: http://localhost:3003/mock
-      ROLEPLAY_SERVICE_URL: http://localhost:3003/mock
-      TOWN_SERVICE_URL: http://localhost:3003/mock
-      VOTING_SERVICE_URL: http://localhost:3003/mock
+      USER_SERVICE_URL: ${USER_MANAGEMENT_URL}
+      GAME_SERVICE_URL: ${GAME_SERVICE_URL}
+      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
     depends_on:
       - postgres_communication
       - redis_communication
+      - user_management_service
+      - town_service
     restart: unless-stopped
 
   rumor_service:
