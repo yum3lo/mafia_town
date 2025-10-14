@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: yum3lo/mafia-gateway:2.7
+    image: yum3lo/mafia-gateway:2.8
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -28,8 +28,8 @@ services:
       - roleplay-service
       - character_service
       - town_service
-      - task_service
-      - voting_service
+      - task-service
+      - voting-service
       - redis_game
     healthcheck:
       test:
@@ -251,7 +251,7 @@ services:
       - "3001:3001"
 
   game_service:
-    image: yum3lo/mafia-game-service:1.7
+    image: yum3lo/mafia-game-service:1.9
     container_name: game_service
     depends_on:
       - redis_game
