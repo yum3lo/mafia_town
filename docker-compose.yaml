@@ -237,9 +237,13 @@ services:
     volumes:
       - redis_voting_data:/data
 
+  # each instance needs a unique name so container_name no longer needed
+  # gateway will communicate via internal network so ports mapping no longer needed
+  
   user_management_service:
     image: yum3lo/mafia-user_management-service:1.7
-    container_name: user_management_service
+    deploy:
+      replicas: 3
     depends_on:
       postgres_user_management:
         condition: service_healthy
@@ -247,12 +251,11 @@ services:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
-    ports:
-      - "3001:3001"
 
   game_service:
     image: yum3lo/mafia-game-service:2.1
-    container_name: game_service
+    deploy:
+      replicas: 3
     depends_on:
       - redis_game
       - gateway
@@ -262,8 +265,6 @@ services:
       REDIS_GAME_PORT: 6379
       GATEWAY_URL: http://gateway:3000
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
-    ports:
-      - "3002:3002"
 
   communication_service:
     image: valeriafz/mafia-communication-service:1.5
