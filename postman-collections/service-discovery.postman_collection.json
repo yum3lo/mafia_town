@@ -1,0 +1,374 @@
+{
+	"info": {
+		"_postman_id": "e82ed3c6-813d-4242-8b9a-3d1acbd8bf99",
+		"name": "service-discovery",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48492495",
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-e82ed3c6-813d-4242-8b9a-3d1acbd8bf99?action=share&source=collection_link&creator=48492495"
+	},
+	"item": [
+		{
+			"name": "Register service",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"serviceName\": \"game_service\",\r\n  \"serviceUrl\": \"{{GAME_URL}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Register service",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"serviceName\": \"game_service\",\r\n  \"serviceUrl\": \"{{GAME_URL}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n    {\n        \"status\": \"success\",\n        \"message\": \"Service registered successfully\",\n        \"serviceName\": \"game_service\",\n        \"serviceUrl\": \"http://game_service:3002\\u2060\"\n    },\n    {\n    \"status\": \"error\",\n    \"message\": \"serviceName and serviceUrl are required\"\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Health check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Health check",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"status\": \"healthy\",\n    \"timestamp\": \"2025-10-18T18:50:22.185Z\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Deregister service",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"serviceName\": \"user_management_service\",\r\n  \"serviceUrl\": \"{{USER_URL}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/deregister",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"deregister"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Deregister service",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"serviceName\": \"game_service\",\r\n  \"serviceUrl\": \"{{GAME_URL}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/deregister",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deregister"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n    {\n        \"status\": \"success\",\n        \"message\": \"Service deregistered successfully\"\n    },\n    {\n    \"status\": \"error\",\n    \"message\": \"Service not found\"\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Get all services",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/services",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"services"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get all services",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/services",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"status\": \"success\",\n    \"services\": {\n        \"game_service\": [\n            {\n                \"url\": \"http://game_service:3002\\u2060\",\n                \"registeredAt\": \"2025-10-18T18:53:38.965Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:53:38.965Z\"\n            }\n        ],\n        \"town_service\": [\n            {\n                \"url\": \"http://town_service:3007\\u2060\",\n                \"registeredAt\": \"2025-10-18T18:53:55.364Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:53:55.364Z\"\n            }\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Get all instances of a service",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/services/game_service",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"services",
+						"game_service"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get all instances of a service",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/services/game_service",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services",
+								"game_service"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n    {\n        \"status\": \"success\",\n        \"serviceName\": \"game_service\",\n        \"instances\": [\n            {\n                \"url\": \"http://game_service:3002\\u2060\",\n                \"registeredAt\": \"2025-10-18T18:53:38.965Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:55:45.896Z\"\n            },\n            {\n                \"url\": \"http://game_service:3003\",\n                \"registeredAt\": \"2025-10-18T18:58:46.780Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:58:46.780Z\"\n            }\n        ]\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Service not found\"\n    }\n]"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8500"
+		},
+		{
+			"key": "COMMUNICATION_URL",
+			"value": "http://communication_service:3003⁠"
+		},
+		{
+			"key": "GAME_URL",
+			"value": "http://game_service:3002"
+		},
+		{
+			"key": "RUMORS_URL",
+			"value": "http://rumor_service:3004⁠"
+		},
+		{
+			"key": "CHARACTER_URL",
+			"value": "http://character_service:3006⁠"
+		},
+		{
+			"key": "TOWN_URL",
+			"value": "http://town_service:3007⁠"
+		},
+		{
+			"key": "ROLEPLAY_URL",
+			"value": "http://roleplay-service:3008⁠"
+		},
+		{
+			"key": "SHOP_URL",
+			"value": "http://shop-service:3005⁠"
+		},
+		{
+			"key": "TASK_URL",
+			"value": "http://task-service:8000⁠"
+		},
+		{
+			"key": "VOTING_URL",
+			"value": "http://voting-service:8001⁠"
+		},
+		{
+			"key": "USER_URL",
+			"value": "http://user_management_service:3001⁠"
+		}
+	]
+}
