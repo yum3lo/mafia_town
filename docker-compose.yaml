@@ -267,7 +267,7 @@ services:
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
 
   communication_service:
-    image: valeriafz/mafia-communication-service:1.5
+    image: valeriafz/mafia-communication-service:1.6
     container_name: communication_service
     environment:
       NODE_ENV: production
@@ -285,16 +285,19 @@ services:
     restart: unless-stopped
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.0.0
+    image: valeriafz/rumors-service:v1.2
     container_name: rumor_service
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
       NODE_ENV: development
       PORT: 3004
+      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
     depends_on:
       postgres_rumor:
         condition: service_healthy
+      task-service:
+        condition: service_started
     volumes:
       - postgres_rumor_data:/var/lib/postgresql/data
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
