@@ -959,6 +959,88 @@
 					"body": "{\n    \"status\": \"success\",\n    \"games\": [\n        {\n            \"gameId\": \"game_1760793249390\",\n            \"gameCode\": \"GA9UT\",\n            \"hostUserId\": \"user_2\",\n            \"currentPlayers\": 1,\n            \"maxPlayers\": 6,\n            \"players\": [\n                {\n                    \"userId\": \"user_2\",\n                    \"username\": \"player2\"\n                },\n                {\n                    \"userId\": \"user_3\",\n                    \"username\": \"player3\"\n                }\n            ],\n            \"spotsAvailable\": 4,\n            \"createdAt\": \"2025-10-18T13:14:09.390Z\"\n        },\n        {\n            \"gameId\": \"game_1\",\n            \"gameCode\": \"AYA4G\",\n            \"hostUserId\": \"user_1\",\n            \"currentPlayers\": 1,\n            \"maxPlayers\": 15,\n            \"players\": [\n                {\n                    \"userId\": \"user_1\"\n                }\n            ],\n            \"spotsAvailable\": 14,\n            \"createdAt\": \"2025-10-14T13:11:31.470Z\"\n        }\n    ],\n    \"totalGames\": 2\n}"
 				}
 			]
+		},
+		{
+			"name": "Join game by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJwbGF5ZXIyIiwiaWF0IjoxNzYwNzk2MDgxLCJleHAiOjE3NjA3OTk2ODF9.7ROL-kIoVrsU4R7gEZ3kQto7Nkikog-F0DeVGf39E1k",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"user_2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/game_1/join",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"game_1",
+						"join"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Join game by id",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"user_2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/game_1/join",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game_1",
+								"join"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"gameId\": \"game_1\",\r\n        \"gameStatus\": \"waiting\",\r\n        \"playerCount\": 2\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game has reached maximum capacity\",\r\n        \"maxPlayers\": 15,\r\n        \"currentPlayers\": 15\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Invalid game code\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"User already in game\"\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"Game not found\"\r\n    }\r\n]"
+				}
+			]
 		}
 	],
 	"variable": [
