@@ -31,3 +31,6 @@
 [submodule "mafia-gateway"]
 	path = mafia-gateway
 	url = https://github.com/yum3lo/mafia-gateway
+[submodule "service-discovery"]
+	path = service-discovery
+	url = https://github.com/yum3lo/service-discovery
