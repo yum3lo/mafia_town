@@ -106,7 +106,7 @@
 			],
 			"request": {
 				"auth": {
-					"type": "bearer"
+					"type": "noauth"
 				},
 				"method": "POST",
 				"header": [],
@@ -190,11 +190,22 @@
 							""
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "PATCH",
 				"header": [],
 				"body": {
@@ -351,6 +362,9 @@
 		{
 			"name": "Login user",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -417,6 +431,9 @@
 		{
 			"name": "Validate token",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -582,6 +599,16 @@
 		{
 			"name": "Update in-game currency",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "PATCH",
 				"header": [],
 				"body": {
