@@ -326,7 +326,7 @@ services:
         condition: service_healthy
 
   town_service:
-    image: nelldino/town-service:1.6
+    image: nelldino/town-service:1.7
     container_name: town-service
     restart: always
     environment:
