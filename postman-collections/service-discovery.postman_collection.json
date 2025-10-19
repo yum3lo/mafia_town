@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "e82ed3c6-813d-4242-8b9a-3d1acbd8bf99",
+		"_postman_id": "559ff58b-379e-47e1-a011-eaeb74bf3c3d",
 		"name": "service-discovery",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "48492495",
-		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-e82ed3c6-813d-4242-8b9a-3d1acbd8bf99?action=share&source=collection_link&creator=48492495"
+		"_exporter_id": "47748940",
+		"_collection_link": "https://vfrunza-9ba76a59-9113892.postman.co/workspace/Personal-Workspace~51281074-0e91-4220-a7a8-11746dc0dda8/collection/47748940-559ff58b-379e-47e1-a011-eaeb74bf3c3d?action=share&source=collection_link&creator=47748940"
 	},
 	"item": [
 		{
@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"serviceName\": \"game_service\",\r\n  \"serviceUrl\": \"{{GAME_URL}}\"\r\n}",
+					"raw": "{\r\n  \"serviceName\": \"communication_service\",\r\n  \"serviceUrl\": \"{{COMMUNICATION_URL}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -253,13 +253,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/services/game_service",
+					"raw": "{{base_url}}/services/rumor_service",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"services",
-						"game_service"
+						"rumor_service"
 					]
 				}
 			},
@@ -299,6 +299,24 @@
 					"body": "[\n    {\n        \"status\": \"success\",\n        \"serviceName\": \"game_service\",\n        \"instances\": [\n            {\n                \"url\": \"http://game_service:3002\\u2060\",\n                \"registeredAt\": \"2025-10-18T18:53:38.965Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:55:45.896Z\"\n            },\n            {\n                \"url\": \"http://game_service:3003\",\n                \"registeredAt\": \"2025-10-18T18:58:46.780Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:58:46.780Z\"\n            }\n        ]\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Service not found\"\n    }\n]"
 				}
 			]
+		},
+		{
+			"name": "Get all health statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health/statistics",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health",
+						"statistics"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
