@@ -10,14 +10,22 @@ services:
       DISCOVERY_PORT: 8500
       NODE_ENV: production
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8500/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8500/health",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
 
   gateway:
-    image: yum3lo/mafia-gateway:3.0
+    image: yum3lo/mafia-gateway:3.3
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -254,7 +262,7 @@ services:
 
   # each instance needs a unique name so container_name no longer needed
   # gateway will communicate via internal network so ports mapping no longer needed
-  
+
   user_management_service:
     image: yum3lo/mafia-user_management-service:1.7
     deploy:
@@ -283,7 +291,8 @@ services:
 
   communication_service:
     image: valeriafz/mafia-communication-service:1.6
-    container_name: communication_service
+    deploy:
+      replicas: 3
     environment:
       NODE_ENV: production
       DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
@@ -300,18 +309,25 @@ services:
     restart: unless-stopped
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.2
-    container_name: rumor_service
+    image: valeriafz/rumors-service:v1.4
+    deploy:
+      replicas: 3
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
       NODE_ENV: development
       PORT: 3004
       TASK_SERVICE_URL: ${TASK_SERVICE_URL}
+      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
+      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
     depends_on:
       postgres_rumor:
         condition: service_healthy
       task-service:
+        condition: service_started
+      character_service:
+        condition: service_started
+      town_service:
         condition: service_started
     volumes:
       - postgres_rumor_data:/var/lib/postgresql/data
