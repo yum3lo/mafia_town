@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "e82ed3c6-813d-4242-8b9a-3d1acbd8bf99",
+		"_postman_id": "084f995e-5d13-4df5-ab96-c020e8f17819",
 		"name": "service-discovery",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "48492495",
-		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-e82ed3c6-813d-4242-8b9a-3d1acbd8bf99?action=share&source=collection_link&creator=48492495"
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-084f995e-5d13-4df5-ab96-c020e8f17819?action=share&source=collection_link&creator=48492495"
 	},
 	"item": [
 		{
@@ -243,7 +243,7 @@
 							"path": ""
 						}
 					],
-					"body": "{\n    \"status\": \"success\",\n    \"services\": {\n        \"game_service\": [\n            {\n                \"url\": \"http://game_service:3002\\u2060\",\n                \"registeredAt\": \"2025-10-18T18:53:38.965Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:53:38.965Z\"\n            }\n        ],\n        \"town_service\": [\n            {\n                \"url\": \"http://town_service:3007\\u2060\",\n                \"registeredAt\": \"2025-10-18T18:53:55.364Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:53:55.364Z\"\n            }\n        ]\n    }\n}"
+					"body": "{\n    \"status\": \"success\",\n    \"services\": {\n        \"user_management_service\": [\n            {\n                \"url\": \"http://0fef5b5ceac6:3001\",\n                \"registeredAt\": \"2025-10-19T18:52:02.714Z\",\n                \"lastHeartbeat\": \"2025-10-19T18:52:02.714Z\",\n                \"health\": {\n                    \"healthy\": true,\n                    \"lastCheck\": \"2025-10-19T18:55:22.750Z\",\n                    \"responseTime\": 5,\n                    \"status\": \"healthy\",\n                    \"service\": \"user_management_service\",\n                    \"timestamp\": \"2025-10-19T18:55:22.749Z\",\n                    \"uptime\": 200.945770132,\n                    \"database\": \"connected\"\n                }\n            },\n            {\n                \"url\": \"http://e6c935cb10d8:3001\",\n                \"registeredAt\": \"2025-10-19T18:52:02.822Z\",\n                \"lastHeartbeat\": \"2025-10-19T18:52:02.822Z\",\n                \"health\": {\n                    \"healthy\": true,\n                    \"lastCheck\": \"2025-10-19T18:55:22.752Z\",\n                    \"responseTime\": 6,\n                    \"status\": \"healthy\",\n                    \"service\": \"user_management_service\",\n                    \"timestamp\": \"2025-10-19T18:55:22.751Z\",\n                    \"uptime\": 200.560887553,\n                    \"database\": \"connected\"\n                }\n            }\n        ]\n    }\n}"
 				}
 			]
 		},
@@ -253,13 +253,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/services/game_service",
+					"raw": "{{base_url}}/services/user_management_service",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"services",
-						"game_service"
+						"user_management_service"
 					]
 				}
 			},
@@ -296,9 +296,27 @@
 							"path": ""
 						}
 					],
-					"body": "[\n    {\n        \"status\": \"success\",\n        \"serviceName\": \"game_service\",\n        \"instances\": [\n            {\n                \"url\": \"http://game_service:3002\\u2060\",\n                \"registeredAt\": \"2025-10-18T18:53:38.965Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:55:45.896Z\"\n            },\n            {\n                \"url\": \"http://game_service:3003\",\n                \"registeredAt\": \"2025-10-18T18:58:46.780Z\",\n                \"lastHeartbeat\": \"2025-10-18T18:58:46.780Z\"\n            }\n        ]\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Service not found\"\n    }\n]"
+					"body": "[\n    {\n        \"status\": \"success\",\n        \"serviceName\": \"user_management_service\",\n        \"instances\": [\n            {\n                \"url\": \"http://0fef5b5ceac6:3001\",\n                \"registeredAt\": \"2025-10-19T18:52:02.714Z\",\n                \"lastHeartbeat\": \"2025-10-19T18:52:02.714Z\",\n                \"health\": {\n                    \"healthy\": true,\n                    \"lastCheck\": \"2025-10-19T18:59:32.827Z\",\n                    \"responseTime\": 6,\n                    \"status\": \"healthy\",\n                    \"service\": \"user_management_service\",\n                    \"timestamp\": \"2025-10-19T18:59:32.826Z\",\n                    \"uptime\": 451.037750554,\n                    \"database\": \"connected\"\n                }\n            },\n            {\n                \"url\": \"http://e6c935cb10d8:3001\",\n                \"registeredAt\": \"2025-10-19T18:52:02.822Z\",\n                \"lastHeartbeat\": \"2025-10-19T18:52:02.822Z\",\n                \"health\": {\n                    \"healthy\": true,\n                    \"lastCheck\": \"2025-10-19T18:59:32.828Z\",\n                    \"responseTime\": 6,\n                    \"status\": \"healthy\",\n                    \"service\": \"user_management_service\",\n                    \"timestamp\": \"2025-10-19T18:59:32.826Z\",\n                    \"uptime\": 450.650999874,\n                    \"database\": \"connected\"\n                }\n            }\n        ]\n    },\n    {\n        \"status\": \"error\",\n        \"message\": \"Service not found\"\n    }\n]"
 				}
 			]
+		},
+		{
+			"name": "Get logs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/logs/combined",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"logs",
+						"combined"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
