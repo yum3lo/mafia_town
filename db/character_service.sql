@@ -74,11 +74,56 @@ BEGIN
 
         -- Insert sample assets
         INSERT INTO assets (id, category, name, description, image_url) VALUES
+        -- Hair options
         ('blonde_curly', 'hair', 'Blonde Curly Hair', 'Curly blonde hairstyle', '/assets/hair/blonde_curly.png'),
+        ('black_straight', 'hair', 'Black Straight Hair', 'Straight black hair', '/assets/hair/black_straight.png'),
+        ('brown_wavy', 'hair', 'Brown Wavy Hair', 'Wavy brown hair', '/assets/hair/brown_wavy.png'),
+        ('red_short', 'hair', 'Red Short Hair', 'Short red hair', '/assets/hair/red_short.png'),
+        ('gray_long', 'hair', 'Gray Long Hair', 'Long gray hair', '/assets/hair/gray_long.png'),
+        ('bald', 'hair', 'Bald', 'No hair', '/assets/hair/bald.png'),
+        -- Hair accessory/headwear options
+        ('baseball_cap', 'hair_accessory', 'Baseball Cap', 'Casual baseball cap', '/assets/hair_accessory/baseball_cap.png'),
+        ('beanie', 'hair_accessory', 'Beanie', 'Warm winter beanie', '/assets/hair_accessory/beanie.png'),
+        ('fedora', 'hair_accessory', 'Fedora', 'Classic fedora hat', '/assets/hair_accessory/fedora.png'),
+        ('cowboy_hat', 'hair_accessory', 'Cowboy Hat', 'Western cowboy hat', '/assets/hair_accessory/cowboy_hat.png'),
+        ('top_hat', 'hair_accessory', 'Top Hat', 'Elegant top hat', '/assets/hair_accessory/top_hat.png'),
+        ('no_hat', 'hair_accessory', 'No Hat', 'No headwear', '/assets/hair_accessory/no_hat.png'),
+        -- Coat options
         ('red_jacket', 'coat', 'Red Leather Jacket', 'Stylish red leather jacket', '/assets/coats/red_jacket.png'),
+        ('black_hoodie', 'coat', 'Black Hoodie', 'Casual black hoodie', '/assets/coats/black_hoodie.png'),
+        ('blue_blazer', 'coat', 'Blue Blazer', 'Formal blue blazer', '/assets/coats/blue_blazer.png'),
+        ('green_jacket', 'coat', 'Green Jacket', 'Military green jacket', '/assets/coats/green_jacket.png'),
+        ('leather_vest', 'coat', 'Leather Vest', 'Brown leather vest', '/assets/coats/leather_vest.png'),
+        ('no_coat', 'coat', 'No Coat', 'Plain shirt', '/assets/coats/no_coat.png'),
+        -- Accessory options
         ('gold_watch', 'accessory', 'Gold Watch', 'Luxury gold wristwatch', '/assets/accessories/gold_watch.png'),
+        ('silver_necklace', 'accessory', 'Silver Necklace', 'Silver chain necklace', '/assets/accessories/silver_necklace.png'),
+        ('silver_ring', 'accessory', 'Silver Ring', 'Elegant silver ring', '/assets/accessories/silver_ring.png'),
+        ('sunglasses', 'accessory', 'Sunglasses', 'Dark sunglasses', '/assets/accessories/sunglasses.png'),
+        ('bandana', 'accessory', 'Bandana', 'Red bandana', '/assets/accessories/bandana.png'),
+        ('earring', 'accessory', 'Earring', 'Single gold earring', '/assets/accessories/earring.png'),
+        ('no_accessory', 'accessory', 'No Accessory', 'No accessory', '/assets/accessories/no_accessory.png'),
+        -- Face options
         ('cheerful_smile', 'face', 'Cheerful Smile', 'A bright, cheerful smile', '/assets/faces/cheerful_smile.png'),
-        ('dark_jeans', 'pants', 'Dark Jeans', 'Classic dark denim jeans', '/assets/pants/dark_jeans.png');
+        ('serious_frown', 'face', 'Serious Frown', 'Serious expression', '/assets/faces/serious_frown.png'),
+        ('smirk', 'face', 'Smirk', 'Sly smirk', '/assets/faces/smirk.png'),
+        ('angry_scowl', 'face', 'Angry Scowl', 'Angry expression', '/assets/faces/angry_scowl.png'),
+        ('neutral', 'face', 'Neutral', 'Neutral expression', '/assets/faces/neutral.png'),
+        ('surprised', 'face', 'Surprised', 'Surprised look', '/assets/faces/surprised.png'),
+        -- Pants options
+        ('dark_jeans', 'pants', 'Dark Jeans', 'Classic dark denim jeans', '/assets/pants/dark_jeans.png'),
+        ('blue_jeans', 'pants', 'Blue Jeans', 'Light blue jeans', '/assets/pants/blue_jeans.png'),
+        ('black_slacks', 'pants', 'Black Slacks', 'Formal black pants', '/assets/pants/black_slacks.png'),
+        ('cargo_pants', 'pants', 'Cargo Pants', 'Tactical cargo pants', '/assets/pants/cargo_pants.png'),
+        ('khaki_shorts', 'pants', 'Khaki Shorts', 'Casual khaki shorts', '/assets/pants/khaki_shorts.png'),
+        ('torn_jeans', 'pants', 'Torn Jeans', 'Distressed jeans', '/assets/pants/torn_jeans.png'),
+        -- Shoes options
+        ('leather_boots', 'shoes', 'Leather Boots', 'Brown leather boots', '/assets/shoes/leather_boots.png'),
+        ('sneakers', 'shoes', 'Sneakers', 'Casual sneakers', '/assets/shoes/sneakers.png'),
+        ('dress_shoes', 'shoes', 'Dress Shoes', 'Formal dress shoes', '/assets/shoes/dress_shoes.png'),
+        ('combat_boots', 'shoes', 'Combat Boots', 'Military combat boots', '/assets/shoes/combat_boots.png'),
+        ('sandals', 'shoes', 'Sandals', 'Casual sandals', '/assets/shoes/sandals.png'),
+        ('no_shoes', 'shoes', 'No Shoes', 'Barefoot', '/assets/shoes/no_shoes.png');
 
         -- Insert sample inventory items
         INSERT INTO inventory_items (id, name, type, description, currency_type, purchase_price, expires_next_day) VALUES

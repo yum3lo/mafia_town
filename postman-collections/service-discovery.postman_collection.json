@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"serviceName\": \"game_service\",\r\n  \"serviceUrl\": \"{{GAME_URL}}\"\r\n}",
+					"raw": "{\r\n  \"serviceName\": \"communication_service\",\r\n  \"serviceUrl\": \"{{COMMUNICATION_URL}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

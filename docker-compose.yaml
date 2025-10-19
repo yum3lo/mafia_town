@@ -1,5 +1,11 @@
 version: "3.9"
 
+# how to automatically start 3 instances for anything that is replicas: 3
+# docker-compose --compatibility up -d
+
+# after changes restart the service:
+# docker-compose restart service_discovery
+
 services:
   service_discovery:
     image: yum3lo/service-discovery:1.3
@@ -10,7 +16,15 @@ services:
       DISCOVERY_PORT: 8500
       NODE_ENV: production
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8500/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8500/health",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -254,14 +268,13 @@ services:
 
   # each instance needs a unique name so container_name no longer needed
   # gateway will communicate via internal network so ports mapping no longer needed
-  
+
   user_management_service:
     image: yum3lo/mafia-user_management-service:1.7
     deploy:
       replicas: 3
     depends_on:
-      postgres_user_management:
-        condition: service_healthy
+      - postgres_user_management
     environment:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
@@ -282,13 +295,16 @@ services:
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
 
   communication_service:
-    image: valeriafz/mafia-communication-service:1.6
-    container_name: communication_service
+    image: valeriafz/mafia-communication-service:1.9
+    deploy:
+      replicas: 3
     environment:
       NODE_ENV: production
       DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
       PORT: 3003
+      SERVICE_NAME: communication_service
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
       USER_SERVICE_URL: ${USER_MANAGEMENT_URL}
       GAME_SERVICE_URL: ${GAME_SERVICE_URL}
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
@@ -300,19 +316,24 @@ services:
     restart: unless-stopped
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.2
-    container_name: rumor_service
+    image: valeriafz/rumors-service:v1.7
+    deploy:
+      replicas: 3
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
       NODE_ENV: development
       PORT: 3004
+      SERVICE_NAME: rumor_service
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
       TASK_SERVICE_URL: ${TASK_SERVICE_URL}
+      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
+      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
     depends_on:
-      postgres_rumor:
-        condition: service_healthy
-      task-service:
-        condition: service_started
+      - postgres_rumor
+      - task-service
+      - character_service
+      - town_service
     volumes:
       - postgres_rumor_data:/var/lib/postgresql/data
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
@@ -352,8 +373,7 @@ services:
       PORT: 3006
     command: uvicorn main:app --host 0.0.0.0 --port 3006 --reload
     depends_on:
-      postgres_character:
-        condition: service_healthy
+      - postgres_character
 
   town_service:
     image: nelldino/town-service:1.7
@@ -364,8 +384,7 @@ services:
       PORT: 3007
     command: uvicorn main:app --host 0.0.0.0 --port 3007 --reload
     depends_on:
-      postgres_town:
-        condition: service_healthy
+      - postgres_town
 
   task-service:
     image: lucianlupan/task_service:1.0
