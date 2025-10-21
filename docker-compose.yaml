@@ -31,7 +31,7 @@ services:
       start_period: 10s
 
   gateway:
-    image: yum3lo/mafia-gateway:3.7
+    image: yum3lo/mafia-gateway:3.8
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -339,31 +339,35 @@ services:
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
 
   shop-service:
-    image: mycallangel0/shop-service:v1.2.0
-    container_name: shop-service
+    image: mycallangel0/shop-service:v1.3.0
+    deploy:
+      replicas: 3
     depends_on:
       - postgres_shop
-    ports:
-      - "3005:3005"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
       SERVER_PORT: 3005
+      SERVICE_NAME: shop-service
+      GATEWAY_PORT: ${GATEWAY_PORT}
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
 
   roleplay-service:
-    image: mycallangel0/roleplay-service:v1.2.0
-    container_name: roleplay-service
+    image: mycallangel0/roleplay-service:v1.3.0
+    deploy:
+      replicas: 3
     depends_on:
       - redis_game
-    ports:
-      - "3008:3008"
     environment:
       SPRING_DATA_REDIS_HOST: redis_game
       SPRING_DATA_REDIS_PORT: 6379
       REDIS_EXPIRATION_TIME: 30
       SERVER_PORT: 3008
-
+      SERVICE_NAME: roleplay-service
+      GATEWAY_PORT: ${GATEWAY_PORT}
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
+      
   character_service:
     image: nelldino/character-service:1.6
     deploy:
