@@ -31,7 +31,7 @@ services:
       start_period: 10s
 
   gateway:
-    image: yum3lo/mafia-gateway:3.6
+    image: yum3lo/mafia-gateway:3.7
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -365,26 +365,32 @@ services:
       SERVER_PORT: 3008
 
   character_service:
-    image: nelldino/character-service:1.1
-    container_name: character-service
+    image: nelldino/character-service:1.6
+    deploy:
+      replicas: 3
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_CHARACTER_USER}:${PG_CHARACTER_PASSWORD}@postgres_character:5432/${PG_CHARACTER_DB}"
       PORT: 3006
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3006 --reload
     depends_on:
       - postgres_character
+      - service_discovery
 
   town_service:
-    image: nelldino/town-service:1.7
-    container_name: town-service
+    image: nelldino/town-service:2.0
+    deploy:
+      replicas: 3
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_TOWN_USER}:${PG_TOWN_PASSWORD}@postgres_town:5432/${PG_TOWN_DB}"
       PORT: 3007
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3007 --reload
     depends_on:
       - postgres_town
+      - service_discovery
 
   task-service:
     image: lucianlupan/task_service:1.0
