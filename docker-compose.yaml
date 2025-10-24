@@ -35,7 +35,7 @@ services:
       start_period: 10s
 
   gateway:
-    image: yum3lo/mafia-gateway:4.0
+    image: yum3lo/mafia-gateway:4.2
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -274,7 +274,7 @@ services:
   # gateway will communicate via internal network so ports mapping no longer needed
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:1.7
+    image: yum3lo/mafia-user_management-service:1.8
     deploy:
       replicas: 3
     depends_on:
@@ -285,7 +285,7 @@ services:
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
 
   game_service:
-    image: yum3lo/mafia-game-service:2.1
+    image: yum3lo/mafia-game-service:2.2
     deploy:
       replicas: 3
     depends_on:
