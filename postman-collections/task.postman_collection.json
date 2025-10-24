@@ -2,16 +2,18 @@
   "info": {
     "name": "Task Service",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.3",
     "variable": [
-      {
-        "key": "base_url",
-        "value": "http://localhost:8000"
-      },
-      {
-        "key": "task_id",
-        "value": "1"
-      }
+      { "key": "base_url", "value": "http://localhost:8000" },
+      { "key": "task_id", "value": "1" },
+      { "key": "jwt", "value": "REPLACE_WITH_JWT" },
+      { "key": "internal_key", "value": "REPLACE_INTERNAL_KEY" },
+      { "key": "log_type", "value": "combined" }
     ]
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{jwt}}", "type": "string" }]
   },
   "item": [
     {
@@ -19,23 +21,13 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/tasks",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks"
-          ]
-        },
+        "url": { "raw": "{{base_url}}/tasks", "host": ["{{base_url}}"], "path": ["tasks"] },
         "body": {
           "mode": "raw",
-          "raw": "{ \"role\": \"cop\", \"task_description\": \"Perform a routine checkup on locations x, y and z.\" }"
+          "raw": "{\n  \"role\": \"cop\",\n  \"task_description\": \"visit:[loc_1, loc_2, loc_3]\",\n  \"locations\": [\"loc_1\", \"loc_2\", \"loc_3\"]\n}"
         }
       }
     },
@@ -43,31 +35,16 @@
       "name": "List Tasks",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "{{base_url}}/tasks",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks?limit=25&offset=0", "host": ["{{base_url}}"], "path": ["tasks"], "query": [{ "key": "limit", "value": "25" }, { "key": "offset", "value": "0" }] }
       }
     },
     {
       "name": "Get Task",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "{{base_url}}/tasks/{{task_id}}",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "{{task_id}}"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}"] }
       }
     },
     {
@@ -75,41 +52,19 @@
       "request": {
         "method": "PUT",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/tasks/{{task_id}}",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "{{task_id}}"
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"role\": \"cop\",\"task_description\":\"Updated description\" }"
-        }
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"role\": \"cop\",\n  \"task_description\": \"visit:[loc_10, loc_11]\",\n  \"locations\": [\"loc_10\", \"loc_11\"]\n}" }
       }
     },
     {
       "name": "Delete Task",
       "request": {
         "method": "DELETE",
-        "url": {
-          "raw": "{{base_url}}/tasks/{{task_id}}",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "{{task_id}}"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}"] }
       }
     },
     {
@@ -117,25 +72,11 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/tasks/assign",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "assign"
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"user_id\": 1, \"task_id\": 2}"
-        }
+        "url": { "raw": "{{base_url}}/tasks/assign", "host": ["{{base_url}}"], "path": ["tasks", "assign"] },
+        "body": { "mode": "raw", "raw": "{ \"user_id\": 1, \"task_id\": {{task_id}}, \"note\": \"Assigned via API\" }" }
       }
     },
     {
@@ -143,43 +84,19 @@
       "request": {
         "method": "DELETE",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/tasks/assign",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "assign"
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"user_id\": 1, \"task_id\": 2 }"
-        }
+        "url": { "raw": "{{base_url}}/tasks/assign/", "host": ["{{base_url}}"], "path": ["tasks", "assign", ""] },
+        "body": { "mode": "raw", "raw": "{ \"user_id\": 1, \"task_id\": {{task_id}} }" }
       }
     },
     {
       "name": "Assignment History",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "{{base_url}}/tasks/2/history/assignments",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "2",
-            "history",
-            "assignments"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}/history/assignments", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "history", "assignments"] }
       }
     },
     {
@@ -187,26 +104,11 @@
       "request": {
         "method": "PATCH",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/tasks/2/status",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "2",
-            "status"
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"status\":\"in_progress\",\"updated_by\":2,\"note\":\"Started by assignee\" }"
-        }
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}/status", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "status"] },
+        "body": { "mode": "raw", "raw": "{ \"status\":\"in_progress\",\"updated_by\":2,\"note\":\"Started by assignee\" }" }
       }
     },
     {
@@ -214,170 +116,86 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/tasks/2/complete",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "2",
-            "complete"
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"completed_by\": 1, \"status\":\"completed\" }"
-        }
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}/complete", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "complete"] },
+        "body": { "mode": "raw", "raw": "{ \"completed_by\": 1, \"gameDay\": 1 }" }
       }
     },
     {
       "name": "Completion History",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "{{base_url}}/tasks/2/history/completions",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "2",
-            "history",
-            "completions"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}/history/completions", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "history", "completions"] }
       }
     },
     {
       "name": "Available Tasks",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "{{base_url}}/tasks/available",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "available"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks/available", "host": ["{{base_url}}"], "path": ["tasks", "available"] }
       }
     },
     {
       "name": "Candidates",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "{{base_url}}/tasks/1/candidates",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "1",
-            "candidates"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}/candidates", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "candidates"] }
       }
     },
     {
       "name": "End of day status",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "{{base_url}}/tasks/status",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "status"
-          ]
-        }
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/tasks/status", "host": ["{{base_url}}"], "path": ["tasks", "status"] }
       }
     },
     {
-      "name": "Subscribe Task SSE",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "text/event-stream"
-          }
-        ],
-        "url": {
-          "raw": "{{base_url}}/tasks/{{task_id}}/stream",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "{{task_id}}",
-            "stream"
-          ]
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"SSE subscription status\", function () {",
-              "  pm.response.to.be.oneOf([200,204]);",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Publish Task Event",
+      "name": "Verify Task Completion",
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/tasks/{{task_id}}/publish",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "tasks",
-            "{{task_id}}",
-            "publish"
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"message\": \"test event from Postman\", \"meta\": { \"source\": \"postman\" } }"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"publish accepted\", function () {",
-              "    pm.response.to.have.status([200,201]);",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ]
+        "url": { "raw": "{{base_url}}/tasks/{{task_id}}/verify", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "verify"] },
+        "body": { "mode": "raw", "raw": "{ \"user_id\": 1, \"gameDay\": 1 }" }
+      }
+    },
+    {
+      "name": "Auto Create Tasks",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
+        "url": { "raw": "{{base_url}}/tasks/auto-create", "host": ["{{base_url}}"], "path": ["tasks", "auto-create"] },
+        "body": { "mode": "raw", "raw": "{ \"count\": 5, \"locations_per_task\": 3, \"role\": \"all\", \"gameDay\": 1 }" }
+      }
+    },
+    {
+      "name": "Service Health",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/status", "host": ["{{base_url}}"], "path": ["status"] },
+        "description": "Check the health/status of the task service (uptime, DB counts, basic metrics)."
+      }
+    },
+    {
+      "name": "Download Logs",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Internal-Service", "value": "{{internal_key}}" }],
+        "url": { "raw": "{{base_url}}/logs/{{log_type}}", "host": ["{{base_url}}"], "path": ["logs", "{{log_type}}"] },
+        "description": "Download a log file from the service. Valid log types: error, combined, exceptions, rejections."
+      }
     }
   ]
 }
