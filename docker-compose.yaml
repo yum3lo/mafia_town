@@ -302,7 +302,7 @@ services:
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
 
   communication_service:
-    image: valeriafz/mafia-communication-service:1.9
+    image: valeriafz/mafia-communication-service:2.0
     deploy:
       replicas: 3
     environment:
@@ -323,7 +323,7 @@ services:
     restart: unless-stopped
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.7
+    image: valeriafz/rumors-service:v1.8
     deploy:
       replicas: 3
     restart: always
@@ -484,8 +484,6 @@ services:
       replicas: 3
       restart_policy:
         condition: on-failure
-
-
 
   prometheus:
     image: prom/prometheus:latest
