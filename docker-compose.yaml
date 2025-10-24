@@ -280,7 +280,8 @@ services:
     deploy:
       replicas: 3
     depends_on:
-      - postgres_user_management
+      postgres_user_management:
+        condition: service_healthy
     environment:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
