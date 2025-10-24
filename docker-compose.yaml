@@ -15,6 +15,10 @@ services:
     environment:
       DISCOVERY_PORT: 8500
       NODE_ENV: production
+      ALERT_TELEGRAM_ENABLED: ${ALERT_TELEGRAM_ENABLED}
+      ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN}
+      ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID}
+      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
     healthcheck:
       test:
         [
@@ -367,7 +371,7 @@ services:
       SERVICE_NAME: roleplay-service
       GATEWAY_PORT: ${GATEWAY_PORT}
       SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
-      
+
   character_service:
     image: nelldino/character-service:1.7
     deploy:
