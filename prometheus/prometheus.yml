@@ -12,15 +12,3 @@ scrape_configs:
   - job_name: "prometheus"
     static_configs:
       - targets: ["localhost:9090"]
-
-  - job_name: "gateway"
-    static_configs:
-      - targets: ["gateway:3000"]
-
-  - job_name: "game-service"
-    static_configs:
-      - targets: ["game_service:3002"]
-
-  - job_name: "user-management"
-    static_configs:
-      - targets: ["user_management_service:3001"]
