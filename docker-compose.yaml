@@ -8,7 +8,7 @@ version: "3.9"
 
 services:
   service_discovery:
-    image: yum3lo/service-discovery:1.3
+    image: yum3lo/service-discovery:1.6
     container_name: service_discovery
     ports:
       - "8500:8500"
@@ -31,7 +31,7 @@ services:
       start_period: 10s
 
   gateway:
-    image: yum3lo/mafia-gateway:3.9
+    image: yum3lo/mafia-gateway:4.1
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -369,7 +369,7 @@ services:
       SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
       
   character_service:
-    image: nelldino/character-service:1.6
+    image: nelldino/character-service:1.7
     deploy:
       replicas: 3
     restart: always
