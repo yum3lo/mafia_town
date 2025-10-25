@@ -376,7 +376,7 @@ services:
       SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
 
   character_service:
-    image: nelldino/character-service:1.7
+    image: nelldino/character-service:1.8
     deploy:
       replicas: 3
     restart: always
@@ -390,7 +390,7 @@ services:
       - service_discovery
 
   town_service:
-    image: nelldino/town-service:2.0
+    image: nelldino/town-service:2.1
     deploy:
       replicas: 3
     restart: always
