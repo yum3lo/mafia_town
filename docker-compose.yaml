@@ -8,7 +8,7 @@ version: "3.9"
 
 services:
   service_discovery:
-    image: yum3lo/service-discovery:1.6
+    image: yum3lo/service-discovery:1.7
     container_name: service_discovery
     ports:
       - "8500:8500"
@@ -19,6 +19,8 @@ services:
       ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN}
       ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID}
       ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test:
         [
@@ -512,6 +514,21 @@ services:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
+
+  
+  test_unstable_service:
+    image: lucianlupan/fail_service:1.0
+    deploy:
+      replicas: 3
+    environment:
+      PORT: 3010
+      SERVICE_NAME: test_unstable_service
+      SERVICE_DISCOVERY_URL: "http://service_discovery:8500"
+      CONTAINER_NAME: test_unstable_service
+    depends_on:
+      - service_discovery
+    restart: "no"
+
 
 volumes:
   postgres_user_management_data:
