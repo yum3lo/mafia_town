@@ -1,23 +1,43 @@
 version: "3.9"
 
+# how to automatically start 3 instances for anything that is replicas: 3
+# docker-compose --compatibility up -d
+
+# after changes restart the service:
+# docker-compose restart service_discovery
+
 services:
   service_discovery:
-    image: yum3lo/service-discovery:1.0
+    image: yum3lo/service-discovery:1.7
     container_name: service_discovery
     ports:
       - "8500:8500"
     environment:
       DISCOVERY_PORT: 8500
       NODE_ENV: production
+      ALERT_TELEGRAM_ENABLED: ${ALERT_TELEGRAM_ENABLED}
+      ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN}
+      ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID}
+      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8500/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8500/health",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
 
   gateway:
-    image: yum3lo/mafia-gateway:3.0
+    image: yum3lo/mafia-gateway:4.3
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -277,7 +297,7 @@ services:
 
   # each instance needs a unique name so container_name no longer needed
   # gateway will communicate via internal network so ports mapping no longer needed
-  
+
   user_management_service:
     image: yum3lo/mafia-user_management-service:1.9
     deploy:
@@ -310,13 +330,16 @@ services:
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
   communication_service:
-    image: valeriafz/mafia-communication-service:1.6
-    container_name: communication_service
+    image: valeriafz/mafia-communication-service:2.0
+    deploy:
+      replicas: 3
     environment:
       NODE_ENV: production
       DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
       PORT: 3003
+      SERVICE_NAME: communication_service
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
       USER_SERVICE_URL: ${USER_MANAGEMENT_URL}
       GAME_SERVICE_URL: ${GAME_SERVICE_URL}
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
@@ -328,76 +351,88 @@ services:
     restart: unless-stopped
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.2
-    container_name: rumor_service
+    image: valeriafz/rumors-service:v1.8
+    deploy:
+      replicas: 3
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
       NODE_ENV: development
       PORT: 3004
+      SERVICE_NAME: rumor_service
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
       TASK_SERVICE_URL: ${TASK_SERVICE_URL}
+      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
+      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
     depends_on:
-      postgres_rumor:
-        condition: service_healthy
-      task-service:
-        condition: service_started
+      - postgres_rumor
+      - task-service
+      - character_service
+      - town_service
     volumes:
       - postgres_rumor_data:/var/lib/postgresql/data
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
 
   shop-service:
-    image: mycallangel0/shop-service:v1.2.0
-    container_name: shop-service
+    image: mycallangel0/shop-service:v1.3.0
+    deploy:
+      replicas: 3
     depends_on:
       - postgres_shop
-    ports:
-      - "3005:3005"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
       SERVER_PORT: 3005
+      SERVICE_NAME: shop-service
+      GATEWAY_PORT: ${GATEWAY_PORT}
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
 
   roleplay-service:
-    image: mycallangel0/roleplay-service:v1.2.0
-    container_name: roleplay-service
+    image: mycallangel0/roleplay-service:v1.3.0
+    deploy:
+      replicas: 3
     depends_on:
       - redis_game
-    ports:
-      - "3008:3008"
     environment:
       SPRING_DATA_REDIS_HOST: redis_game
       SPRING_DATA_REDIS_PORT: 6379
       REDIS_EXPIRATION_TIME: 30
       SERVER_PORT: 3008
+      SERVICE_NAME: roleplay-service
+      GATEWAY_PORT: ${GATEWAY_PORT}
+      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
 
   character_service:
-    image: nelldino/character-service:1.1
-    container_name: character-service
+    image: nelldino/character-service:1.8
+    deploy:
+      replicas: 3
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_CHARACTER_USER}:${PG_CHARACTER_PASSWORD}@postgres_character:5432/${PG_CHARACTER_DB}"
       PORT: 3006
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3006 --reload
     depends_on:
-      postgres_character:
-        condition: service_healthy
+      - postgres_character
+      - service_discovery
 
   town_service:
-    image: nelldino/town-service:1.7
-    container_name: town-service
+    image: nelldino/town-service:2.1
+    deploy:
+      replicas: 3
     restart: always
     environment:
       DATABASE_URL: "postgresql://${PG_TOWN_USER}:${PG_TOWN_PASSWORD}@postgres_town:5432/${PG_TOWN_DB}"
       PORT: 3007
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3007 --reload
     depends_on:
-      postgres_town:
-        condition: service_healthy
+      - postgres_town
+      - service_discovery
 
-  task-service:
-    image: lucianlupan/task_service:1.0
-    container_name: task-service
+  task-migrator:
+    image: lucianlupan/task_service:1.3
     depends_on:
       - postgres_tasks
       - redis_task
@@ -408,13 +443,36 @@ services:
       POSTGRES_PASSWORD: ${PG_TASK_PASSWORD}
       POSTGRES_DB: ${PG_TASK_DB}
       REDIS_URL: "redis://redis_task:6379"
-    volumes:
-      - ./db/task_service.sh:/app/task_service.sh:ro
-    command: sh -c "/app/task_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+      SERVICE_NAME: task-service
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
+    command: sh -c "python manage.py migrate"
+    deploy:
+      replicas: 1
 
-  voting-service:
-    image: lucianlupan/voting_service:1.0
-    container_name: voting-service
+  task-service:
+    image: lucianlupan/task_service:1.3
+    depends_on:
+      - task-migrator
+      - redis_task
+    environment:
+      POSTGRES_HOST: postgres_tasks
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${PG_TASK_USER}
+      POSTGRES_PASSWORD: ${PG_TASK_PASSWORD}
+      POSTGRES_DB: ${PG_TASK_DB}
+      REDIS_URL: "redis://redis_task:6379"
+      SERVICE_NAME: task-service
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+
+  voting-migrator:
+    image: lucianlupan/voting_service:1.3
     depends_on:
       - postgres_voting
       - redis_voting
@@ -425,9 +483,80 @@ services:
       POSTGRES_PASSWORD: ${PG_VOTING_PASSWORD}
       POSTGRES_DB: ${PG_VOTING_DB}
       REDIS_URL: "redis://redis_voting:6379"
+      SERVICE_NAME: voting-service
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
+    command: sh -c "python manage.py migrate"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  voting-service:
+    image: lucianlupan/voting_service:1.3
+    depends_on:
+      - voting-migrator
+      - redis_voting
+    environment:
+      POSTGRES_HOST: postgres_voting
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${PG_VOTING_USER}
+      POSTGRES_PASSWORD: ${PG_VOTING_PASSWORD}
+      POSTGRES_DB: ${PG_VOTING_DB}
+      REDIS_URL: "redis://redis_voting:6379"
+      SERVICE_NAME: voting-service
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
+    command: sh -c "python manage.py runserver 0.0.0.0:8001"
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
     volumes:
-      - ./db/voting_service.sh:/app/voting_service.sh:ro
-    command: sh -c "/app/voting_service.sh && python manage.py migrate && python manage.py runserver 0.0.0.0:8001"
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    depends_on:
+      - service_discovery
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3050:3050"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+      - GF_USERS_DEFAULT_THEME=dark
+      - GF_SERVER_HTTP_PORT=3050
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  
+  test_unstable_service:
+    image: lucianlupan/fail_service:1.0
+    deploy:
+      replicas: 3
+    environment:
+      PORT: 3010
+      SERVICE_NAME: test_unstable_service
+      SERVICE_DISCOVERY_URL: "http://service_discovery:8500"
+      CONTAINER_NAME: test_unstable_service
+    depends_on:
+      - service_discovery
+    restart: "no"
+
 
 volumes:
   postgres_user_management_data:
@@ -443,3 +572,4 @@ volumes:
   redis_communication_data:
   redis_task_data:
   redis_voting_data:
+  grafana_data:

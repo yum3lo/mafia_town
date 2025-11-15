@@ -125,7 +125,8 @@ Functionalities:
 ---
 
 The diagram below represents the architecture diagram and how the microservices communicate between each other.
-<img width="3764" height="2524" alt="image" src="https://github.com/user-attachments/assets/7051bffc-9c76-4620-9105-7941ed68c39e" />
+<img width="6068" height="4300" alt="image" src="https://github.com/user-attachments/assets/088ba6ab-30bc-4fd8-a9d0-df53835ffb23" />
+
 
 This microservices architecture is organized into three service clusters behind a load balancer and API gateway. The User and Identity cluster handles authentication and character management. The Game Core cluster contains the Game Service as the central hub coordinating with voting, roleplay, communication, and town services for real-time gameplay. The Economy and Commerce cluster manages the shop, tasks, and rumors system. Each cluster has its own database for data independence, while the Game Service acts as the main orchestrator communicating across all services to coordinate game flow and player interactions.
 
@@ -139,7 +140,7 @@ The User Management Service will be written in TypeScript with Node.js, which ca
 
 #### Game Service
 
-The Game Service will be written in TypeScript with Socket.io, providing real-time bidirectional communication for day/night cycle transitions, instant death notifications, and live voting updates essential for interactive gameplay. PostgreSQL with JSONB columns can store complex game objects while maintaining relational integrity for player relationships and game history queries, complemented by Redis caching for frequently accessed game state to achieve super fast response times during active gameplay. For the communication pattern - Event-driven architecture with WebSocket connections and Redis pub/sub enables lightweight event broadcasting for cross-service notifications without external message queue overhead. The simple architecture reduces deployment complexity and infrastructure costs while maintaining performance, with Redis pub/sub providing reliable event delivery and single database technology across services simplifying development and infrastructure management, though it results in higher memory usage due to Redis caching requirements.
+The Game Service will be written in TypeScript with Socket.io, providing real-time bidirectional communication for day/night cycle transitions, instant death notifications, and live voting updates essential for interactive gameplay. PostgreSQL with JSONB columns stores complex game objects while maintaining relational integrity for player relationships and game history queries, complemented by Redis caching for frequently accessed game state to achieve fast response times during active gameplay. For the communication pattern, the service relies on WebSocket connections for live updates. Redis is used only for caching and not for pub/sub, reducing infrastructure complexity while still improving performance for frequently accessed data. This simple architecture minimizes deployment overhead and maintains performance with a single database technology, though Redis caching increases memory usage.
 
 #### Shop Service
 
@@ -226,7 +227,7 @@ Payload: {
   "email": "player@example.com",
   "username": "playerName",
   "password": "hashedPassword",
-  "deviceFingerprint": "device_hash_abc123" // client-generated UUID
+  "deviceFingerprint": "device_hash_abc123"
 }
 
 // SUCCESS
@@ -265,12 +266,6 @@ Response: {
     "password": "Password must be at least 8 characters",
     "username": "Username must be 3-20 characters"
   }
-}
-
-// SERVER ERROR
-Response: {
-  "status": "error",
-  "message": "Registration failed due to server error"
 }
 ```
 
@@ -338,6 +333,7 @@ Response: {
 ```
 Endpoint: /users/{userId}
 Method: DELETE
+Authorization: Bearer token required
 
 // SUCCESS
 Response: {
@@ -359,6 +355,7 @@ Response: {
 ```
 Endpoint: /users/{userId}
 Method: GET
+Authorization: Bearer token required
 
 // SUCCESS
 Response: {
@@ -382,7 +379,9 @@ Response: {
 - Bulk user lookup for Game Service
 
 ```
+Endpoint: /internal/users/bulk
 Method: POST
+Authorization: Bearer token required
 Payload: {
   "userIds": ["user_123", "user_456", "user_789"]
 }
@@ -430,6 +429,7 @@ Response: {
   "notFound": ["user_123", "user_456"],
   "totalRequested": 2,
   "totalFound": 0
+}
 ```
 
 #### Currency Management Endpoints
@@ -439,6 +439,7 @@ Response: {
 ```
 Endpoint: /users/{userId}/currency/global
 Method: PATCH
+Authorization: Bearer token required
 Payload: {
   "amount": 50,
   "operation": "add",
@@ -470,6 +471,7 @@ Response: {
 ```
 Endpoint: /users/{userId}/currency/ingame
 Method: PATCH
+Authorization: Bearer token required
 Payload: {
   "amount": 25,
   "operation": "subtract",
@@ -507,6 +509,7 @@ Response: {
 ```
 Endpoint: /users/{userId}/currency
 Method: GET
+Authorization: Bearer token required
 
 // SUCCESS (user in game)
 Response: {
@@ -542,6 +545,7 @@ Response: {
 ```
 Endpoint: /games/create
 Method: POST
+Authorization: Bearer token required
 Payload: {
   "hostUserId": "user_123",
   "maxPlayers": 15
@@ -567,11 +571,70 @@ Response: {
 }
 ```
 
-- Join game
+- Get all active games
 
 ```
-Endpoint: /games/{gameId}/join
+Endpoint: /games
+Method: GET
+Authorization: Bearer token required
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "games": [
+    {
+      "gameId": "game_1",
+      "gameCode": "GA9UT",
+      "hostUserId": "user_2",
+      "currentPlayers": 3,
+      "maxPlayers": 6,
+      "players": [
+        {
+          "userId": "user_2",
+          "username": "player2"
+        },
+        {
+          "userId": "user_4",
+          "username": "player4"
+        },
+        {
+          "userId": "user_5",
+          "username": "player5"
+        }
+      ],
+      "spotsAvailable": 3,
+      "createdAt": "2025-10-18T13:14:09.390Z"
+    },
+    {
+      "gameId": "game_2",
+      "gameCode": "2F9BS",
+      "hostUserId": "user_1",
+      "currentPlayers": 2,
+      "maxPlayers": 8,
+      "players": [
+        {
+          "userId": "user_1",
+          "username": "player1"
+        },
+        {
+          "userId": "user_3",
+          "username": "player3"
+        }
+      ],
+      "spotsAvailable": 6,
+      "createdAt": "2025-10-18T13:11:12.120Z"
+    }
+  ],
+  "totalGames": 2
+}
+```
+
+- Join game by code
+
+```
+Endpoint: /games/join
 Method: POST
+Authorization: Bearer token required
 Payload: {
   "userId": "user_456",
   "gameCode": "MAFIA123"
@@ -598,6 +661,57 @@ Response: {
   "status": "error",
   "message": "Incorrect game code"
 }
+
+// USER ALREADY IN GAME
+Response: {
+  "status": "error",
+  "message": "User already in game"
+}
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
+}
+```
+
+- Join game by ID
+
+```
+Endpoint: /games/{gameId}/join
+Method: POST
+Authorization: Bearer token required
+Payload: {
+  "userId": "user_456"
+}
+
+// SUCCESS
+Response: {
+  "status": "success",
+  "gameId": "game_789",
+  "gameStatus": "waiting",
+  "playerCount": 2
+}
+
+// GAME FULL
+Response: {
+  "status": "error",
+  "message": "Game has reached maximum capacity",
+  "maxPlayers": 15,
+  "currentPlayers": 15
+}
+
+// USER ALREADY IN GAME
+Response: {
+  "status": "error",
+  "message": "User already in game"
+}
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
+}
 ```
 
 - Leave game
@@ -621,6 +735,12 @@ Response: {
   "status": "error",
   "message": "Player is not in this game"
 }
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
+}
 ```
 
 - Get game status
@@ -628,6 +748,7 @@ Response: {
 ```
 Endpoint: /games/{gameId}
 Method: GET
+Authorization: Bearer token required
 
 // SUCCESS (waiting)
 Response: {
@@ -640,8 +761,14 @@ Response: {
     "maxPlayers": 15,
     "currentPlayers": 2,
     "players": [
-      { "userId": "user_123" },
-      { "userId": "user_456" }
+      {
+        "userId": "user_123",
+        "username": "player1"
+      },
+      {
+        "userId": "user_456",
+        "username": "player2"
+      }
     ]
   }
 }
@@ -657,12 +784,14 @@ Response: {
     "players": [
       {
         "userId": "user_123",
+        "username": "player1",
         "isAlive": true,
         "role": "mafia",
         "career": "godfather"
       },
       {
         "userId": "user_456",
+        "username": "player2",
         "isAlive": false,
         "role": "citizen",
         "career": "baker"
@@ -687,6 +816,7 @@ Response: {
 ```
 Endpoint: /games/{gameId}/start
 Method: POST
+Authorization: Bearer token required
 Payload: {
   "hostUserId": "user_123"
 }
@@ -718,10 +848,10 @@ Response: {
   "minimumPlayers": 6
 }
 
-// GAME ALREADY STARTED
+// GAME NOT FOUND
 Response: {
   "status": "error",
-  "message": "Game is already in progress"
+  "message": "Game not found"
 }
 ```
 
@@ -732,7 +862,14 @@ Endpoint: /games/{gameId}/end
 Method: PATCH
 Payload: {
   "winCondition": "mafia_victory",
-  "winners": ["user_123", "user_789"]
+  "winners": [
+    {
+      "userId": "user_123"
+    },
+    {
+      "userId": "user_789"
+    }
+  ]
 }
 
 // SUCCESS
@@ -743,8 +880,21 @@ Response: {
     "gameId": "game_789",
     "gameStatus": "ended",
     "winCondition": "mafia_victory",
-    "winners": ["user_123", "user_789"]
+    "winners": [
+      {
+        "userId": "user_123"
+      },
+      {
+        "userId": "user_789"
+      }
+    ]
   }
+}
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
 }
 ```
 
@@ -753,6 +903,7 @@ Response: {
 ```
 Endpoint: /games/{gameId}
 Method: DELETE
+Authorization: Bearer token required
 
 // SUCCESS
 Response: {
@@ -774,6 +925,7 @@ Response: {
 ```
 Endpoint: /games/{gameId}/players/{userId}
 Method: GET
+Authorization: Bearer token required
 
 // SUCCESS
 Response: {
@@ -790,6 +942,12 @@ Response: {
   "status": "error",
   "message": "Player is not in this game"
 }
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
+}
 ```
 
 - Update player alive status
@@ -797,6 +955,7 @@ Response: {
 ```
 Endpoint: /games/{gameId}/players/{userId}/status
 Method: PATCH
+Authorization: Bearer token required
 Payload: {
   "isAlive": false,
   "cause": "voted_out"
@@ -810,16 +969,16 @@ Response: {
   "cause": "voted_out"
 }
 
+// PLAYER NOT IN GAME
+Response: {
+  "status": "error",
+  "message": "Player is not in this game"
+}
+
 // GAME NOT FOUND
 Response: {
   "status": "error",
   "message": "Game not found"
-}
-
-// USER NOT IN GAME
-Response: {
-  "status": "error",
-  "message": "Player is not in this game"
 }
 ```
 
@@ -830,8 +989,9 @@ Response: {
 ```
 Endpoint: /games/{gameId}/phase
 Method: PATCH
+Authorization: Bearer token required
 Payload: {
-  "newPhase": "night" | "day"
+  "newPhase": "night"
 }
 
 // SUCCESS
@@ -844,6 +1004,12 @@ Response: {
     "dayCount": 3
   }
 }
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
+}
 ```
 
 - Get current phase
@@ -851,6 +1017,7 @@ Response: {
 ```
 Endpoint: /games/{gameId}/phase
 Method: GET
+Authorization: Bearer token required
 
 // SUCCESS
 Response: {
@@ -861,6 +1028,12 @@ Response: {
     "dayCount": 3
   }
 }
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
+}
 ```
 
 #### Event Broadcasting Endpoints
@@ -868,8 +1041,9 @@ Response: {
 - Broadcast game event
 
 ```
-Endpoint: /games/{gameId}/events/broadcast
+Endpoint: /games/{gameId}/broadcast
 Method: POST
+Authorization: Bearer token required
 Payload: {
   "eventType": "player_death",
   "message": "PlayerName was found dead!",
@@ -884,10 +1058,8 @@ Payload: {
 Payload: {
   "eventType": "player_elimination",
   "message": "player2 has been voted out of the town!",
-  "targetPlayers": "all",
   "metadata": {
     "eliminatedPlayerId": "user_456",
-    "eliminatedUsername": "player2",
     "voteCount": 5,
     "cause": "voted_out"
   }
@@ -896,14 +1068,19 @@ Payload: {
 // SUCCESS
 Response: {
   "status": "success",
-  "eventId": "event_303",
-  "broadcastTime": "2025-01-15T22:31:00Z"
+  "message": "Event broadcasted successfully"
 }
 
 // INVALID EVENT TYPE
 Response: {
   "status": "error",
   "message": "Event type must be one of: player_death, player_elimination, healing, rumor, visit"
+}
+
+// GAME NOT FOUND
+Response: {
+  "status": "error",
+  "message": "Game not found"
 }
 ```
 
@@ -2354,8 +2531,6 @@ Response body:
 }
 ```
 
-
-
 ## Github workflow
 
 ### Branch structure
@@ -2635,4 +2810,3 @@ docker compose exec -T voting_service bash < ./db/voting_service.sh
 # Run the service with Docker Compose
 docker-compose up --build
 ```
-

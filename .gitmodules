@@ -34,3 +34,6 @@
 [submodule "service-discovery"]
 	path = service-discovery
 	url = https://github.com/yum3lo/service-discovery
+[submodule "message-broker"]
+	path = message-broker
+	url = https://github.com/yum3lo/message-broker

@@ -1,7 +1,23 @@
 {
   "info": {
-    "name": "Voting Service (with SSE)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "Voting Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.3",
+    "variable": [
+      { "key": "base_url", "value": "http://localhost:8000" },
+      { "key": "game_id", "value": "game-AAA" },
+      { "key": "round_id", "value": "round-9f3a2b" },
+      { "key": "user_id", "value": "2" },
+      { "key": "jwt", "value": "REPLACE_WITH_JWT" },
+      { "key": "internal_key", "value": "REPLACE_INTERNAL_KEY" },
+      { "key": "log_type", "value": "combined" }
+    ]
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{jwt}}", "type": "string" }
+    ]
   },
   "item": [
     {
@@ -9,21 +25,13 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds"
-          ]
+          "raw": "{{base_url}}/games/{{game_id}}/rounds",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "rounds"]
         },
         "body": {
           "mode": "raw",
@@ -35,16 +43,13 @@
       "name": "List Rounds",
       "request": {
         "method": "GET",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds"
-          ]
+          "raw": "{{base_url}}/games/{{game_id}}/rounds",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "rounds"]
         }
       }
     },
@@ -52,21 +57,15 @@
       "name": "List Rounds (filter status=open)",
       "request": {
         "method": "GET",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds?status=open",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds"
-          ],
+          "raw": "{{base_url}}/games/{{game_id}}/rounds?status=open",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "rounds"],
           "query": [
-            {
-              "key": "status",
-              "value": "open"
-            }
+            { "key": "status", "value": "open" }
           ]
         }
       }
@@ -75,17 +74,13 @@
       "name": "Get Active Round",
       "request": {
         "method": "GET",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds/active",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds",
-            "active"
-          ]
+          "raw": "{{base_url}}/games/{{game_id}}/rounds/active",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "rounds", "active"]
         }
       }
     },
@@ -94,23 +89,13 @@
       "request": {
         "method": "PATCH",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds/{{round_id}}/close",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds",
-            "{{round_id}}",
-            "close"
-          ]
+          "raw": "{{base_url}}/games/{{game_id}}/rounds/{{round_id}}/close",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "rounds", "{{round_id}}", "close"]
         },
         "body": {
           "mode": "raw",
@@ -122,18 +107,13 @@
       "name": "Round Results",
       "request": {
         "method": "GET",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds/{{round_id}}/results",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds",
-            "{{round_id}}",
-            "results"
-          ]
+          "raw": "{{base_url}}/games/{{game_id}}/rounds/{{round_id}}/results",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "rounds", "{{round_id}}", "results"]
         }
       }
     },
@@ -141,17 +121,13 @@
       "name": "Round Logs",
       "request": {
         "method": "GET",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds/logs",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds",
-            "logs"
-          ]
+          "raw": "{{base_url}}/games/{{game_id}}/rounds/logs",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "rounds", "logs"]
         }
       }
     },
@@ -160,25 +136,17 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/votes",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "votes"
-          ]
+          "raw": "{{base_url}}/games/{{game_id}}/votes",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "votes"]
         },
         "body": {
           "mode": "raw",
-          "raw": "{ \"user_id\": 1, \"voted_user_id\": 3, \"round_id\": \"round-9f3a2b\" }"
+          "raw": "{ \"user_id\": {{user_id}}, \"voted_user_id\": 3, \"round_id\": \"{{round_id}}\" }"
         }
       }
     },
@@ -186,29 +154,17 @@
       "name": "List Votes (for round)",
       "request": {
         "method": "GET",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/votes?round_id=round-9f3a2b&limit=500&offset=0",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "votes"
-          ],
+          "raw": "{{base_url}}/games/{{game_id}}/votes?round_id={{round_id}}&limit=500&offset=0",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "votes"],
           "query": [
-            {
-              "key": "round_id",
-              "value": "round-9f3a2b"
-            },
-            {
-              "key": "limit",
-              "value": "500"
-            },
-            {
-              "key": "offset",
-              "value": "0"
-            }
+            { "key": "round_id", "value": "{{round_id}}" },
+            { "key": "limit", "value": "500" },
+            { "key": "offset", "value": "0" }
           ]
         }
       }
@@ -217,22 +173,15 @@
       "name": "Get Single Player Vote",
       "request": {
         "method": "GET",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/votes/2?round_id=round-9f3a2b",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "votes",
-            "2"
-          ],
+          "raw": "{{base_url}}/games/{{game_id}}/votes/{{user_id}}?round_id={{round_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "votes", "{{user_id}}"],
           "query": [
-            {
-              "key": "round_id",
-              "value": "round-9f3a2b"
-            }
+            { "key": "round_id", "value": "{{round_id}}" }
           ]
         }
       }
@@ -241,70 +190,47 @@
       "name": "Remove Vote",
       "request": {
         "method": "DELETE",
+        "header": [
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
+        ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/votes/2?round_id=round-9f3a2b",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "votes",
-            "2"
-          ],
+          "raw": "{{base_url}}/games/{{game_id}}/votes/{{user_id}}?round_id={{round_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["games", "{{game_id}}", "votes", "{{user_id}}"],
           "query": [
-            {
-              "key": "round_id",
-              "value": "round-9f3a2b"
-            }
+            { "key": "round_id", "value": "{{round_id}}" }
           ]
         }
       }
     },
     {
-      "name": "Subscribe to Round SSE (EventStream)",
+      "name": "Service Status",
       "request": {
         "method": "GET",
         "header": [
-          {
-            "key": "Accept",
-            "value": "text/event-stream"
-          }
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
         "url": {
-          "raw": "{{base_url}}/games/game-AAA/rounds/{{round_id}}/stream",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "games",
-            "game-AAA",
-            "rounds",
-            "{{round_id}}",
-            "stream"
-          ]
+          "raw": "{{base_url}}/status",
+          "host": ["{{base_url}}"],
+          "path": ["status"]
         },
-        "description": "Open an EventSource / SSE connection to receive server-sent events for a specific round. The server will send events with event name `round_event` and `data` payloads."
+        "description": "Check the health/status of the voting service (uptime, DB counts, basic metrics)."
       }
     },
     {
-      "name": "Subscribe to Round SSE (curl example)",
+      "name": "Download Logs",
       "request": {
         "method": "GET",
         "header": [
-          {
-            "key": "Accept",
-            "value": "text/event-stream"
-          }
+          { "key": "X-Internal-Service", "value": "{{internal_key}}" }
         ],
         "url": {
-          "raw": "curl -N {{base_url}}/games/game-AAA/rounds/{{round_id}}/stream -H \"Accept: text/event-stream\"",
-          "host": [
-            "curl -N {{base_url}}/games/game-AAA/rounds/{{round_id}}/stream -H \"Accept: text/event-stream\""
-          ],
-          "path": []
+          "raw": "{{base_url}}/logs/{{log_type}}",
+          "host": ["{{base_url}}"],
+          "path": ["logs", "{{log_type}}"]
         },
-        "description": "This item demonstrates how to use curl to keep a streaming connection open. Replace {{round_id}} with an actual round id and run this from your terminal:\n\ncurl -N {{base_url}}/games/game-AAA/rounds/<round_id>/stream -H \"Accept: text/event-stream\""
+        "description": "Download a log file from the service. Valid log types: error, combined, exceptions, rejections."
       }
     }
   ]
