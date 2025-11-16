@@ -299,16 +299,19 @@ services:
   # gateway will communicate via internal network so ports mapping no longer needed
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:1.8
+    image: yum3lo/mafia-user_management-service:1.9
     deploy:
       replicas: 3
     depends_on:
+      message_broker:
+        condition: service_started
       postgres_user_management:
         condition: service_healthy
     environment:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
   game_service:
     image: yum3lo/mafia-game-service:2.2
@@ -317,12 +320,14 @@ services:
     depends_on:
       - redis_game
       - gateway
+      - message_broker
     environment:
       SERVER_GAME_PORT: 3002
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
       REDIS_GAME_PORT: 6379
       GATEWAY_URL: http://gateway:3000
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
   communication_service:
     image: valeriafz/mafia-communication-service:2.0
