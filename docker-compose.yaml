@@ -82,13 +82,17 @@ services:
       start_period: 10s
 
   message_broker:
-    image: yum3lo/mafia-message-broker:1.1
+    image: yum3lo/mafia-message-broker:1.2
+    build:
+      context: ../message-broker
+      dockerfile: Dockerfile
     container_name: message_broker
     ports:
       - "5000:5000"
     environment:
       NODE_ENV: production
       BROKER_PORT: 5000
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
     healthcheck:
       test:
         [
@@ -330,7 +334,7 @@ services:
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
   communication_service:
-    image: valeriafz/mafia-communication-service:2.0
+    image: valeriafz/mafia-communication-service:2.1
     deploy:
       replicas: 3
     environment:
@@ -343,15 +347,17 @@ services:
       USER_SERVICE_URL: ${USER_MANAGEMENT_URL}
       GAME_SERVICE_URL: ${GAME_SERVICE_URL}
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
     depends_on:
       - postgres_communication
       - redis_communication
       - user_management_service
       - town_service
+      - message_broker
     restart: unless-stopped
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.8
+    image: valeriafz/rumors-service:v1.9
     deploy:
       replicas: 3
     restart: always
@@ -364,11 +370,14 @@ services:
       TASK_SERVICE_URL: ${TASK_SERVICE_URL}
       CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
+      USE_MESSAGE_BROKER: ${USE_MESSAGE_BROKER:-false}
     depends_on:
       - postgres_rumor
       - task-service
       - character_service
       - town_service
+      - message_broker
     volumes:
       - postgres_rumor_data:/var/lib/postgresql/data
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
