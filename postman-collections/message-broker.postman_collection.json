@@ -1,0 +1,539 @@
+{
+	"info": {
+		"_postman_id": "2d0861ea-806f-4b80-a1a9-0013fa0e316d",
+		"name": "message-broker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47748940",
+		"_collection_link": "https://vfrunza-9ba76a59-9113892.postman.co/workspace/Personal-Workspace~51281074-0e91-4220-a7a8-11746dc0dda8/collection/47748940-2d0861ea-806f-4b80-a1a9-0013fa0e316d?action=share&source=collection_link&creator=47748940"
+	},
+	"item": [
+		{
+			"name": "Get health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get health",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\r\n    \"status\": \"healthy\",\r\n    \"service\": \"message-broker\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Create queue",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"queueName\": \"task-queue-name\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/queues",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"queues"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Create queue",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"queueName\": \"service-queue-name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/queues",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"queues"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\r\n    \"message\": \"Queue game-service-queue created successfully\",\r\n    \"queueName\": \"game-service-queue\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Send message to a queue",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"message\": {\r\n        \"userId\": 123, \r\n        \"action\": \"create\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/queues/{{service-queue-name}}/messages",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"queues",
+						"{{service-queue-name}}",
+						"messages"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Send message to a queue",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"message\": {\r\n        \"userId\": 123, \r\n        \"action\": \"create\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/queues/service-queue-name/messages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"queues",
+								"service-queue-name",
+								"messages"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"messageId\": \"msg_1763245241235_m7ceqrnka\",\n    \"status\": \"queued\",\n    \"queueName\": \"game-service-queue\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get messages from a queue",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/queues/{{service-queue-name}}/messages",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"queues",
+						"{{service-queue-name}}",
+						"messages"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get messages from a queue",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/queues/service-queue-name/messages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"queues",
+								"service-queue-name",
+								"messages"
+							]
+						}
+					},
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Get queue status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/queues/{{service-queue-name}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"queues",
+						"{{service-queue-name}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get queue status",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/queues/service-queue-name",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"queues",
+								"service-queue-name"
+							]
+						}
+					},
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Get all queues",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/queues",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"queues"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get all queues",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/queues",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"queues"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\r\n    \"queues\": [\r\n        {\r\n            \"name\": \"user_management_service-queue\",\r\n            \"messageCount\": 0\r\n        },\r\n        {\r\n            \"name\": \"game-service-queue\",\r\n            \"messageCount\": 1\r\n        }\r\n    ]\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete queue",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/queues/{{service-queue-name}}-name",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"queues",
+						"{{service-queue-name}}-name"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Delete queue",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/queues/service-queue-name",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"queues",
+								"service-queue-name"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"message\": \"Queue game-service-queue deleted successfully\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Register to queue",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"serviceName\": \"task-service\",\n    \"baseUrl\": \"http://task-service:8000\",\n    \"endpoints\": [\"/tasks\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/services/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"services",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all services",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Service to Service request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n    \"method\": \"GET\",\n    \"path\": \"/chat/rooms?gameId=test123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/services/communication_service/request",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"services",
+						"communication_service",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send heartbeat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/services/task-service/heartbeat",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"services",
+						"task-service",
+						"heartbeat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unregister from queue",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/services/task-service",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"services",
+						"task-service"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "default"
+		},
+		{
+			"key": "service-queue-name",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
