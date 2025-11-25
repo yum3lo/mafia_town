@@ -1,11 +1,5 @@
 version: "3.9"
 
-# how to automatically start 3 instances for anything that is replicas: 3
-# docker-compose --compatibility up -d
-
-# after changes restart the service:
-# docker-compose restart service_discovery
-
 services:
   service_discovery:
     image: yum3lo/service-discovery:1.7
@@ -14,7 +8,6 @@ services:
       - "8500:8500"
     environment:
       DISCOVERY_PORT: 8500
-      NODE_ENV: production
       ALERT_TELEGRAM_ENABLED: ${ALERT_TELEGRAM_ENABLED}
       ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN}
       ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID}
@@ -82,13 +75,10 @@ services:
       start_period: 10s
 
   message_broker:
-    image: yum3lo/mafia-message-broker:1.1
+    image: yum3lo/mafia-message-broker:1.4
     container_name: message_broker
     ports:
       - "5000:5000"
-    environment:
-      NODE_ENV: production
-      BROKER_PORT: 5000
     healthcheck:
       test:
         [
@@ -295,11 +285,8 @@ services:
     volumes:
       - redis_voting_data:/data
 
-  # each instance needs a unique name so container_name no longer needed
-  # gateway will communicate via internal network so ports mapping no longer needed
-
   user_management_service:
-    image: yum3lo/mafia-user_management-service:1.9
+    image: yum3lo/mafia-user_management-service:2.0
     deploy:
       replicas: 3
     depends_on:
@@ -310,11 +297,10 @@ services:
     environment:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
   game_service:
-    image: yum3lo/mafia-game-service:2.2
+    image: yum3lo/mafia-game-service:2.3
     deploy:
       replicas: 3
     depends_on:
@@ -326,7 +312,6 @@ services:
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
       REDIS_GAME_PORT: 6379
       GATEWAY_URL: http://gateway:3000
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
   communication_service:
