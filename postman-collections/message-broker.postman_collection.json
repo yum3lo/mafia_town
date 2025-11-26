@@ -1,31 +1,37 @@
 {
 	"info": {
 		"_postman_id": "2d0861ea-806f-4b80-a1a9-0013fa0e316d",
-		"name": "message-broker",
+		"name": "Message Broker API",
+		"description": "Push-based message broker with circuit breaker, load balancing, and service discovery integration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "47748940",
-		"_collection_link": "https://vfrunza-9ba76a59-9113892.postman.co/workspace/Personal-Workspace~51281074-0e91-4220-a7a8-11746dc0dda8/collection/47748940-2d0861ea-806f-4b80-a1a9-0013fa0e316d?action=share&source=collection_link&creator=47748940"
+		"_exporter_id": "47748940"
 	},
 	"item": [
 		{
-			"name": "Get health",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/health",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"health"
-					]
-				}
-			},
-			"response": [
+			"name": "Health & Monitoring",
+			"item": [
 				{
-					"name": "Get health",
-					"originalRequest": {
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has status field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData.status).to.eql('healthy');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -36,62 +42,113 @@
 							"path": [
 								"health"
 							]
-						}
+						},
+						"description": "Check if the message broker is running"
 					},
-					"_postman_previewlanguage": "json",
-					"header": [
+					"response": []
+				},
+				{
+					"name": "Get All Services",
+					"event": [
 						{
-							"key": "Content-Type",
-							"value": "application/json",
-							"name": "Content-Type",
-							"description": "",
-							"type": "text"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has services array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('services');",
+									"    pm.expect(jsonData.services).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
-					"cookie": [
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/services",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"services"
+							]
+						},
+						"description": "List all registered services with their health status"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Subscriptions",
+					"event": [
 						{
-							"expires": "Invalid Date",
-							"domain": "",
-							"path": ""
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has subscriptions\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('subscriptions');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
-					"body": "{\r\n    \"status\": \"healthy\",\r\n    \"service\": \"message-broker\"\r\n}"
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/subscriptions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"subscriptions"
+							]
+						},
+						"description": "View all topic subscriptions"
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "Create queue",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"queueName\": \"task-queue-name\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/queues",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"queues"
-					]
-				}
-			},
-			"response": [
+			"name": "Service Management",
+			"item": [
 				{
-					"name": "Create queue",
-					"originalRequest": {
+					"name": "Register Character Service",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service registered successfully\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('registered');",
+									"    pm.expect(jsonData.serviceName).to.eql('character-service');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"queueName\": \"service-queue-name\"\r\n}",
+							"raw": "{\n    \"serviceName\": \"character-service\",\n    \"serviceUrl\": \"http://localhost:8002\",\n    \"topics\": [\n        \"user.created\",\n        \"user.deleted\",\n        \"character.created\",\n        \"character.updated\",\n        \"character.deleted\"\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -99,71 +156,39 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/queues",
+							"raw": "{{base_url}}/register",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"queues"
+								"register"
 							]
-						}
+						},
+						"description": "Register character service with its topics"
 					},
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "application/json",
-							"name": "Content-Type",
-							"description": "",
-							"type": "text"
-						}
-					],
-					"cookie": [
-						{
-							"expires": "Invalid Date",
-							"domain": "",
-							"path": ""
-						}
-					],
-					"body": "{\r\n    \"message\": \"Queue game-service-queue created successfully\",\r\n    \"queueName\": \"game-service-queue\"\r\n}"
-				}
-			]
-		},
-		{
-			"name": "Send message to a queue",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"message\": {\r\n        \"userId\": 123, \r\n        \"action\": \"create\"\r\n    }\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					"response": []
 				},
-				"url": {
-					"raw": "{{base_url}}/queues/{{service-queue-name}}/messages",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"queues",
-						"{{service-queue-name}}",
-						"messages"
-					]
-				}
-			},
-			"response": [
 				{
-					"name": "Send message to a queue",
-					"originalRequest": {
+					"name": "Register Town Service",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service registered successfully\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"message\": {\r\n        \"userId\": 123, \r\n        \"action\": \"create\"\r\n    }\r\n}",
+							"raw": "{\n    \"serviceName\": \"town-service\",\n    \"serviceUrl\": \"http://localhost:8003\",\n    \"topics\": [\n        \"user.created\",\n        \"character.created\",\n        \"character.deleted\",\n        \"town.updated\",\n        \"inventory.updated\"\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -171,368 +196,696 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/queues/service-queue-name/messages",
+							"raw": "{{base_url}}/register",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"queues",
-								"service-queue-name",
-								"messages"
+								"register"
 							]
-						}
+						},
+						"description": "Register town service with its topics"
 					},
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "application/json",
-							"name": "Content-Type",
-							"description": "",
-							"type": "text"
-						}
-					],
-					"cookie": [
-						{
-							"expires": "Invalid Date",
-							"domain": "",
-							"path": ""
-						}
-					],
-					"body": "{\n    \"messageId\": \"msg_1763245241235_m7ceqrnka\",\n    \"status\": \"queued\",\n    \"queueName\": \"game-service-queue\"\n}"
-				}
-			]
-		},
-		{
-			"name": "Get messages from a queue",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/queues/{{service-queue-name}}/messages",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"queues",
-						"{{service-queue-name}}",
-						"messages"
-					]
-				}
-			},
-			"response": [
+					"response": []
+				},
 				{
-					"name": "Get messages from a queue",
-					"originalRequest": {
-						"method": "GET",
+					"name": "Send Heartbeat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Heartbeat received\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Heartbeat');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"serviceName\": \"character-service\",\n    \"topics\": [\n        \"user.created\",\n        \"user.deleted\",\n        \"character.created\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{base_url}}/queues/service-queue-name/messages",
+							"raw": "{{base_url}}/heartbeat",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"queues",
-								"service-queue-name",
-								"messages"
+								"heartbeat"
 							]
-						}
+						},
+						"description": "Send heartbeat to keep service alive"
 					},
-					"_postman_previewlanguage": "Text",
-					"header": [],
-					"cookie": [],
-					"body": ""
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "Get queue status",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/queues/{{service-queue-name}}",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"queues",
-						"{{service-queue-name}}"
-					]
-				}
-			},
-			"response": [
+			"name": "Topic Subscriptions",
+			"item": [
 				{
-					"name": "Get queue status",
-					"originalRequest": {
-						"method": "GET",
+					"name": "Subscribe to User Created",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Subscribed successfully\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Subscribed');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"serviceName\": \"character-service\",\n    \"topic\": \"user.created\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{base_url}}/queues/service-queue-name",
+							"raw": "{{base_url}}/subscribe",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"queues",
-								"service-queue-name"
+								"subscribe"
 							]
-						}
+						},
+						"description": "Subscribe a service to a topic"
 					},
-					"_postman_previewlanguage": "Text",
-					"header": [],
-					"cookie": [],
-					"body": ""
-				}
-			]
-		},
-		{
-			"name": "Get all queues",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/queues",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"queues"
-					]
-				}
-			},
-			"response": [
+					"response": []
+				},
 				{
-					"name": "Get all queues",
-					"originalRequest": {
-						"method": "GET",
+					"name": "Subscribe to Character Events",
+					"request": {
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"serviceName\": \"town-service\",\n    \"topic\": \"character.created\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{base_url}}/queues",
+							"raw": "{{base_url}}/subscribe",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"queues"
+								"subscribe"
 							]
 						}
 					},
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "application/json",
-							"name": "Content-Type",
-							"description": "",
-							"type": "text"
-						}
-					],
-					"cookie": [
-						{
-							"expires": "Invalid Date",
-							"domain": "",
-							"path": ""
-						}
-					],
-					"body": "{\r\n    \"queues\": [\r\n        {\r\n            \"name\": \"user_management_service-queue\",\r\n            \"messageCount\": 0\r\n        },\r\n        {\r\n            \"name\": \"game-service-queue\",\r\n            \"messageCount\": 1\r\n        }\r\n    ]\r\n}"
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "Delete queue",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/queues/{{service-queue-name}}-name",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"queues",
-						"{{service-queue-name}}-name"
-					]
-				}
-			},
-			"response": [
+			"name": "Publish Messages",
+			"item": [
 				{
-					"name": "Delete queue",
-					"originalRequest": {
-						"method": "DELETE",
+					"name": "Publish User Created",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message published successfully\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('published');",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"user.created\",\n    \"message\": {\n        \"userId\": \"{{$randomUUID}}\",\n        \"username\": \"{{$randomUserName}}\",\n        \"email\": \"{{$randomEmail}}\",\n        \"createdAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{base_url}}/queues/service-queue-name",
+							"raw": "{{base_url}}/publish",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"queues",
-								"service-queue-name"
+								"publish"
+							]
+						},
+						"description": "Publish user creation event"
+					},
+					"response": []
+				},
+				{
+					"name": "Publish User Deleted",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"user.deleted\",\n    \"message\": {\n        \"userId\": \"user-123\",\n        \"deletedAt\": \"{{$isoTimestamp}}\",\n        \"reason\": \"User requested account deletion\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
 							]
 						}
 					},
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "application/json",
-							"name": "Content-Type",
-							"description": "",
-							"type": "text"
+					"response": []
+				},
+				{
+					"name": "Publish Character Created",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"character.created\",\n    \"message\": {\n        \"characterId\": \"{{$randomUUID}}\",\n        \"userId\": \"user-123\",\n        \"name\": \"{{$randomFirstName}} {{$randomLastName}}\",\n        \"appearance\": {\n            \"hair\": \"brown\",\n            \"outfit\": \"casual\",\n            \"accessories\": [\"hat\", \"sunglasses\"]\n        },\n        \"stats\": {\n            \"health\": 100,\n            \"energy\": 100,\n            \"level\": 1\n        },\n        \"createdAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
 						}
-					],
-					"cookie": [
-						{
-							"expires": "Invalid Date",
-							"domain": "",
-							"path": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Publish Character Updated",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"character.updated\",\n    \"message\": {\n        \"characterId\": \"char-123\",\n        \"userId\": \"user-123\",\n        \"updates\": {\n            \"appearance\": {\n                \"hair\": \"blonde\",\n                \"outfit\": \"formal\"\n            },\n            \"stats\": {\n                \"level\": 2,\n                \"experience\": 150\n            }\n        },\n        \"updatedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
 						}
-					],
-					"body": "{\n    \"message\": \"Queue game-service-queue deleted successfully\"\n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Publish Character Deleted",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"character.deleted\",\n    \"message\": {\n        \"characterId\": \"char-123\",\n        \"userId\": \"user-123\",\n        \"reason\": \"User deleted character\",\n        \"deletedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish Inventory Updated",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"inventory.updated\",\n    \"message\": {\n        \"characterId\": \"char-123\",\n        \"itemId\": \"item-{{$randomInt}}\",\n        \"itemName\": \"Health Potion\",\n        \"action\": \"added\",\n        \"quantity\": 5,\n        \"updatedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish Asset Traded",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"asset.traded\",\n    \"message\": {\n        \"tradeId\": \"{{$randomUUID}}\",\n        \"fromCharacterId\": \"char-123\",\n        \"toCharacterId\": \"char-456\",\n        \"assetId\": \"asset-789\",\n        \"assetType\": \"weapon\",\n        \"assetName\": \"Golden Sword\",\n        \"price\": 1000,\n        \"tradedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish Town Updated",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"town.updated\",\n    \"message\": {\n        \"townId\": \"town-001\",\n        \"characterId\": \"char-123\",\n        \"action\": \"entered\",\n        \"location\": \"market\",\n        \"previousLocation\": \"tavern\",\n        \"updatedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "Register to queue",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"serviceName\": \"task-service\",\n    \"baseUrl\": \"http://task-service:8000\",\n    \"endpoints\": [\"/tasks\"]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Error Scenarios",
+			"item": [
+				{
+					"name": "Publish Without Topic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 400 error\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.include('required');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/services/register",
-					"host": [
-						"{{base_url}}"
 					],
-					"path": [
-						"services",
-						"register"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all services",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{base_url}}/auth/login",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"auth",
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Service to Service request",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{ \n    \"method\": \"GET\",\n    \"path\": \"/chat/rooms?gameId=test123\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": {\n        \"data\": \"test\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{base_url}}/services/communication_service/request",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"services",
-						"communication_service",
-						"request"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Send heartbeat",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "Register Without Service Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 400 error\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/services/task-service/heartbeat",
-					"host": [
-						"{{base_url}}"
 					],
-					"path": [
-						"services",
-						"task-service",
-						"heartbeat"
-					]
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"serviceUrl\": \"http://localhost:8080\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish to Topic with No Subscribers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns success with no subscribers message\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('No subscribers');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"nonexistent.topic\",\n    \"message\": {\n        \"data\": \"test data\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Unregister from queue",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/services/task-service",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"services",
-						"task-service"
+			"name": "Integration Tests",
+			"item": [
+				{
+					"name": "Full User Registration Flow",
+					"item": [
+						{
+							"name": "1. Register Character Service",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Service registered\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"serviceName\": \"character-service\",\n    \"serviceUrl\": \"http://localhost:8002\",\n    \"topics\": [\"user.created\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Register Town Service",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"serviceName\": \"town-service\",\n    \"serviceUrl\": \"http://localhost:8003\",\n    \"topics\": [\"user.created\", \"character.created\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Verify Subscriptions",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Has user.created subscribers\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.subscriptions['user.created']).to.be.an('array');",
+											"    pm.expect(jsonData.subscriptions['user.created'].length).to.be.at.least(1);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/subscriptions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"subscriptions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Publish User Created",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Message delivered to subscribers\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.results).to.be.an('array');",
+											"    pm.expect(jsonData.results.length).to.be.at.least(1);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"topic\": \"user.created\",\n    \"message\": {\n        \"userId\": \"test-user-{{$timestamp}}\",\n        \"username\": \"testuser\",\n        \"email\": \"test@example.com\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/publish",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"publish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Verify Services Are Healthy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"All services are registered\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.services.length).to.be.at.least(2);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/services",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"services"
+									]
+								}
+							},
+							"response": []
+						}
 					]
 				}
-			},
-			"response": []
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	],
 	"variable": [
 		{
 			"key": "base_url",
 			"value": "http://localhost:5000",
-			"type": "default"
-		},
-		{
-			"key": "service-queue-name",
-			"value": "",
 			"type": "default"
 		}
 	]

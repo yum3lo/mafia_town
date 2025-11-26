@@ -2,35 +2,25 @@ version: "3.9"
 
 services:
   service_discovery:
-    image: yum3lo/service-discovery:1.7
+    image: yum3lo/service-discovery:2.0
     container_name: service_discovery
     ports:
       - "8500:8500"
     environment:
       DISCOVERY_PORT: 8500
-      ALERT_TELEGRAM_ENABLED: ${ALERT_TELEGRAM_ENABLED}
+      MESSAGE_BROKER_URL: http://message_broker:5000
+      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
       ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN}
       ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID}
-      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:8500/health",
-        ]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8500/health"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
 
   gateway:
-    image: yum3lo/mafia-gateway:4.3
+    image: yum3lo/mafia-gateway:4.4
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -75,20 +65,17 @@ services:
       start_period: 10s
 
   message_broker:
-    image: yum3lo/mafia-message-broker:1.4
+    image: yum3lo/mafia-message-broker:1.9
     container_name: message_broker
     ports:
       - "5000:5000"
+    environment:
+      PORT: 5000
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500  # Changed from 3000 to 8500
+    depends_on:
+      - service_discovery
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:5000/health"
-        ]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -408,7 +395,7 @@ services:
       - service_discovery
 
   town_service:
-    image: nelldino/town-service:2.1
+    image: nelldino/town-service:2.3
     deploy:
       replicas: 3
     restart: always
