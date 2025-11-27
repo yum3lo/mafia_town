@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   service_discovery:
-    image: yum3lo/service-discovery:2.0
+    image: yum3lo/service-discovery:2.2
     container_name: service_discovery
     ports:
       - "8500:8500"
@@ -22,13 +22,15 @@ services:
      - mafia_network
 
   message_broker:
-    image: yum3lo/mafia-message-broker:2.3
+    image: yum3lo/mafia-message-broker:4.6
     container_name: message_broker
     ports:
       - "5000:5000"
     environment:
       PORT: 5000
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      USE_CLUSTER: true 
+
     depends_on:
       service_discovery:
         condition: service_healthy
@@ -423,7 +425,7 @@ services:
      - mafia_network
 
   shop-service:
-    image: mycallangel0/shop-service:v1.3.0
+    image: mycallangel0/shop-service:v1.4.0 
     deploy:
       replicas: 3
     depends_on:
@@ -475,7 +477,7 @@ services:
      - mafia_network
 
   character_service:
-    image: nelldino/character-service:1.8
+    image: nelldino/character-service:2.2
     deploy:
       replicas: 3
     restart: always
@@ -499,7 +501,7 @@ services:
      - mafia_network
 
   town_service:
-    image: nelldino/town-service:2.3
+    image: nelldino/town-service:2.4
     deploy:
       replicas: 3
     restart: always
