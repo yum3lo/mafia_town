@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   service_discovery:
-    image: yum3lo/service-discovery:2.0
+    image: yum3lo/service-discovery:2.2
     container_name: service_discovery
     ports:
       - "8500:8500"
@@ -22,13 +22,14 @@ services:
      - mafia_network
 
   message_broker:
-    image: yum3lo/mafia-message-broker:2.3
+    image: yum3lo/mafia-message-broker:4.7
     container_name: message_broker
     ports:
       - "5000:5000"
     environment:
       PORT: 5000
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      USE_CLUSTER: true 
     depends_on:
       service_discovery:
         condition: service_healthy
@@ -423,7 +424,7 @@ services:
      - mafia_network
 
   shop-service:
-    image: mycallangel0/shop-service:v1.3.0
+    image: mycallangel0/shop-service:v1.4.0
     deploy:
       replicas: 3
     depends_on:
@@ -475,7 +476,7 @@ services:
      - mafia_network
 
   character_service:
-    image: nelldino/character-service:1.8
+    image: nelldino/character-service:2.2
     deploy:
       replicas: 3
     restart: always
@@ -499,7 +500,7 @@ services:
      - mafia_network
 
   town_service:
-    image: nelldino/town-service:2.3
+    image: nelldino/town-service:2.4
     deploy:
       replicas: 3
     restart: always
@@ -523,7 +524,7 @@ services:
      - mafia_network
 
   task-migrator:
-    image: lucianlupan/task_service:1.3
+    image: lucianlupan/task_service:1.5
     depends_on:
       postgres_tasks:
         condition: service_healthy
@@ -538,6 +539,7 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      MESSAGE_BROKER_URL: http://message_broker:5000
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
@@ -546,13 +548,15 @@ services:
      - mafia_network
 
   task-service:
-    image: lucianlupan/task_service:1.3
+    image: lucianlupan/task_service:1.5
     depends_on:
       task-migrator:
         condition: service_completed_successfully
       redis_task:
         condition: service_healthy
       service_discovery:
+        condition: service_healthy
+      message_broker:
         condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_tasks
@@ -563,6 +567,7 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      MESSAGE_BROKER_URL: http://message_broker:5000
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
     deploy:
@@ -579,7 +584,7 @@ services:
      - mafia_network
 
   voting-migrator:
-    image: lucianlupan/voting_service:1.3
+    image: lucianlupan/voting_service:1.5
     depends_on:
       postgres_voting:
         condition: service_healthy
@@ -594,6 +599,7 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      MESSAGE_BROKER_URL: http://message_broker:5000
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
@@ -604,13 +610,15 @@ services:
      - mafia_network
 
   voting-service:
-    image: lucianlupan/voting_service:1.3
+    image: lucianlupan/voting_service:1.5
     depends_on:
       voting-migrator:
         condition: service_completed_successfully
       redis_voting:
         condition: service_healthy
       service_discovery:
+        condition: service_healthy
+      message_broker:
         condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_voting
@@ -621,6 +629,7 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
+      MESSAGE_BROKER_URL: http://message_broker:5000
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8001"
     deploy:
@@ -637,7 +646,7 @@ services:
      - mafia_network
 
   gateway:
-    image: yum3lo/mafia-gateway:4.5
+    image: yum3lo/mafia-gateway:4.6
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
