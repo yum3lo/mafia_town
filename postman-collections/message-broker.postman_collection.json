@@ -1,17 +1,18 @@
 {
 	"info": {
-		"_postman_id": "2d0861ea-806f-4b80-a1a9-0013fa0e316d",
-		"name": "Message Broker API",
+		"_postman_id": "fae6e91d-1d74-4674-8a6a-434aef6648e5",
+		"name": "message-broker",
 		"description": "Push-based message broker with circuit breaker, load balancing, and service discovery integration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "47748940"
+		"_exporter_id": "48492495",
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-fae6e91d-1d74-4674-8a6a-434aef6648e5?action=share&source=collection_link&creator=48492495"
 	},
 	"item": [
 		{
 			"name": "Health & Monitoring",
 			"item": [
 				{
-					"name": "Health Check",
+					"name": "Get health",
 					"event": [
 						{
 							"listen": "test",
@@ -45,10 +46,44 @@
 						},
 						"description": "Check if the message broker is running"
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Get health",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/health",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"health"
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "{\r\n    \"status\": \"UP\",\r\n    \"workerId\": 18,\r\n    \"activeQueues\": 0,\r\n    \"dlqCount\": 0\r\n}"
+						}
+					]
 				},
 				{
-					"name": "Get All Services",
+					"name": "Get subscriptions",
 					"event": [
 						{
 							"listen": "test",
@@ -72,42 +107,6 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/services",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"services"
-							]
-						},
-						"description": "List all registered services with their health status"
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Subscriptions",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Response has subscriptions\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('subscriptions');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
 							"raw": "{{base_url}}/subscriptions",
 							"host": [
 								"{{base_url}}"
@@ -118,658 +117,10 @@
 						},
 						"description": "View all topic subscriptions"
 					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Service Management",
-			"item": [
-				{
-					"name": "Register Character Service",
-					"event": [
+					"response": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service registered successfully\", function () {",
-									"    pm.response.to.have.status(200);",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.message).to.include('registered');",
-									"    pm.expect(jsonData.serviceName).to.eql('character-service');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"serviceName\": \"character-service\",\n    \"serviceUrl\": \"http://localhost:8002\",\n    \"topics\": [\n        \"user.created\",\n        \"user.deleted\",\n        \"character.created\",\n        \"character.updated\",\n        \"character.deleted\"\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"register"
-							]
-						},
-						"description": "Register character service with its topics"
-					},
-					"response": []
-				},
-				{
-					"name": "Register Town Service",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service registered successfully\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"serviceName\": \"town-service\",\n    \"serviceUrl\": \"http://localhost:8003\",\n    \"topics\": [\n        \"user.created\",\n        \"character.created\",\n        \"character.deleted\",\n        \"town.updated\",\n        \"inventory.updated\"\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"register"
-							]
-						},
-						"description": "Register town service with its topics"
-					},
-					"response": []
-				},
-				{
-					"name": "Send Heartbeat",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Heartbeat received\", function () {",
-									"    pm.response.to.have.status(200);",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.message).to.include('Heartbeat');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"serviceName\": \"character-service\",\n    \"topics\": [\n        \"user.created\",\n        \"user.deleted\",\n        \"character.created\"\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/heartbeat",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"heartbeat"
-							]
-						},
-						"description": "Send heartbeat to keep service alive"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Topic Subscriptions",
-			"item": [
-				{
-					"name": "Subscribe to User Created",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Subscribed successfully\", function () {",
-									"    pm.response.to.have.status(200);",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.message).to.include('Subscribed');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"serviceName\": \"character-service\",\n    \"topic\": \"user.created\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/subscribe",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"subscribe"
-							]
-						},
-						"description": "Subscribe a service to a topic"
-					},
-					"response": []
-				},
-				{
-					"name": "Subscribe to Character Events",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"serviceName\": \"town-service\",\n    \"topic\": \"character.created\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/subscribe",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"subscribe"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Publish Messages",
-			"item": [
-				{
-					"name": "Publish User Created",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Message published successfully\", function () {",
-									"    pm.response.to.have.status(200);",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.message).to.include('published');",
-									"    pm.expect(jsonData).to.have.property('results');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"user.created\",\n    \"message\": {\n        \"userId\": \"{{$randomUUID}}\",\n        \"username\": \"{{$randomUserName}}\",\n        \"email\": \"{{$randomEmail}}\",\n        \"createdAt\": \"{{$isoTimestamp}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						},
-						"description": "Publish user creation event"
-					},
-					"response": []
-				},
-				{
-					"name": "Publish User Deleted",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"user.deleted\",\n    \"message\": {\n        \"userId\": \"user-123\",\n        \"deletedAt\": \"{{$isoTimestamp}}\",\n        \"reason\": \"User requested account deletion\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Publish Character Created",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"character.created\",\n    \"message\": {\n        \"characterId\": \"{{$randomUUID}}\",\n        \"userId\": \"user-123\",\n        \"name\": \"{{$randomFirstName}} {{$randomLastName}}\",\n        \"appearance\": {\n            \"hair\": \"brown\",\n            \"outfit\": \"casual\",\n            \"accessories\": [\"hat\", \"sunglasses\"]\n        },\n        \"stats\": {\n            \"health\": 100,\n            \"energy\": 100,\n            \"level\": 1\n        },\n        \"createdAt\": \"{{$isoTimestamp}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Publish Character Updated",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"character.updated\",\n    \"message\": {\n        \"characterId\": \"char-123\",\n        \"userId\": \"user-123\",\n        \"updates\": {\n            \"appearance\": {\n                \"hair\": \"blonde\",\n                \"outfit\": \"formal\"\n            },\n            \"stats\": {\n                \"level\": 2,\n                \"experience\": 150\n            }\n        },\n        \"updatedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Publish Character Deleted",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"character.deleted\",\n    \"message\": {\n        \"characterId\": \"char-123\",\n        \"userId\": \"user-123\",\n        \"reason\": \"User deleted character\",\n        \"deletedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Publish Inventory Updated",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"inventory.updated\",\n    \"message\": {\n        \"characterId\": \"char-123\",\n        \"itemId\": \"item-{{$randomInt}}\",\n        \"itemName\": \"Health Potion\",\n        \"action\": \"added\",\n        \"quantity\": 5,\n        \"updatedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Publish Asset Traded",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"asset.traded\",\n    \"message\": {\n        \"tradeId\": \"{{$randomUUID}}\",\n        \"fromCharacterId\": \"char-123\",\n        \"toCharacterId\": \"char-456\",\n        \"assetId\": \"asset-789\",\n        \"assetType\": \"weapon\",\n        \"assetName\": \"Golden Sword\",\n        \"price\": 1000,\n        \"tradedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Publish Town Updated",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"town.updated\",\n    \"message\": {\n        \"townId\": \"town-001\",\n        \"characterId\": \"char-123\",\n        \"action\": \"entered\",\n        \"location\": \"market\",\n        \"previousLocation\": \"tavern\",\n        \"updatedAt\": \"{{$isoTimestamp}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Error Scenarios",
-			"item": [
-				{
-					"name": "Publish Without Topic",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Returns 400 error\", function () {",
-									"    pm.response.to.have.status(400);",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.error).to.include('required');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"message\": {\n        \"data\": \"test\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Register Without Service Name",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Returns 400 error\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"serviceUrl\": \"http://localhost:8080\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Publish to Topic with No Subscribers",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Returns success with no subscribers message\", function () {",
-									"    pm.response.to.have.status(200);",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.message).to.include('No subscribers');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"nonexistent.topic\",\n    \"message\": {\n        \"data\": \"test data\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/publish",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"publish"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Integration Tests",
-			"item": [
-				{
-					"name": "Full User Registration Flow",
-					"item": [
-						{
-							"name": "1. Register Character Service",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Service registered\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"serviceName\": \"character-service\",\n    \"serviceUrl\": \"http://localhost:8002\",\n    \"topics\": [\"user.created\"]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/register",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"register"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "2. Register Town Service",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"serviceName\": \"town-service\",\n    \"serviceUrl\": \"http://localhost:8003\",\n    \"topics\": [\"user.created\", \"character.created\"]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/register",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"register"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "3. Verify Subscriptions",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Has user.created subscribers\", function () {",
-											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.subscriptions['user.created']).to.be.an('array');",
-											"    pm.expect(jsonData.subscriptions['user.created'].length).to.be.at.least(1);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
+							"name": "Get subscriptions",
+							"originalRequest": {
 								"method": "GET",
 								"header": [],
 								"url": {
@@ -782,82 +133,221 @@
 									]
 								}
 							},
-							"response": []
-						},
-						{
-							"name": "4. Publish User Created",
-							"event": [
+							"_postman_previewlanguage": "json",
+							"header": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Message delivered to subscribers\", function () {",
-											"    pm.response.to.have.status(200);",
-											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.results).to.be.an('array');",
-											"    pm.expect(jsonData.results.length).to.be.at.least(1);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
 								}
 							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"topic\": \"user.created\",\n    \"message\": {\n        \"userId\": \"test-user-{{$timestamp}}\",\n        \"username\": \"testuser\",\n        \"email\": \"test@example.com\"\n    }\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/publish",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"publish"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "5. Verify Services Are Healthy",
-							"event": [
+							"cookie": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"All services are registered\", function () {",
-											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.services.length).to.be.at.least(2);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
 								}
 							],
-							"request": {
+							"body": "{\r\n    \"game_service\": [\r\n        \"game_service\"\r\n    ],\r\n    \"voting-results\": [\r\n        \"game_service\"\r\n    ],\r\n    \"player-killed\": [\r\n        \"game_service\"\r\n    ],\r\n    \"player-healed\": [\r\n        \"game_service\"\r\n    ],\r\n    \"game-started\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"game-ended\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"reward-granted\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"item-purchased\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"item-purchased-commit\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"item-purchased-rollback\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"gateway\": [\r\n        \"gateway\"\r\n    ]\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get DLQ",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dlq/{{topic}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dlq",
+								"{{topic}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get DLQ",
+							"originalRequest": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/services",
+									"raw": "{{base_url}}/dlq/{{topic}}",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
-										"services"
+										"dlq",
+										"{{topic}}"
 									]
 								}
 							},
-							"response": []
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "{\r\n    \"topic\": \"voting-results\",\r\n    \"messages\": [],\r\n    \"count\": 0\r\n}"
 						}
 					]
+				},
+				{
+					"name": "Get Circuit Breaker stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"user.deleted\",\n    \"message\": {\n        \"userId\": \"user-123\",\n        \"deletedAt\": \"{{$isoTimestamp}}\",\n        \"reason\": \"User requested account deletion\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/circuit-breaker/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"circuit-breaker",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get cluster Worker info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"character.created\",\n    \"message\": {\n        \"characterId\": \"{{$randomUUID}}\",\n        \"userId\": \"user-123\",\n        \"name\": \"{{$randomFirstName}} {{$randomLastName}}\",\n        \"appearance\": {\n            \"hair\": \"brown\",\n            \"outfit\": \"casual\",\n            \"accessories\": [\"hat\", \"sunglasses\"]\n        },\n        \"stats\": {\n            \"health\": 100,\n            \"energy\": 100,\n            \"level\": 1\n        },\n        \"createdAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cluster/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cluster",
+								"info"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Publish to Topics",
+			"item": [
+				{
+					"name": "Publish voting-results",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"topic\": \"voting-results\",\r\n    \"message\": {\r\n        \"gameId\": \"game_12345\",\r\n        \"eliminatedUserId\": \"user_1\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish game-started",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"topic\": \"game-started\",\r\n    \"message\": {\r\n        \"gameId\": \"game_12345\",\r\n        \"players\": [\r\n            {\r\n                \"userId\": \"user_1\",\r\n                \"username\": \"Alice\",\r\n                \"role\": \"villager\"\r\n            },\r\n            {\r\n                \"userId\": \"user_2\",\r\n                \"username\": \"Bob\",\r\n                \"role\": \"werewolf\"\r\n            },\r\n            {\r\n                \"userId\": \"user_3\",\r\n                \"username\": \"Charlie\",\r\n                \"role\": \"seer\"\r\n            }\r\n        ],\r\n        \"startedAt\": 1732800000000\r\n    },\r\n    \"publisherId\": \"game_service\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Send direct message",
+			"item": [
+				{
+					"name": "Send auth token to Gateway",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetService\": \"gateway\",\r\n    \"message\": {\r\n        \"token\": \"abc\", \r\n        \"success\": true\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/messages/send",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"messages",
+								"send"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
@@ -886,6 +376,11 @@
 		{
 			"key": "base_url",
 			"value": "http://localhost:5000",
+			"type": "default"
+		},
+		{
+			"key": "topic",
+			"value": "",
 			"type": "default"
 		}
 	]
