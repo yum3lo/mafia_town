@@ -86,11 +86,21 @@
 					"name": "Get subscriptions",
 					"event": [
 						{
-							"key": "Content-Type",
-							"value": "application/json",
-							"name": "Content-Type",
-							"description": "",
-							"type": "text"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has services array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('services');",
+									"    pm.expect(jsonData.services).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -201,6 +211,15 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"user.deleted\",\n    \"message\": {\n        \"userId\": \"user-123\",\n        \"deletedAt\": \"{{$isoTimestamp}}\",\n        \"reason\": \"User requested account deletion\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{base_url}}/circuit-breaker/stats",
 							"host": [
@@ -219,6 +238,15 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"character.created\",\n    \"message\": {\n        \"characterId\": \"{{$randomUUID}}\",\n        \"userId\": \"user-123\",\n        \"name\": \"{{$randomFirstName}} {{$randomLastName}}\",\n        \"appearance\": {\n            \"hair\": \"brown\",\n            \"outfit\": \"casual\",\n            \"accessories\": [\"hat\", \"sunglasses\"]\n        },\n        \"stats\": {\n            \"health\": 100,\n            \"energy\": 100,\n            \"level\": 1\n        },\n        \"createdAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{base_url}}/cluster/info",
 							"host": [
@@ -252,12 +280,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/queues",
+							"raw": "{{base_url}}/publish",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"queues"
+								"publish"
 							]
 						}
 					},
@@ -322,6 +350,26 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	],
 	"variable": [
