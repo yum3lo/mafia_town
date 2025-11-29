@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"serviceName\": \"communication_service\",\r\n  \"serviceUrl\": \"{{COMMUNICATION_URL}}\"\r\n}",
+					"raw": "{\r\n  \"serviceName\": \"game_service\",\r\n  \"serviceUrl\": \"{{GAME_URL}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -316,7 +316,173 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Get logs",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logs/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logs",
+								"info"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Content-Disposition",
+							"value": "attachment; filename=\"info.log\""
+						},
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "public, max-age=0"
+						},
+						{
+							"key": "Last-Modified",
+							"value": "Fri, 24 Oct 2025 18:27:41 GMT"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"ed3-19a1779fc04\""
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "3795"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 24 Oct 2025 18:29:10 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "[2025-10-24 18:27:27] INFO: \t[Service Registry] Registry initialized\n[2025-10-24 18:27:27] INFO: \t[Health Monitor] Initialized with 10000ms check interval\n[2025-10-24 18:27:27] INFO: \t[Service Discovery] Server is running on port 8500\n[2025-10-24 18:27:28] INFO: \t[Service Registry] New service registered: user_management_service at http://fccd0715a517:3001\n[2025-10-24 18:27:28] INFO: \t[Service Discovery] Service registered: user_management_service at http://fccd0715a517:3001\n[2025-10-24 18:27:28] INFO: \t[Health Monitor] Starting health checks for user_management_service\n[2025-10-24 18:27:29] WARN: \t[Health Monitor] user_management_service (http://fccd0715a517:3001) - FAILED (471ms): Request failed with status code 503\n[2025-10-24 18:27:29] INFO: \t[Service Registry] New service registered: town_service at http://babf5bc95954:3007\n[2025-10-24 18:27:29] INFO: \t[Service Discovery] Service registered: town_service at http://babf5bc95954:3007\n[2025-10-24 18:27:29] INFO: \t[Health Monitor] Starting health checks for town_service\n[2025-10-24 18:27:29] WARN: \t[Health Monitor] town_service (http://babf5bc95954:3007) - FAILED (48ms): connect ECONNREFUSED 172.18.0.20:3007\n[2025-10-24 18:27:29] INFO: \t[Service Registry] New instance added to user_management_service: http://a865ff562336:3001 (total instances: 2)\n[2025-10-24 18:27:29] INFO: \t[Service Discovery] Service registered: user_management_service at http://a865ff562336:3001\n[2025-10-24 18:27:30] INFO: \t[Service Registry] New service registered: character_service at http://94bee066f996:3006\n[2025-10-24 18:27:30] INFO: \t[Service Discovery] Service registered: character_service at http://94bee066f996:3006\n[2025-10-24 18:27:30] INFO: \t[Health Monitor] Starting health checks for character_service\n[2025-10-24 18:27:31] INFO: \t[Service Registry] New instance added to user_management_service: http://c4f6c0ee962a:3001 (total instances: 3)\n[2025-10-24 18:27:31] INFO: \t[Service Discovery] Service registered: user_management_service at http://c4f6c0ee962a:3001\n[2025-10-24 18:27:33] INFO: \t[Service Registry] New instance added to town_service: http://83933ae245b8:3007 (total instances: 2)\n[2025-10-24 18:27:33] INFO: \t[Service Discovery] Service registered: town_service at http://83933ae245b8:3007\n[2025-10-24 18:27:34] INFO: \t[Service Registry] New instance added to character_service: http://046453d8a34c:3006 (total instances: 2)\n[2025-10-24 18:27:34] INFO: \t[Service Discovery] Service registered: character_service at http://046453d8a34c:3006\n[2025-10-24 18:27:35] INFO: \t[Service Registry] New instance added to town_service: http://2917dc06f190:3007 (total instances: 3)\n[2025-10-24 18:27:35] INFO: \t[Service Discovery] Service registered: town_service at http://2917dc06f190:3007\n[2025-10-24 18:27:36] INFO: \t[Service Registry] New instance added to character_service: http://7a42aef4fa5d:3006 (total instances: 3)\n[2025-10-24 18:27:36] INFO: \t[Service Discovery] Service registered: character_service at http://7a42aef4fa5d:3006\n[2025-10-24 18:27:40] INFO: \t[Service Registry] New service registered: game_service at http://82341c3304d0:3002\n[2025-10-24 18:27:40] INFO: \t[Service Discovery] Service registered: game_service at http://82341c3304d0:3002\n[2025-10-24 18:27:40] INFO: \t[Health Monitor] Starting health checks for game_service\n[2025-10-24 18:27:41] INFO: \t[Service Registry] New instance added to game_service: http://0f79e6cd2efa:3002 (total instances: 2)\n[2025-10-24 18:27:41] INFO: \t[Service Discovery] Service registered: game_service at http://0f79e6cd2efa:3002\n[2025-10-24 18:27:41] INFO: \t[Service Registry] New instance added to game_service: http://a1fab022ce4c:3002 (total instances: 3)\n[2025-10-24 18:27:41] INFO: \t[Service Discovery] Service registered: game_service at http://a1fab022ce4c:3002\n"
+				}
+			]
+		},
+		{
+			"name": "Get topics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/topics",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"topics"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get topics",
+					"originalRequest": {
+						"method": "GET",
+						"header": []
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\r\n    \"status\": \"success\",\r\n    \"topics\": {\r\n        \"game_service\": [\r\n            \"game_service\",\r\n            \"voting-results\",\r\n            \"player-killed\",\r\n            \"player-healed\"\r\n        ],\r\n        \"user_management_service\": [\r\n            \"game-started\",\r\n            \"game-ended\",\r\n            \"reward-granted\",\r\n            \"item-purchased\",\r\n            \"item-purchased-commit\",\r\n            \"item-purchased-rollback\"\r\n        ],\r\n        \"gateway\": [\r\n            \"gateway\"\r\n        ]\r\n    }\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Get services by topic",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/discover/topic/{{topic}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"discover",
+						"topic",
+						"{{topic}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get services by topic",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/discover/topic/{{topic}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"discover",
+								"topic",
+								"{{topic}}"
+							]
+						}
+					},
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\r\n    \"topic\": \"voting-results\",\r\n    \"services\": [\r\n        {\r\n            \"serviceName\": \"game_service\",\r\n            \"instances\": [\r\n                {\r\n                    \"url\": \"http://62963703d229:3002\",\r\n                    \"healthy\": true,\r\n                    \"lastHeartbeat\": 1764437754343,\r\n                    \"metadata\": {},\r\n                    \"topics\": [\r\n                        \"game_service\",\r\n                        \"voting-results\",\r\n                        \"player-killed\",\r\n                        \"player-healed\"\r\n                    ]\r\n                },\r\n                {\r\n                    \"url\": \"http://c9c89d90cb22:3002\",\r\n                    \"healthy\": true,\r\n                    \"lastHeartbeat\": 1764437754447,\r\n                    \"metadata\": {},\r\n                    \"topics\": [\r\n                        \"game_service\",\r\n                        \"voting-results\",\r\n                        \"player-killed\",\r\n                        \"player-healed\"\r\n                    ]\r\n                },\r\n                {\r\n                    \"url\": \"http://e4b1efcaccb2:3002\",\r\n                    \"healthy\": true,\r\n                    \"lastHeartbeat\": 1764437754900,\r\n                    \"metadata\": {},\r\n                    \"topics\": [\r\n                        \"game_service\",\r\n                        \"voting-results\",\r\n                        \"player-killed\",\r\n                        \"player-healed\"\r\n                    ]\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}"
+				}
+			]
 		}
 	],
 	"event": [
@@ -387,6 +553,11 @@
 		{
 			"key": "USER_URL",
 			"value": "http://user_management_service:3001⁠"
+		},
+		{
+			"key": "topic",
+			"value": "",
+			"type": "default"
 		}
 	]
 }
