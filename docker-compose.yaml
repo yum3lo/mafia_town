@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   service_discovery:
-    image: yum3lo/service-discovery:2.0
+    image: yum3lo/service-discovery:2.3
     container_name: service_discovery
     ports:
       - "8500:8500"
@@ -22,7 +22,7 @@ services:
      - mafia_network
 
   message_broker:
-    image: yum3lo/mafia-message-broker:2.3
+    image: yum3lo/mafia-message-broker:4.8
     container_name: message_broker
     ports:
       - "5000:5000"
@@ -312,7 +312,7 @@ services:
      - mafia_network
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:2.0
+    image: yum3lo/mafia-user_management-service:2.1
     deploy:
       replicas: 3
     depends_on:
@@ -334,7 +334,7 @@ services:
      - mafia_network
 
   game_service:
-    image: yum3lo/mafia-game-service:2.3
+    image: yum3lo/mafia-game-service:2.4
     deploy:
       replicas: 3
     depends_on:
@@ -538,7 +538,6 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
       replicas: 1
@@ -563,7 +562,6 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
     deploy:
       replicas: 3
@@ -594,7 +592,6 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
       replicas: 1
@@ -621,7 +618,6 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8001"
     deploy:
       replicas: 3
@@ -637,7 +633,7 @@ services:
      - mafia_network
 
   gateway:
-    image: yum3lo/mafia-gateway:4.5
+    image: yum3lo/mafia-gateway:4.8
     container_name: gateway
     ports:
       - "${GATEWAY_PORT}:3000"
@@ -654,7 +650,6 @@ services:
       VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
       REDIS_GAME_HOST: ${REDIS_GAME_HOST}
       REDIS_GAME_PORT: ${REDIS_GAME_PORT}
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
       JWT_SECRET: ${JWT_SECRET}
     depends_on:
       - service_discovery
