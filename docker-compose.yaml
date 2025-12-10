@@ -2,52 +2,44 @@ version: "3.9"
 
 services:
   service_discovery:
-    image: yum3lo/service-discovery:1.7
+    image: yum3lo/service-discovery:2.3
     container_name: service_discovery
     ports:
       - "8500:8500"
     environment:
       DISCOVERY_PORT: 8500
-      ALERT_TELEGRAM_ENABLED: ${ALERT_TELEGRAM_ENABLED}
+      MESSAGE_BROKER_URL: http://message_broker:5000
+      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
       ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN}
       ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID}
-      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:8500/health",
-        ]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8500/health"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+     - mafia_network
 
   message_broker:
-    image: yum3lo/mafia-message-broker:1.4
+    image: yum3lo/mafia-message-broker:4.8
     container_name: message_broker
     ports:
       - "5000:5000"
+    environment:
+      PORT: 5000
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
+    depends_on:
+      service_discovery:
+        condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:5000/health"
-        ]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 15s
+    networks:
+     - mafia_network
 
   postgres_user_management:
     image: postgres:15
@@ -69,6 +61,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    networks:
+      - mafia_network
 
   postgres_shop:
     image: postgres:15
@@ -81,6 +76,14 @@ services:
     volumes:
       - postgres_shop_data:/var/lib/postgresql/data
       - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/customization_shop_service.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_SHOP_USER} -d ${PG_SHOP_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_communication:
     image: postgres:15
@@ -93,6 +96,14 @@ services:
     volumes:
       - postgres_communication_data:/var/lib/postgresql/data
       - ./db/communication_service.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_COMMUNICATION_USER} -d ${PG_COMMUNICATION_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_rumor:
     image: postgres:15
@@ -111,6 +122,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_character:
     image: postgres:15
@@ -133,6 +147,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_town:
     image: postgres:15
@@ -151,6 +167,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_tasks:
     image: postgres:15
@@ -162,6 +180,14 @@ services:
       POSTGRES_DB: ${PG_TASK_DB}
     volumes:
       - postgres_tasks_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_TASK_USER} -d ${PG_TASK_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_voting:
     image: postgres:15
@@ -173,6 +199,14 @@ services:
       POSTGRES_DB: ${PG_VOTING_DB}
     volumes:
       - postgres_voting_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_VOTING_USER} -d ${PG_VOTING_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
   redis_shard_1:
     image: redis:7
@@ -186,6 +220,8 @@ services:
       timeout: 3s
       retries: 5
       start_period: 10s
+    networks:
+     - mafia_network
 
   redis_shard_2:
     image: redis:7
@@ -225,6 +261,14 @@ services:
       - "${REDIS_ROLEPLAY_PORT}:6379"
     volumes:
       - redis_roleplay_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_communication:
     image: redis:7
@@ -234,6 +278,14 @@ services:
       - "${REDIS_COMMUNICATION_PORT}:6379"
     volumes:
       - redis_communication_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_task:
     image: redis:7
@@ -243,6 +295,14 @@ services:
       - "6382:6379"
     volumes:
       - redis_task_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_voting:
     image: redis:7
@@ -252,20 +312,36 @@ services:
       - "6383:6379"
     volumes:
       - redis_voting_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:2.0
+    image: yum3lo/mafia-user_management-service:2.1
     deploy:
       replicas: 3
     depends_on:
       message_broker:
-        condition: service_started
+        condition: service_healthy
       postgres_user_management:
         condition: service_healthy
     environment:
       DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   game_service:
     image: yum3lo/mafia-game-service:2.5
@@ -285,6 +361,14 @@ services:
       REDIS_NODES: "redis_shard_1:6379,redis_shard_2:6379,redis_shard_3:6379"
       GATEWAY_URL: http://gateway:3000
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   communication_service:
     image: valeriafz/mafia-communication-service:2.1
@@ -302,12 +386,21 @@ services:
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
     depends_on:
-      - postgres_communication
-      - redis_communication
-      - user_management_service
-      - town_service
-      - message_broker
+      postgres_communication:
+        condition: service_healthy
+      redis_communication:
+        condition: service_healthy
+      message_broker:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   rumor_service:
     image: valeriafz/rumors-service:v1.9
@@ -326,21 +419,31 @@ services:
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
       USE_MESSAGE_BROKER: ${USE_MESSAGE_BROKER:-false}
     depends_on:
-      - postgres_rumor
-      - task-service
-      - character_service
-      - town_service
-      - message_broker
+      postgres_rumor:
+        condition: service_healthy
+      message_broker:
+        condition: service_healthy
     volumes:
       - postgres_rumor_data:/var/lib/postgresql/data
       - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   shop-service:
     image: mycallangel0/shop-service:v1.3.0
     deploy:
       replicas: 3
     depends_on:
-      - postgres_shop
+      postgres_shop:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
@@ -349,6 +452,14 @@ services:
       SERVICE_NAME: shop-service
       GATEWAY_PORT: ${GATEWAY_PORT}
       SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3005/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+     - mafia_network
 
   # roleplay-service:
   #   image: mycallangel0/roleplay-service:v1.3.0
@@ -387,11 +498,21 @@ services:
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3006 --reload
     depends_on:
-      - postgres_character
-      - service_discovery
+      postgres_character:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   town_service:
-    image: nelldino/town-service:2.1
+    image: nelldino/town-service:2.3
     deploy:
       replicas: 3
     restart: always
@@ -401,14 +522,26 @@ services:
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3007 --reload
     depends_on:
-      - postgres_town
-      - service_discovery
+      postgres_town:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3007/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   task-migrator:
     image: lucianlupan/task_service:1.3
     depends_on:
-      - postgres_tasks
-      - redis_task
+      postgres_tasks:
+        condition: service_healthy
+      redis_task:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_tasks
       POSTGRES_PORT: 5432
@@ -418,16 +551,21 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
       replicas: 1
+    networks:
+     - mafia_network
 
   task-service:
     image: lucianlupan/task_service:1.3
     depends_on:
-      - task-migrator
-      - redis_task
+      task-migrator:
+        condition: service_completed_successfully
+      redis_task:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_tasks
       POSTGRES_PORT: 5432
@@ -437,18 +575,27 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    networks:
+     - mafia_network
 
   voting-migrator:
     image: lucianlupan/voting_service:1.3
     depends_on:
-      - postgres_voting
-      - redis_voting
+      postgres_voting:
+        condition: service_healthy
+      redis_voting:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_voting
       POSTGRES_PORT: 5432
@@ -458,18 +605,23 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
+    networks:
+     - mafia_network
 
   voting-service:
     image: lucianlupan/voting_service:1.3
     depends_on:
-      - voting-migrator
-      - redis_voting
+      voting-migrator:
+        condition: service_completed_successfully
+      redis_voting:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_voting
       POSTGRES_PORT: 5432
@@ -479,7 +631,6 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8001"
     deploy:
       replicas: 3
@@ -558,7 +709,16 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
     depends_on:
-      - service_discovery
+      service_discovery:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   grafana:
     image: grafana/grafana:latest
@@ -573,9 +733,17 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3050/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+     - mafia_network
 
-  
   test_unstable_service:
     image: lucianlupan/fail_service:1.0
     deploy:
@@ -586,8 +754,11 @@ services:
       SERVICE_DISCOVERY_URL: "http://service_discovery:8500"
       CONTAINER_NAME: test_unstable_service
     depends_on:
-      - service_discovery
+      service_discovery:
+        condition: service_healthy
     restart: "no"
+    networks:
+     - mafia_network
 
 
 volumes:
@@ -607,3 +778,7 @@ volumes:
   redis_task_data:
   redis_voting_data:
   grafana_data:
+
+networks:
+  mafia_network:
+    driver: bridge

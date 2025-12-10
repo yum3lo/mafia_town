@@ -740,6 +740,75 @@
 					"body": "[\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"globalCurrency\": 250,\r\n        \"inGameCurrency\": 100,\r\n        \"gameId\": \"game_1\"\r\n    },\r\n    {\r\n        \"status\": \"success\",\r\n        \"userId\": \"user_1\",\r\n        \"globalCurrency\": 250,\r\n        \"inGameCurrency\": 0,\r\n        \"gameId\": null\r\n    },\r\n    {\r\n        \"status\": \"error\",\r\n        \"message\": \"User not found\"\r\n    }\r\n]"
 				}
 			]
+		},
+		{
+			"name": "Get metrics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/metrics",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"metrics"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send event register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"topic\": \"user_management_service\",\r\n    \"action\": \"register\",\r\n    \"data\": {\r\n        \"email\": \"player2@example.com\",\r\n        \"username\": \"player2\",\r\n        \"password\": \"hashedPassword\",\r\n        \"deviceFingerprint\": \"manual_test_123\"\r\n    },\r\n    \"correlationId\": \"manual-test-1\",\r\n    \"from\": \"gateway\",\r\n    \"timestamp\": 123456789\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/events",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send event updateGlobalCurrency",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"topic\": \"user_management_service\",\r\n    \"action\": \"updateGlobalCurrency\",\r\n    \"data\": {\r\n        \"userId\": \"user_1\",\r\n        \"amount\": \"50\",\r\n        \"operation\": \"add\",\r\n        \"reason\": \"win\"\r\n    },\r\n    \"correlationId\": \"test-req-1\",\r\n    \"from\": \"gateway\",\r\n    \"timestamp\": 123456789\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/events",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"events"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
