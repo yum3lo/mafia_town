@@ -29,51 +29,6 @@ services:
       retries: 5
       start_period: 10s
 
-  gateway:
-    image: yum3lo/mafia-gateway:4.3
-    container_name: gateway
-    ports:
-      - "${GATEWAY_PORT}:3000"
-    environment:
-      USER_MANAGEMENT_URL: ${USER_MANAGEMENT_URL}
-      GAME_SERVICE_URL: ${GAME_SERVICE_URL}
-      COMMUNICATION_SERVICE_URL: ${COMMUNICATION_SERVICE_URL}
-      RUMORS_SERVICE_URL: ${RUMORS_SERVICE_URL}
-      SHOP_SERVICE_URL: ${SHOP_SERVICE_URL}
-      ROLEPLAY_SERVICE_URL: ${ROLEPLAY_SERVICE_URL}
-      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
-      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
-      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
-      VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
-      JWT_SECRET: ${JWT_SECRET}
-    depends_on:
-      - user_management_service
-      - communication_service
-      - shop-service
-      - roleplay-service
-      - character_service
-      - town_service
-      - task-service
-      - voting-service
-      - redis_game
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000/health",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
   message_broker:
     image: yum3lo/mafia-message-broker:1.4
     container_name: message_broker
@@ -219,15 +174,12 @@ services:
     volumes:
       - postgres_voting_data:/var/lib/postgresql/data
 
-  redis_game:
+  redis_shard_1:
     image: redis:7
-    container_name: game_cache
+    container_name: redis_shard_1
     restart: always
-    environment:
-      REDIS_GAME_HOST: redis_game
-      REDIS_GAME_PORT: 6379
     volumes:
-      - redis_game_data:/data
+      - redis_shard_1_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -235,19 +187,35 @@ services:
       retries: 5
       start_period: 10s
 
-  redis_seeder_game:
-    image: node:18
-    container_name: redis_seeder_game
-    depends_on:
-      - redis_game
+  redis_shard_2:
+    image: redis:7
+    container_name: redis_shard_2
+    restart: always
     volumes:
-      - ./db/game_service.mjs:/app/game_service.mjs
-    environment:
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
-    working_dir: /app
-    command: ["sh", "-c", "npm install redis && node game_service.mjs"]
-    restart: "on-failure"
+      - redis_shard_2_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
+
+  redis_shard_3:
+    image: redis:7
+    container_name: redis_shard_3
+    restart: always
+    volumes:
+      - redis_shard_3_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_roleplay:
     image: redis:7
@@ -300,17 +268,21 @@ services:
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
   game_service:
-    image: yum3lo/mafia-game-service:2.3
+    image: yum3lo/mafia-game-service:2.5
     deploy:
       replicas: 3
     depends_on:
-      - redis_game
-      - gateway
-      - message_broker
+      redis_shard_1:
+        condition: service_healthy
+      redis_shard_2:
+        condition: service_healthy
+      redis_shard_3:
+        condition: service_healthy
+      message_broker:
+        condition: service_healthy
     environment:
       SERVER_GAME_PORT: 3002
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: 6379
+      REDIS_NODES: "redis_shard_1:6379,redis_shard_2:6379,redis_shard_3:6379"
       GATEWAY_URL: http://gateway:3000
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
 
@@ -378,20 +350,31 @@ services:
       GATEWAY_PORT: ${GATEWAY_PORT}
       SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
 
-  roleplay-service:
-    image: mycallangel0/roleplay-service:v1.3.0
-    deploy:
-      replicas: 3
-    depends_on:
-      - redis_game
-    environment:
-      SPRING_DATA_REDIS_HOST: redis_game
-      SPRING_DATA_REDIS_PORT: 6379
-      REDIS_EXPIRATION_TIME: 30
-      SERVER_PORT: 3008
-      SERVICE_NAME: roleplay-service
-      GATEWAY_PORT: ${GATEWAY_PORT}
-      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
+  # roleplay-service:
+  #   image: mycallangel0/roleplay-service:v1.3.0
+  #   deploy:
+  #     replicas: 3
+  #   depends_on:
+  #     redis_game:
+  #       condition: service_healthy
+  #     service_discovery:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATA_REDIS_HOST: redis_game
+  #     SPRING_DATA_REDIS_PORT: 6379
+  #     REDIS_EXPIRATION_TIME: 30
+  #     SERVER_PORT: 3008
+  #     SERVICE_NAME: roleplay-service
+  #     GATEWAY_PORT: ${GATEWAY_PORT}
+  #     SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3008/actuator/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   networks:
+  #    - mafia_network
 
   character_service:
     image: nelldino/character-service:1.8
@@ -502,6 +485,65 @@ services:
       replicas: 3
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    networks:
+     - mafia_network
+
+  gateway:
+    image: yum3lo/mafia-gateway:4.8
+    container_name: gateway
+    ports:
+      - "${GATEWAY_PORT}:3000"
+    environment:
+      USER_MANAGEMENT_URL: ${USER_MANAGEMENT_URL}
+      GAME_SERVICE_URL: ${GAME_SERVICE_URL}
+      COMMUNICATION_SERVICE_URL: ${COMMUNICATION_SERVICE_URL}
+      RUMORS_SERVICE_URL: ${RUMORS_SERVICE_URL}
+      SHOP_SERVICE_URL: ${SHOP_SERVICE_URL}
+      ROLEPLAY_SERVICE_URL: ${ROLEPLAY_SERVICE_URL}
+      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
+      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
+      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
+      VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
+      REDIS_NODES: "redis_shard_1:6379,redis_shard_2:6379,redis_shard_3:6379"
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - service_discovery
+      - message_broker
+      - user_management_service
+      - game_service
+      - communication_service
+      - rumor_service
+      - shop-service
+      # - roleplay-service
+      - character_service
+      - town_service
+      - task-service
+      - voting-service
+      - redis_shard_1
+      - redis_shard_2
+      - redis_shard_3
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/health",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+     - mafia_network
 
   prometheus:
     image: prom/prometheus:latest
@@ -557,7 +599,9 @@ volumes:
   postgres_town_data:
   postgres_tasks_data:
   postgres_voting_data:
-  redis_game_data:
+  redis_shard_1_data:
+  redis_shard_2_data:
+  redis_shard_3_data:
   redis_roleplay_data:
   redis_communication_data:
   redis_task_data:
