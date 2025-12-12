@@ -234,7 +234,9 @@ A dedicated dynamic registry that allows microservices to find each other withou
 
 We implemented a dedicated Data Warehouse (DW) to centralize data from multiple microservices for analytical purposes (OLAP). Unlike the operational databases (OLTP) used by the services, the Data Warehouse is optimized for complex queries and historical analysis. We implemented an ETL (Extract, Transform, Load) process as a standalone microservice (`etl_service`).
 
-[diagram]
+Example with User and Game Services database replicas:
+
+<img width="1822" height="1030" alt="image" src="https://github.com/user-attachments/assets/14844bab-76cc-49fc-87e4-7b3d115d0ea5" />
 
 ## Data Management
 
@@ -2552,6 +2554,60 @@ Response body:
       "voted_out_id": null
     }
   ]
+}
+```
+
+### Message Broker endpoints
+
+#### Publish to topic
+
+- Endpoint example for starting a game
+
+```
+Endpoint: http://localhost:5000/publish
+Method: POST
+
+Payload: {
+    "topic": "game-started",
+    "message": {
+        "gameId": "game_12345",
+        "players": [
+            {
+                "userId": "user_1",
+                "username": "Alice",
+                "role": "villager"
+            },
+            {
+                "userId": "user_5",
+                "username": "Bob",
+                "role": "werewolf"
+            },
+            {
+                "userId": "user_3",
+                "username": "Charlie",
+                "role": "seer"
+            }
+        ],
+        "startedAt": 1732800000000
+    },
+    "publisherId": "game_service"
+}
+```
+
+#### Send direct message
+
+- Endpoint example for sending the token to Gateway
+
+```
+Endpoint: http://localhost:5000/messages/send
+Method: POST
+
+Payload: {
+    "targetService": "gateway",
+    "message": {
+        "token": "abc", 
+        "success": true
+    }
 }
 ```
 
