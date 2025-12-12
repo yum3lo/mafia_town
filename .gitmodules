@@ -37,3 +37,6 @@
 [submodule "message-broker"]
 	path = message-broker
 	url = https://github.com/yum3lo/message-broker
+[submodule "etl_service"]
+	path = etl_service
+	url = https://github.com/yum3lo/etl_service

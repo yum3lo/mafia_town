@@ -1,0 +1,387 @@
+{
+	"info": {
+		"_postman_id": "fae6e91d-1d74-4674-8a6a-434aef6648e5",
+		"name": "message-broker",
+		"description": "Push-based message broker with circuit breaker, load balancing, and service discovery integration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48492495",
+		"_collection_link": "https://yum3lo-9726940.postman.co/workspace/maria's-Workspace~1dc695e5-d18b-4616-870f-590849ec5084/collection/48492495-fae6e91d-1d74-4674-8a6a-434aef6648e5?action=share&source=collection_link&creator=48492495"
+	},
+	"item": [
+		{
+			"name": "Health & Monitoring",
+			"item": [
+				{
+					"name": "Get health",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has status field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData.status).to.eql('healthy');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check if the message broker is running"
+					},
+					"response": [
+						{
+							"name": "Get health",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/health",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"health"
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "{\r\n    \"status\": \"UP\",\r\n    \"workerId\": 18,\r\n    \"activeQueues\": 0,\r\n    \"dlqCount\": 0\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get subscriptions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has services array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('services');",
+									"    pm.expect(jsonData.services).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/subscriptions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"subscriptions"
+							]
+						},
+						"description": "View all topic subscriptions"
+					},
+					"response": [
+						{
+							"name": "Get subscriptions",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/subscriptions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"subscriptions"
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "{\r\n    \"game_service\": [\r\n        \"game_service\"\r\n    ],\r\n    \"voting-results\": [\r\n        \"game_service\"\r\n    ],\r\n    \"player-killed\": [\r\n        \"game_service\"\r\n    ],\r\n    \"player-healed\": [\r\n        \"game_service\"\r\n    ],\r\n    \"game-started\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"game-ended\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"reward-granted\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"item-purchased\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"item-purchased-commit\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"item-purchased-rollback\": [\r\n        \"user_management_service\"\r\n    ],\r\n    \"gateway\": [\r\n        \"gateway\"\r\n    ]\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get DLQ",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dlq/{{topic}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dlq",
+								"{{topic}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get DLQ",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/dlq/{{topic}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"dlq",
+										"{{topic}}"
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "{\r\n    \"topic\": \"voting-results\",\r\n    \"messages\": [],\r\n    \"count\": 0\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Circuit Breaker stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"user.deleted\",\n    \"message\": {\n        \"userId\": \"user-123\",\n        \"deletedAt\": \"{{$isoTimestamp}}\",\n        \"reason\": \"User requested account deletion\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/circuit-breaker/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"circuit-breaker",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get cluster Worker info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"character.created\",\n    \"message\": {\n        \"characterId\": \"{{$randomUUID}}\",\n        \"userId\": \"user-123\",\n        \"name\": \"{{$randomFirstName}} {{$randomLastName}}\",\n        \"appearance\": {\n            \"hair\": \"brown\",\n            \"outfit\": \"casual\",\n            \"accessories\": [\"hat\", \"sunglasses\"]\n        },\n        \"stats\": {\n            \"health\": 100,\n            \"energy\": 100,\n            \"level\": 1\n        },\n        \"createdAt\": \"{{$isoTimestamp}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cluster/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cluster",
+								"info"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Publish to Topics",
+			"item": [
+				{
+					"name": "Publish voting-results",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"topic\": \"voting-results\",\r\n    \"message\": {\r\n        \"gameId\": \"game_12345\",\r\n        \"eliminatedUserId\": \"user_1\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish game-started",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"topic\": \"game-started\",\r\n    \"message\": {\r\n        \"gameId\": \"game_12345\",\r\n        \"players\": [\r\n            {\r\n                \"userId\": \"user_1\",\r\n                \"username\": \"Alice\",\r\n                \"role\": \"villager\"\r\n            },\r\n            {\r\n                \"userId\": \"user_2\",\r\n                \"username\": \"Bob\",\r\n                \"role\": \"werewolf\"\r\n            },\r\n            {\r\n                \"userId\": \"user_3\",\r\n                \"username\": \"Charlie\",\r\n                \"role\": \"seer\"\r\n            }\r\n        ],\r\n        \"startedAt\": 1732800000000\r\n    },\r\n    \"publisherId\": \"game_service\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/publish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publish"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Send direct message",
+			"item": [
+				{
+					"name": "Send auth token to Gateway",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetService\": \"gateway\",\r\n    \"message\": {\r\n        \"token\": \"abc\", \r\n        \"success\": true\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/messages/send",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"messages",
+								"send"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "default"
+		},
+		{
+			"key": "topic",
+			"value": "",
+			"type": "default"
+		}
+	]
+}

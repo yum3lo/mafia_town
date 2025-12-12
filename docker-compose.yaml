@@ -1,104 +1,148 @@
 version: "3.9"
 
-# how to automatically start 3 instances for anything that is replicas: 3
-# docker-compose --compatibility up -d
-
-# after changes restart the service:
-# docker-compose restart service_discovery
-
 services:
   service_discovery:
-    image: yum3lo/service-discovery:1.6
+    image: yum3lo/service-discovery:2.3
     container_name: service_discovery
     ports:
       - "8500:8500"
     environment:
       DISCOVERY_PORT: 8500
-      NODE_ENV: production
-      ALERT_TELEGRAM_ENABLED: ${ALERT_TELEGRAM_ENABLED}
+      MESSAGE_BROKER_URL: http://message_broker:5000
+      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
       ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN}
       ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID}
-      ALERT_TELEGRAM_COOLDOWN_MS: ${ALERT_TELEGRAM_COOLDOWN_MS}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:8500/health",
-        ]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8500/health"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+     - mafia_network
 
-  gateway:
-    image: yum3lo/mafia-gateway:4.3
-    container_name: gateway
+  message_broker:
+    image: yum3lo/mafia-message-broker:4.8
+    container_name: message_broker
     ports:
-      - "${GATEWAY_PORT}:3000"
+      - "5000:5000"
     environment:
-      USER_MANAGEMENT_URL: ${USER_MANAGEMENT_URL}
-      GAME_SERVICE_URL: ${GAME_SERVICE_URL}
-      COMMUNICATION_SERVICE_URL: ${COMMUNICATION_SERVICE_URL}
-      RUMORS_SERVICE_URL: ${RUMORS_SERVICE_URL}
-      SHOP_SERVICE_URL: ${SHOP_SERVICE_URL}
-      ROLEPLAY_SERVICE_URL: ${ROLEPLAY_SERVICE_URL}
-      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
-      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
-      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
-      VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
-      JWT_SECRET: ${JWT_SECRET}
+      PORT: 5000
+      SERVICE_DISCOVERY_URL: http://service_discovery:8500
     depends_on:
-      - user_management_service
-      - communication_service
-      - shop-service
-      - roleplay-service
-      - character_service
-      - town_service
-      - task-service
-      - voting-service
-      - redis_game
+      service_discovery:
+        condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000/health",
-        ]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 15s
+    networks:
+     - mafia_network
 
-  postgres_user_management:
+  postgres_dw:
     image: postgres:15
-    container_name: user_management_db
+    container_name: data_warehouse
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_DW_USER}
+      POSTGRES_PASSWORD: ${PG_DW_PASSWORD}
+      POSTGRES_DB: ${PG_DW_DB}
+    volumes:
+      - pg_dw_data:/var/lib/postgresql/data
+      - ./db/dw_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mafia_network
+
+  etl_service:
+    image: yum3lo/etl-service:1.0
+    container_name: etl_service
+    depends_on:
+      - postgres_dw
+      - postgres_user_replica_1 
+      - redis_shard_1
+    environment:
+      DW_DATABASE_URL: ${DW_DATABASE_URL}
+      USER_DB_REPLICA_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_replica_1:5432/${PG_USER_MANAGEMENT_DB}"
+      REDIS_NODES: "redis_shard_1:6379,redis_shard_2:6379,redis_shard_3:6379"
+      CRON_SCHEDULE: "* * * * *"
+    networks:
+      - mafia_network
+
+  postgres_user_primary:
+    image: postgres:15
+    container_name: user_db_primary
     restart: always
     environment:
       POSTGRES_USER: ${PG_USER_MANAGEMENT_USER}
       POSTGRES_PASSWORD: ${PG_USER_MANAGEMENT_PASSWORD}
       POSTGRES_DB: ${PG_USER_MANAGEMENT_DB}
+      PG_REPLICATION_PASSWORD: ${PG_REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
     volumes:
-      - postgres_user_management_data:/var/lib/postgresql/data
-      - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_user_primary_data:/var/lib/postgresql/data
+      - ./db/init_user_primary.sh:/docker-entrypoint-initdb.d/01_init_user_primary.sh
+      - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/02_schema.sql
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - mafia_network
+
+  postgres_user_replica_1:
+    image: postgres:15
+    container_name: user_db_replica_1
+    restart: always
+    depends_on:
+      postgres_user_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_user_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_user_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_user_replica_1_data:/var/lib/postgresql/data
+    networks:
+      - mafia_network
+
+  postgres_user_replica_2:
+    image: postgres:15
+    container_name: user_db_replica_2
+    restart: always
+    depends_on:
+      postgres_user_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_user_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_user_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_user_replica_2_data:/var/lib/postgresql/data
+    networks:
+      - mafia_network
 
   postgres_shop:
     image: postgres:15
@@ -111,36 +155,164 @@ services:
     volumes:
       - postgres_shop_data:/var/lib/postgresql/data
       - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/customization_shop_service.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_SHOP_USER} -d ${PG_SHOP_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
-  postgres_communication:
+  postgres_communication_primary:
     image: postgres:15
-    container_name: communication_db
+    container_name: communication_db_primary
     restart: always
     environment:
       POSTGRES_USER: ${PG_COMMUNICATION_USER}
       POSTGRES_PASSWORD: ${PG_COMMUNICATION_PASSWORD}
       POSTGRES_DB: ${PG_COMMUNICATION_DB}
+      PG_REPLICATION_PASSWORD: ${PG_REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
     volumes:
-      - postgres_communication_data:/var/lib/postgresql/data
-      - ./db/communication_service.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_communication_primary_data:/var/lib/postgresql/data
+      - ./db/init_communication_primary.sh:/docker-entrypoint-initdb.d/01_init_communication_primary.sh
+      - ./db/communication_service.sql:/docker-entrypoint-initdb.d/02_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_COMMUNICATION_USER} -d ${PG_COMMUNICATION_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
-  postgres_rumor:
+  postgres_communication_replica_1:
     image: postgres:15
-    container_name: rumor_db
+    container_name: communication_db_replica_1
+    restart: always
+    depends_on:
+      postgres_communication_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_communication_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_communication_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_communication_replica_1_data:/var/lib/postgresql/data
+    networks:
+    - mafia_network
+
+  postgres_communication_replica_2:
+    image: postgres:15
+    container_name: communication_db_replica_2
+    restart: always
+    depends_on:
+      postgres_communication_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_communication_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_communication_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_communication_replica_2_data:/var/lib/postgresql/data
+    networks:
+    - mafia_network
+
+  postgres_rumor_primary:
+    image: postgres:15
+    container_name: rumor_db_primary
     restart: always
     environment:
       POSTGRES_USER: ${PG_RUMOR_USER}
       POSTGRES_PASSWORD: ${PG_RUMOR_PASSWORD}
       POSTGRES_DB: ${PG_RUMOR_DB}
-      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
+      PG_REPLICATION_PASSWORD: ${PG_REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
     volumes:
-      - postgres_rumor_data:/var/lib/postgresql/data
-      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/rumor_init.sql:ro
+      - postgres_rumor_primary_data:/var/lib/postgresql/data
+      - ./db/init_rumor_primary.sh:/docker-entrypoint-initdb.d/01_init_rumor_primary.sh
+      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/02_schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PG_RUMOR_USER} -d ${PG_RUMOR_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
+
+  postgres_rumor_replica_1:
+    image: postgres:15
+    container_name: rumor_db_replica_1
+    restart: always
+    depends_on:
+      postgres_rumor_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_rumor_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_rumor_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_rumor_replica_1_data:/var/lib/postgresql/data
+    networks:
+    - mafia_network
+
+  postgres_rumor_replica_2:
+    image: postgres:15
+    container_name: rumor_db_replica_2
+    restart: always
+    depends_on:
+      postgres_rumor_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_rumor_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_rumor_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_rumor_replica_2_data:/var/lib/postgresql/data
+    networks:
+    - mafia_network
 
   postgres_character:
     image: postgres:15
@@ -163,6 +335,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_town:
     image: postgres:15
@@ -181,6 +355,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_tasks:
     image: postgres:15
@@ -192,6 +368,14 @@ services:
       POSTGRES_DB: ${PG_TASK_DB}
     volumes:
       - postgres_tasks_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_TASK_USER} -d ${PG_TASK_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
   postgres_voting:
     image: postgres:15
@@ -203,36 +387,59 @@ services:
       POSTGRES_DB: ${PG_VOTING_DB}
     volumes:
       - postgres_voting_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_VOTING_USER} -d ${PG_VOTING_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - mafia_network
 
-  redis_game:
+  redis_shard_1:
     image: redis:7
-    container_name: game_cache
+    container_name: redis_shard_1
     restart: always
-    environment:
-      REDIS_GAME_HOST: redis_game
-      REDIS_GAME_PORT: 6379
     volumes:
-      - redis_game_data:/data
+      - redis_shard_1_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
       start_period: 10s
+    networks:
+     - mafia_network
 
-  redis_seeder_game:
-    image: node:18
-    container_name: redis_seeder_game
-    depends_on:
-      - redis_game
+  redis_shard_2:
+    image: redis:7
+    container_name: redis_shard_2
+    restart: always
     volumes:
-      - ./db/game_service.mjs:/app/game_service.mjs
-    environment:
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: ${REDIS_GAME_PORT}
-    working_dir: /app
-    command: ["sh", "-c", "npm install redis && node game_service.mjs"]
-    restart: "on-failure"
+      - redis_shard_2_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
+
+  redis_shard_3:
+    image: redis:7
+    container_name: redis_shard_3
+    restart: always
+    volumes:
+      - redis_shard_3_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_roleplay:
     image: redis:7
@@ -242,6 +449,14 @@ services:
       - "${REDIS_ROLEPLAY_PORT}:6379"
     volumes:
       - redis_roleplay_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_communication:
     image: redis:7
@@ -251,6 +466,14 @@ services:
       - "${REDIS_COMMUNICATION_PORT}:6379"
     volumes:
       - redis_communication_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_task:
     image: redis:7
@@ -260,6 +483,14 @@ services:
       - "6382:6379"
     volumes:
       - redis_task_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   redis_voting:
     image: redis:7
@@ -269,43 +500,72 @@ services:
       - "6383:6379"
     volumes:
       - redis_voting_data:/data
-
-  # each instance needs a unique name so container_name no longer needed
-  # gateway will communicate via internal network so ports mapping no longer needed
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:1.8
+    image: yum3lo/mafia-user_management-service:2.2
     deploy:
       replicas: 3
     depends_on:
-      postgres_user_management:
+      message_broker:
+        condition: service_healthy
+      postgres_user_primary:
         condition: service_healthy
     environment:
-      DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
+      DATABASE_WRITE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_primary:5432/${PG_USER_MANAGEMENT_DB}"
+      DATABASE_READ_URLS: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_replica_1:5432/${PG_USER_MANAGEMENT_DB},postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_replica_2:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   game_service:
-    image: yum3lo/mafia-game-service:2.2
+    image: yum3lo/mafia-game-service:2.5
     deploy:
       replicas: 3
     depends_on:
-      - redis_game
-      - gateway
+      redis_shard_1:
+        condition: service_healthy
+      redis_shard_2:
+        condition: service_healthy
+      redis_shard_3:
+        condition: service_healthy
+      message_broker:
+        condition: service_healthy
     environment:
       SERVER_GAME_PORT: 3002
-      REDIS_GAME_HOST: ${REDIS_GAME_HOST}
-      REDIS_GAME_PORT: 6379
+      REDIS_NODES: "redis_shard_1:6379,redis_shard_2:6379,redis_shard_3:6379"
       GATEWAY_URL: http://gateway:3000
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   communication_service:
-    image: valeriafz/mafia-communication-service:1.9
+    image: valeriafz/mafia-communication-service:2.2
     deploy:
       replicas: 3
     environment:
       NODE_ENV: production
-      DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
+      DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication_primary:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
       PORT: 3003
       SERVICE_NAME: communication_service
@@ -313,20 +573,31 @@ services:
       USER_SERVICE_URL: ${USER_MANAGEMENT_URL}
       GAME_SERVICE_URL: ${GAME_SERVICE_URL}
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
     depends_on:
-      - postgres_communication
-      - redis_communication
-      - user_management_service
-      - town_service
+      postgres_communication_primary:
+        condition: service_healthy
+      redis_communication:
+        condition: service_healthy
+      message_broker:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.7
+    image: valeriafz/rumors-service:v2.0
     deploy:
       replicas: 3
     restart: always
     environment:
-      DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
+      DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor_primary:5432/${PG_RUMOR_DB}?schema=public"
       NODE_ENV: development
       PORT: 3004
       SERVICE_NAME: rumor_service
@@ -334,21 +605,31 @@ services:
       TASK_SERVICE_URL: ${TASK_SERVICE_URL}
       CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
+      MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
+      USE_MESSAGE_BROKER: ${USE_MESSAGE_BROKER:-false}
     depends_on:
-      - postgres_rumor
-      - task-service
-      - character_service
-      - town_service
-    volumes:
-      - postgres_rumor_data:/var/lib/postgresql/data
-      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
+      postgres_rumor_primary:
+        condition: service_healthy
+      message_broker:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   shop-service:
     image: mycallangel0/shop-service:v1.3.0
     deploy:
       replicas: 3
     depends_on:
-      - postgres_shop
+      postgres_shop:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
@@ -357,24 +638,43 @@ services:
       SERVICE_NAME: shop-service
       GATEWAY_PORT: ${GATEWAY_PORT}
       SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3005/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+     - mafia_network
 
-  roleplay-service:
-    image: mycallangel0/roleplay-service:v1.3.0
-    deploy:
-      replicas: 3
-    depends_on:
-      - redis_game
-    environment:
-      SPRING_DATA_REDIS_HOST: redis_game
-      SPRING_DATA_REDIS_PORT: 6379
-      REDIS_EXPIRATION_TIME: 30
-      SERVER_PORT: 3008
-      SERVICE_NAME: roleplay-service
-      GATEWAY_PORT: ${GATEWAY_PORT}
-      SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
+  # roleplay-service:
+  #   image: mycallangel0/roleplay-service:v1.3.0
+  #   deploy:
+  #     replicas: 3
+  #   depends_on:
+  #     redis_game:
+  #       condition: service_healthy
+  #     service_discovery:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATA_REDIS_HOST: redis_game
+  #     SPRING_DATA_REDIS_PORT: 6379
+  #     REDIS_EXPIRATION_TIME: 30
+  #     SERVER_PORT: 3008
+  #     SERVICE_NAME: roleplay-service
+  #     GATEWAY_PORT: ${GATEWAY_PORT}
+  #     SERVICE_DISCOVERY_URL: ${SERVICE_DISCOVERY_URL}
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3008/actuator/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   networks:
+  #    - mafia_network
 
   character_service:
-    image: nelldino/character-service:1.7
+    image: nelldino/character-service:1.8
     deploy:
       replicas: 3
     restart: always
@@ -384,11 +684,21 @@ services:
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3006 --reload
     depends_on:
-      - postgres_character
-      - service_discovery
+      postgres_character:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   town_service:
-    image: nelldino/town-service:2.0
+    image: nelldino/town-service:2.3
     deploy:
       replicas: 3
     restart: always
@@ -398,14 +708,26 @@ services:
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
     command: uvicorn main:app --host 0.0.0.0 --port 3007 --reload
     depends_on:
-      - postgres_town
-      - service_discovery
+      postgres_town:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3007/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+     - mafia_network
 
   task-migrator:
     image: lucianlupan/task_service:1.3
     depends_on:
-      - postgres_tasks
-      - redis_task
+      postgres_tasks:
+        condition: service_healthy
+      redis_task:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_tasks
       POSTGRES_PORT: 5432
@@ -415,16 +737,21 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
       replicas: 1
+    networks:
+     - mafia_network
 
   task-service:
     image: lucianlupan/task_service:1.3
     depends_on:
-      - task-migrator
-      - redis_task
+      task-migrator:
+        condition: service_completed_successfully
+      redis_task:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_tasks
       POSTGRES_PORT: 5432
@@ -434,18 +761,27 @@ services:
       REDIS_URL: "redis://redis_task:6379"
       SERVICE_NAME: task-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    networks:
+     - mafia_network
 
   voting-migrator:
     image: lucianlupan/voting_service:1.3
     depends_on:
-      - postgres_voting
-      - redis_voting
+      postgres_voting:
+        condition: service_healthy
+      redis_voting:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_voting
       POSTGRES_PORT: 5432
@@ -455,18 +791,23 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py migrate"
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
+    networks:
+     - mafia_network
 
   voting-service:
     image: lucianlupan/voting_service:1.3
     depends_on:
-      - voting-migrator
-      - redis_voting
+      voting-migrator:
+        condition: service_completed_successfully
+      redis_voting:
+        condition: service_healthy
+      service_discovery:
+        condition: service_healthy
     environment:
       POSTGRES_HOST: postgres_voting
       POSTGRES_PORT: 5432
@@ -476,14 +817,70 @@ services:
       REDIS_URL: "redis://redis_voting:6379"
       SERVICE_NAME: voting-service
       SERVICE_DISCOVERY_URL: http://service_discovery:8500
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-}
     command: sh -c "python manage.py runserver 0.0.0.0:8001"
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    networks:
+     - mafia_network
 
-
+  gateway:
+    image: yum3lo/mafia-gateway:4.8
+    container_name: gateway
+    ports:
+      - "${GATEWAY_PORT}:3000"
+    environment:
+      USER_MANAGEMENT_URL: ${USER_MANAGEMENT_URL}
+      GAME_SERVICE_URL: ${GAME_SERVICE_URL}
+      COMMUNICATION_SERVICE_URL: ${COMMUNICATION_SERVICE_URL}
+      RUMORS_SERVICE_URL: ${RUMORS_SERVICE_URL}
+      SHOP_SERVICE_URL: ${SHOP_SERVICE_URL}
+      ROLEPLAY_SERVICE_URL: ${ROLEPLAY_SERVICE_URL}
+      CHARACTER_SERVICE_URL: ${CHARACTER_SERVICE_URL}
+      TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
+      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
+      VOTING_SERVICE_URL: ${VOTING_SERVICE_URL}
+      REDIS_NODES: "redis_shard_1:6379,redis_shard_2:6379,redis_shard_3:6379"
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - service_discovery
+      - message_broker
+      - user_management_service
+      - game_service
+      - communication_service
+      - rumor_service
+      - shop-service
+      # - roleplay-service
+      - character_service
+      - town_service
+      - task-service
+      - voting-service
+      - redis_shard_1
+      - redis_shard_2
+      - redis_shard_3
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/health",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+     - mafia_network
 
   prometheus:
     image: prom/prometheus:latest
@@ -498,7 +895,16 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
     depends_on:
-      - service_discovery
+      service_discovery:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+     - mafia_network
 
   grafana:
     image: grafana/grafana:latest
@@ -513,20 +919,59 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3050/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+     - mafia_network
+
+  test_unstable_service:
+    image: lucianlupan/fail_service:1.0
+    deploy:
+      replicas: 3
+    environment:
+      PORT: 3010
+      SERVICE_NAME: test_unstable_service
+      SERVICE_DISCOVERY_URL: "http://service_discovery:8500"
+      CONTAINER_NAME: test_unstable_service
+    depends_on:
+      service_discovery:
+        condition: service_healthy
+    restart: "no"
+    networks:
+     - mafia_network
+
 
 volumes:
-  postgres_user_management_data:
+  pg_dw_dat:
+  postgres_user_primary_data:
+  postgres_user_replica_1_data:
+  postgres_user_replica_2_data:
   postgres_shop_data:
-  postgres_communication_data:
-  postgres_rumor_data:
+  postgres_communication_primary_data:
+  postgres_communication_replica_1_data:
+  postgres_communication_replica_2_data:
+  postgres_rumor_primary_data:
+  postgres_rumor_replica_1_data:
+  postgres_rumor_replica_2_data:
   postgres_character_data:
   postgres_town_data:
   postgres_tasks_data:
   postgres_voting_data:
-  redis_game_data:
+  redis_shard_1_data:
+  redis_shard_2_data:
+  redis_shard_3_data:
   redis_roleplay_data:
   redis_communication_data:
   redis_task_data:
   redis_voting_data:
   grafana_data:
+
+networks:
+  mafia_network:
+    driver: bridge
