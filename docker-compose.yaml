@@ -41,27 +41,77 @@ services:
     networks:
      - mafia_network
 
-  postgres_user_management:
+  postgres_user_primary:
     image: postgres:15
-    container_name: user_management_db
+    container_name: user_db_primary
     restart: always
     environment:
       POSTGRES_USER: ${PG_USER_MANAGEMENT_USER}
       POSTGRES_PASSWORD: ${PG_USER_MANAGEMENT_PASSWORD}
       POSTGRES_DB: ${PG_USER_MANAGEMENT_DB}
+      PG_REPLICATION_PASSWORD: ${PG_REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
     volumes:
-      - postgres_user_management_data:/var/lib/postgresql/data
-      - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_user_primary_data:/var/lib/postgresql/data
+      - ./db/init_user_primary.sh:/docker-entrypoint-initdb.d/01_init_user_primary.sh
+      - ./db/user_management_service.sql:/docker-entrypoint-initdb.d/02_schema.sql
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER_MANAGEMENT_USER} -d ${PG_USER_MANAGEMENT_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 10s
+    networks:
+      - mafia_network
+
+  postgres_user_replica_1:
+    image: postgres:15
+    container_name: user_db_replica_1
+    restart: always
+    depends_on:
+      postgres_user_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_user_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_user_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_user_replica_1_data:/var/lib/postgresql/data
+    networks:
+      - mafia_network
+
+  postgres_user_replica_2:
+    image: postgres:15
+    container_name: user_db_replica_2
+    restart: always
+    depends_on:
+      postgres_user_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_user_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_user_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_user_replica_2_data:/var/lib/postgresql/data
     networks:
       - mafia_network
 
@@ -322,16 +372,17 @@ services:
      - mafia_network
 
   user_management_service:
-    image: yum3lo/mafia-user_management-service:2.1
+    image: yum3lo/mafia-user_management-service:2.2
     deploy:
       replicas: 3
     depends_on:
       message_broker:
         condition: service_healthy
-      postgres_user_management:
+      postgres_user_primary:
         condition: service_healthy
     environment:
-      DATABASE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_management:5432/${PG_USER_MANAGEMENT_DB}"
+      DATABASE_WRITE_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_primary:5432/${PG_USER_MANAGEMENT_DB}"
+      DATABASE_READ_URLS: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_replica_1:5432/${PG_USER_MANAGEMENT_DB},postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_replica_2:5432/${PG_USER_MANAGEMENT_DB}"
       JWT_SECRET: ${JWT_SECRET}
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
     healthcheck:
@@ -762,7 +813,9 @@ services:
 
 
 volumes:
-  postgres_user_management_data:
+  postgres_user_primary_data:
+  postgres_user_replica_1_data:
+  postgres_user_replica_2_data:
   postgres_shop_data:
   postgres_communication_data:
   postgres_rumor_data:
