@@ -135,11 +135,15 @@ This microservices architecture is organized into three service clusters behind 
 
 #### User Management Service
 
-The User Management Service will be written in TypeScript with Node.js, which can handle concurrent authentication requests from up to 30 players per lobby joining simultaneously. JWT authentication provides secure token-based access control, while PostgreSQL ensures data integrity for user data and in-game currency with complex queries for device tracking and fraud prevention. For the communication pattern - Synchronous REST API with asynchronous event publishing enables fast authentication validation that improves user experience when joining a game, while effective fraud detection through device tracking protects app integrity. The service architecture provides reliable user authentication and authorization while maintaining the flexibility to publish events for other services to consume, though it requires additional complexity in managing token refresh cycles to maintain security standards.
+The User Management Service is built with TypeScript and Node.js, designed to handle high-concurrency authentication requests. It utilizes JWT authentication for secure, stateless access control.
+
+- Database architecture: PostgreSQL with Primary-Replica replication. A single Primary node handles all _write_ operations to ensure consistency, while two Read Replicas handle `SELECT queries` using a Round-Robin load balancing strategy. This ensures high availability and failover protection.
 
 #### Game Service
 
-The Game Service will be written in TypeScript with Socket.io, providing real-time bidirectional communication for day/night cycle transitions, instant death notifications, and live voting updates essential for interactive gameplay. PostgreSQL with JSONB columns stores complex game objects while maintaining relational integrity for player relationships and game history queries, complemented by Redis caching for frequently accessed game state to achieve fast response times during active gameplay. For the communication pattern, the service relies on WebSocket connections for live updates. Redis is used only for caching and not for pub/sub, reducing infrastructure complexity while still improving performance for frequently accessed data. This simple architecture minimizes deployment overhead and maintains performance with a single database technology, though Redis caching increases memory usage.
+The Game Service is written in TypeScript and serves as the real-time engine of the application. Uses Socket.io for bidirectional communication, handling instant state changes (voting, phases, chat) for connected clients.
+
+For data and caching I implemented Sharded Redis based on Consistent Hashing. Instead of a single cache node, active game states are distributed across 3 Redis shards using a custom hash ring algorithm. This allows for horizontal scalability and ensures that both the Gateway and Game Service instances can locate the specific shard holding a game's state.
 
 #### Shop Service
 
@@ -210,6 +214,26 @@ WebSockets provide live chat, notifications, and voting updates, ensuring intera
 | Garbuz Nelli     | **Town Service, Character Service**       | Track locations and movements, report to Task Service; manage character customization and inventory, asset slots, and creative features                          | Python (FastAPI) + PostgreSQL                              |
 | Frunza Valeria   | **Rumors Service, Communication Service** | Generate role-based rumors purchasable with currency; manage global and private chats, voting-hour communication, and Mafia group chats                          | Typescript (NestJS) + Prisma/Type ORM + PostgreSQL + Redis |
 | Lupan Lucian     | **Task Service, Voting Service**          | Assign daily tasks per role/career, reward currency for completion; collect and count votes each evening, notify Game Service of results                         | Django (REST Framework) + PostgreSQL                                            |
+
+## Core Infrastructure
+
+### Gateway
+
+The Gateway acts as the single entry point for all client requests (HTTP and WebSocket). It handles request routing, preliminary authentication validation, and protocol translation (converting HTTP REST requests into Message Broker events). It shares the Sharded Redis infrastructure with the Game Service. By using the same Consistent Hashing algorithm, the Gateway can directly access or invalidate game-related caches without making network hops to the Game Service.
+
+### Message Broker
+
+Instead of using off-the-shelf solutions like RabbitMQ, we implemented a custom Message Broker in Node.js to demonstrate deep understanding of distributed systems. It supports both Pub/Sub (one-to-many) for decoupling services and RPC (Request/Response) for direct service-to-service commands. It also implements Circuit Breakers to prevent cascading failures and Dead Letter Queues (DLQ) for handling failed message deliveries. The Load Balancing distributes messages across healthy service instances using a Round-Robin strategy.
+
+### Service Discovery
+
+A dedicated dynamic registry that allows microservices to find each other without hardcoded URLs. Services register their network location (IP/Port) and subscribed topics upon startup. The service receives heartbeats from the registered services. If a service instance fails to heartbeat, it is removed from the registry, preventing the Broker from routing traffic to dead nodes.
+
+### Data Warehouse & ETL
+
+We implemented a dedicated Data Warehouse (DW) to centralize data from multiple microservices for analytical purposes (OLAP). Unlike the operational databases (OLTP) used by the services, the Data Warehouse is optimized for complex queries and historical analysis. We implemented an ETL (Extract, Transform, Load) process as a standalone microservice (`etl_service`).
+
+[diagram]
 
 ## Data Management
 
@@ -2809,3 +2833,4 @@ docker compose exec -T voting_service bash < ./db/voting_service.sh
 # Run the service with Docker Compose
 docker-compose up --build
 ```
+
