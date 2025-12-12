@@ -41,6 +41,35 @@ services:
     networks:
      - mafia_network
 
+  postgres_dw:
+    image: postgres:15
+    container_name: data_warehouse
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_DW_USER}
+      POSTGRES_PASSWORD: ${PG_DW_PASSWORD}
+      POSTGRES_DB: ${PG_DW_DB}
+    volumes:
+      - pg_dw_data:/var/lib/postgresql/data
+      - ./db/dw_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mafia_network
+
+  etl_service:
+    image: yum3lo/etl-service:1.0
+    container_name: etl_service
+    depends_on:
+      - postgres_dw
+      - postgres_user_replica_1 
+      - redis_shard_1
+    environment:
+      DW_DATABASE_URL: ${DW_DATABASE_URL}
+      USER_DB_REPLICA_URL: "postgresql://${PG_USER_MANAGEMENT_USER}:${PG_USER_MANAGEMENT_PASSWORD}@postgres_user_replica_1:5432/${PG_USER_MANAGEMENT_DB}"
+      REDIS_NODES: "redis_shard_1:6379,redis_shard_2:6379,redis_shard_3:6379"
+      CRON_SCHEDULE: "* * * * *"
+    networks:
+      - mafia_network
+
   postgres_user_primary:
     image: postgres:15
     container_name: user_db_primary
@@ -919,6 +948,7 @@ services:
 
 
 volumes:
+  pg_dw_dat:
   postgres_user_primary_data:
   postgres_user_replica_1_data:
   postgres_user_replica_2_data:
