@@ -135,17 +135,28 @@ services:
     networks:
     - mafia_network
 
-  postgres_communication:
+  postgres_communication_primary:
     image: postgres:15
-    container_name: communication_db
+    container_name: communication_db_primary
     restart: always
     environment:
       POSTGRES_USER: ${PG_COMMUNICATION_USER}
       POSTGRES_PASSWORD: ${PG_COMMUNICATION_PASSWORD}
       POSTGRES_DB: ${PG_COMMUNICATION_DB}
+      PG_REPLICATION_PASSWORD: ${PG_REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
     volumes:
-      - postgres_communication_data:/var/lib/postgresql/data
-      - ./db/communication_service.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_communication_primary_data:/var/lib/postgresql/data
+      - ./db/init_communication_primary.sh:/docker-entrypoint-initdb.d/01_init_communication_primary.sh
+      - ./db/communication_service.sql:/docker-entrypoint-initdb.d/02_schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PG_COMMUNICATION_USER} -d ${PG_COMMUNICATION_DB}"]
       interval: 5s
@@ -155,24 +166,122 @@ services:
     networks:
     - mafia_network
 
-  postgres_rumor:
+  postgres_communication_replica_1:
     image: postgres:15
-    container_name: rumor_db
+    container_name: communication_db_replica_1
+    restart: always
+    depends_on:
+      postgres_communication_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_communication_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_communication_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_communication_replica_1_data:/var/lib/postgresql/data
+    networks:
+    - mafia_network
+
+  postgres_communication_replica_2:
+    image: postgres:15
+    container_name: communication_db_replica_2
+    restart: always
+    depends_on:
+      postgres_communication_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_communication_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_communication_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_communication_replica_2_data:/var/lib/postgresql/data
+    networks:
+    - mafia_network
+
+  postgres_rumor_primary:
+    image: postgres:15
+    container_name: rumor_db_primary
     restart: always
     environment:
       POSTGRES_USER: ${PG_RUMOR_USER}
       POSTGRES_PASSWORD: ${PG_RUMOR_PASSWORD}
       POSTGRES_DB: ${PG_RUMOR_DB}
-      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
+      PG_REPLICATION_PASSWORD: ${PG_REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
     volumes:
-      - postgres_rumor_data:/var/lib/postgresql/data
-      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/rumor_init.sql:ro
+      - postgres_rumor_primary_data:/var/lib/postgresql/data
+      - ./db/init_rumor_primary.sh:/docker-entrypoint-initdb.d/01_init_rumor_primary.sh
+      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/02_schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PG_RUMOR_USER} -d ${PG_RUMOR_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+    - mafia_network
+
+  postgres_rumor_replica_1:
+    image: postgres:15
+    container_name: rumor_db_replica_1
+    restart: always
+    depends_on:
+      postgres_rumor_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_rumor_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_rumor_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_rumor_replica_1_data:/var/lib/postgresql/data
+    networks:
+    - mafia_network
+
+  postgres_rumor_replica_2:
+    image: postgres:15
+    container_name: rumor_db_replica_2
+    restart: always
+    depends_on:
+      postgres_rumor_primary:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${PG_REPLICATION_PASSWORD}
+    command: |
+      bash -c "
+      until pg_isready -h postgres_rumor_primary -p 5432; do echo waiting for primary; sleep 2; done;
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Backup starting...';
+        pg_basebackup -h postgres_rumor_primary -D /var/lib/postgresql/data -U replicator -v -P -X stream -R;
+      fi;
+      docker-entrypoint.sh postgres"
+    volumes:
+      - postgres_rumor_replica_2_data:/var/lib/postgresql/data
     networks:
     - mafia_network
 
@@ -422,12 +531,12 @@ services:
      - mafia_network
 
   communication_service:
-    image: valeriafz/mafia-communication-service:2.1
+    image: valeriafz/mafia-communication-service:2.2
     deploy:
       replicas: 3
     environment:
       NODE_ENV: production
-      DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication:5432/${PG_COMMUNICATION_DB}"
+      DATABASE_URL: "postgresql://${PG_COMMUNICATION_USER}:${PG_COMMUNICATION_PASSWORD}@postgres_communication_primary:5432/${PG_COMMUNICATION_DB}"
       REDIS_URL: redis://redis_communication:6379
       PORT: 3003
       SERVICE_NAME: communication_service
@@ -437,7 +546,7 @@ services:
       TOWN_SERVICE_URL: ${TOWN_SERVICE_URL}
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
     depends_on:
-      postgres_communication:
+      postgres_communication_primary:
         condition: service_healthy
       redis_communication:
         condition: service_healthy
@@ -454,12 +563,12 @@ services:
      - mafia_network
 
   rumor_service:
-    image: valeriafz/rumors-service:v1.9
+    image: valeriafz/rumors-service:v2.0
     deploy:
       replicas: 3
     restart: always
     environment:
-      DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor:5432/${PG_RUMOR_DB}?schema=public"
+      DATABASE_URL: "postgresql://${PG_RUMOR_USER}:${PG_RUMOR_PASSWORD}@postgres_rumor_primary:5432/${PG_RUMOR_DB}?schema=public"
       NODE_ENV: development
       PORT: 3004
       SERVICE_NAME: rumor_service
@@ -470,13 +579,10 @@ services:
       MESSAGE_BROKER_URL: ${MESSAGE_BROKER_URL}
       USE_MESSAGE_BROKER: ${USE_MESSAGE_BROKER:-false}
     depends_on:
-      postgres_rumor:
+      postgres_rumor_primary:
         condition: service_healthy
       message_broker:
         condition: service_healthy
-    volumes:
-      - postgres_rumor_data:/var/lib/postgresql/data
-      - ./db/rumors_service.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3004/health"]
       interval: 10s
@@ -817,8 +923,12 @@ volumes:
   postgres_user_replica_1_data:
   postgres_user_replica_2_data:
   postgres_shop_data:
-  postgres_communication_data:
-  postgres_rumor_data:
+  postgres_communication_primary_data:
+  postgres_communication_replica_1_data:
+  postgres_communication_replica_2_data:
+  postgres_rumor_primary_data:
+  postgres_rumor_replica_1_data:
+  postgres_rumor_replica_2_data:
   postgres_character_data:
   postgres_town_data:
   postgres_tasks_data:
