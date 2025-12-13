@@ -122,10 +122,10 @@ Functionalities:
 - Player removal - send a request to the Game Service to mark the player with the most votes as dead at the end of the voting phase.
 - Voting log - maintain a record of every vote.
 
----
+## Architecture Diagram
 
 The diagram below represents the architecture diagram and how the microservices communicate between each other.
-<img width="6068" height="4300" alt="image" src="https://github.com/user-attachments/assets/088ba6ab-30bc-4fd8-a9d0-df53835ffb23" />
+<img width="2773" height="1785" alt="Untitled Diagram drawio" src="https://github.com/user-attachments/assets/1400ddf8-e5bd-43ff-99b7-e0171fbb8f0b" />
 
 
 This microservices architecture is organized into three service clusters behind a load balancer and API gateway. The User and Identity cluster handles authentication and character management. The Game Core cluster contains the Game Service as the central hub coordinating with voting, roleplay, communication, and town services for real-time gameplay. The Economy and Commerce cluster manages the shop, tasks, and rumors system. Each cluster has its own database for data independence, while the Game Service acts as the main orchestrator communicating across all services to coordinate game flow and player interactions.
