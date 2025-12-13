@@ -144,25 +144,93 @@ services:
     networks:
       - mafia_network
 
-  postgres_shop:
+  postgres_shop_primary:
+      image: postgres:15
+      container_name: postgres_shop_primary
+      restart: always
+      environment:
+        POSTGRES_USER: ${PG_SHOP_USER}
+        POSTGRES_PASSWORD: ${PG_SHOP_PASSWORD}
+        POSTGRES_DB: ${PG_SHOP_DB}
+      ports:
+        - "5542:5432"
+      volumes:
+        - postgres_shop_primary_data:/var/lib/postgresql/data
+        - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/init.sql
+        - ./db/replication_shop.sql:/docker-entrypoint-initdb.d/01_replication_user.sql
+        - ./db/shop_pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      command: >
+        postgres -c hba_file=/etc/postgresql/pg_hba.conf
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U ${PG_SHOP_USER} -d ${PG_SHOP_DB}" ]
+      networks:
+      - mafia_network
+
+  postgres_shop_replica_1:
     image: postgres:15
-    container_name: shop_db
+    container_name: postgres_shop_replica_1
     restart: always
     environment:
-      POSTGRES_USER: ${PG_SHOP_USER}
-      POSTGRES_PASSWORD: ${PG_SHOP_PASSWORD}
-      POSTGRES_DB: ${PG_SHOP_DB}
+      PGPASSWORD: replica_pass
     volumes:
-      - postgres_shop_data:/var/lib/postgresql/data
-      - ./db/customization_shop_service.sql:/docker-entrypoint-initdb.d/customization_shop_service.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_SHOP_USER} -d ${PG_SHOP_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      - postgres_shop_replica_1_data:/var/lib/postgresql/data
+    command: >
+      bash -c "
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Running base backup...';
+        pg_basebackup -h postgres_shop_primary -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R;
+        chown -R postgres:postgres /var/lib/postgresql/data;
+        chmod 0700 /var/lib/postgresql/data;
+      fi;
+      echo 'Starting standby postgres...';
+      exec su postgres -c 'postgres'
+      "
+    depends_on:
+      postgres_shop_primary:
+        condition: service_healthy
     networks:
-    - mafia_network
+      - mafia_network
+
+  postgres_shop_replica_2:
+    image: postgres:15
+    container_name: postgres_shop_replica_2
+    restart: always
+    environment:
+      PGPASSWORD: replica_pass
+    volumes:
+      - postgres_shop_replica_2_data:/var/lib/postgresql/data
+    command: >
+      bash -c "
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'Running base backup...';
+        pg_basebackup -h postgres_shop_primary -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R;
+        chown -R postgres:postgres /var/lib/postgresql/data;
+        chmod 0700 /var/lib/postgresql/data;
+      fi;
+      echo 'Starting standby postgres...';
+      exec su postgres -c 'postgres'
+      "
+    depends_on:
+      postgres_shop_primary:
+        condition: service_healthy
+    networks:
+      - mafia_network
+
+  postgres_shop_haproxy:
+    image: haproxy:2.8
+    container_name: postgres_shop_haproxy
+    restart: unless-stopped
+    ports:
+      - "5544:5432"
+    volumes:
+      - ./db/postgres_shop.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    command: ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
+    depends_on:
+      - postgres_shop_primary
+      - postgres_shop_replica_1
+      - postgres_shop_replica_2
+    networks:
+      - mafia_network
 
   postgres_communication_primary:
     image: postgres:15
@@ -622,16 +690,16 @@ services:
      - mafia_network
 
   shop-service:
-    image: mycallangel0/shop-service:v1.3.0
+    image: mycallangel0/shop-service:v1.5.0
     deploy:
       replicas: 3
     depends_on:
-      postgres_shop:
-        condition: service_healthy
+      postgres_shop_haproxy:
+        condition: service_started
       service_discovery:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop:5432/${PG_SHOP_DB}"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_shop_haproxy:5432/${PG_SHOP_DB}"
       SPRING_DATASOURCE_USERNAME: ${PG_SHOP_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_SHOP_PASSWORD}
       SERVER_PORT: 3005
@@ -674,7 +742,7 @@ services:
   #    - mafia_network
 
   character_service:
-    image: nelldino/character-service:1.8
+    image: nelldino/character-service:2.7
     deploy:
       replicas: 3
     restart: always
@@ -948,11 +1016,13 @@ services:
 
 
 volumes:
-  pg_dw_dat:
+  pg_dw_data:
   postgres_user_primary_data:
   postgres_user_replica_1_data:
   postgres_user_replica_2_data:
-  postgres_shop_data:
+  postgres_shop_primary_data:
+  postgres_shop_replica_1_data:
+  postgres_shop_replica_2_data:
   postgres_communication_primary_data:
   postgres_communication_replica_1_data:
   postgres_communication_replica_2_data:
